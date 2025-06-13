@@ -13,7 +13,6 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function Dashboard({laporans}) {
-    console.log(laporans)
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Laporan" />

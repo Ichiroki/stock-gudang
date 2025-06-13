@@ -3,6 +3,9 @@
 namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+
+use App\Models\Kategori;
+use App\Models\StokBarang;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -17,7 +20,9 @@ class DatabaseSeeder extends Seeder
             ProdukSeeder::class,
             BarangMasukSeeder::class,
             BarangKeluarSeeder::class,
-            LaporanSeeder::class
+            LaporanSeeder::class,
+            KategoriSeeder::class,
+            StokBarangSeeder::class,
         ]);
     }
 }

@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\BarangKeluar;
 use App\Models\BarangMasuk;
+use App\Models\Kategori;
 use App\Models\Laporan;
 use App\Models\Produk;
+use App\Models\StokBarang;
 use Inertia\Inertia;
 
 class PagesController extends Controller
@@ -36,12 +38,14 @@ class PagesController extends Controller
 
     public function stokBarang()
     {
-        return Inertia::render('barang/stok-barang');
+        $stok_barang = StokBarang::with('product')->get();
+        return Inertia::render('barang/stok-barang', ['stok_barang' => $stok_barang]);
     }
 
     public function kategori()
     {
-        return Inertia::render('barang/kategori');
+        $kategori = Kategori::all();
+        return Inertia::render('barang/kategori', ['kategoris' => $kategori]);
     }
 
     public function laporan()
