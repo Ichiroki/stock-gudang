@@ -7,10 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 class Produk extends Model
 {
     protected $fillable = [
-        "name",
-        "code",
-        "category",
-        "units",
-        "minimum_stock"
+        'name',
+        'code',
+        'category',
+        'units',
+        'minimum_stock',
     ];
 }
