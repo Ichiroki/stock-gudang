@@ -1,6 +1,10 @@
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectSeparator, SelectTrigger } from '@/components/ui/select';
 import AppLayout from '@/layouts/app-layout';
+import { cn } from '@/lib/utils';
 import { type BreadcrumbItem } from '@/types';
 import BarangMasuk from '@/types/BarangMasuk';
 import { Head } from '@inertiajs/react';
@@ -19,6 +23,54 @@ export default function Dashboard({barang_masuk}: BarangMasuk) {
             <Head title="Barang Masuk" />
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4 overflow-x-auto">
                 <div className="flex flex-col md:flex-row gap-3 w-full">
+                    <div className="relative md:w-1/3 overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
+                        <Dialog>
+                            <DialogTrigger className="cursor-pointer bg-green-400 text-gray-900 w-full h-full">
+                                Tambah Barang Masuk +
+                            </DialogTrigger>
+                            <DialogContent>
+                                <DialogHeader>
+                                    <DialogTitle>
+                                        Test
+                                    </DialogTitle>
+                                </DialogHeader>
+                                <DialogDescription className='overflow-auto h-64 md:h-96 scrollable-container'>
+                                    <form>
+                                        <div className='mb-3'>
+                                            <Label>Kode Referensi</Label>
+                                            <Input type="text"></Input>
+                                        </div>
+                                        <div className='mb-3'>
+                                            <Label>Tanggal</Label>
+                                            <Input type="date"></Input>
+                                        </div>
+                                        <div className='mb-3'>
+                                            <Label>Nama Supplier</Label>
+                                            <Input type="text"></Input>
+                                        </div>
+                                        <div className='mb-3 flex flex-col'>
+                                            <Label className='mb-1'>Deskripsi</Label>
+                                            <textarea name="" id="" className={cn(
+                                                "border-input file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground flex h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+                                                "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
+                                                "aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
+                                            )}></textarea>
+                                        </div>
+                                        <div className='mb-3'>
+                                            <Label>Dibuat Oleh</Label>
+                                            <Input type="text"></Input>
+                                        </div>
+                                    </form>
+                                </DialogDescription>
+                                <DialogFooter>
+                                    <Button type='submit' className='w-full bg-green-400'>Kirim</Button>
+                                    <DialogClose>
+                                        <Button className='cursor-pointer bg-rose-500 text-gray-50'>Tutup</Button>
+                                    </DialogClose>
+                                </DialogFooter>
+                            </DialogContent>
+                        </Dialog>
+                    </div>
                     <div className="relative md:w-1/4 overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
                         <Select>
                             <SelectTrigger>
