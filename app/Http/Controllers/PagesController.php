@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\BarangKeluar;
 use App\Models\BarangMasuk;
 use App\Models\Produk;
 use Inertia\Inertia;
@@ -28,7 +29,8 @@ class PagesController extends Controller
 
     public function barangKeluar()
     {
-        return Inertia::render('barang/barang-keluar');
+        $barang_keluar = BarangKeluar::all();
+        return Inertia::render('barang/barang-keluar', ['barang_keluar' => $barang_keluar]);
     }
 
     public function stokBarang()
