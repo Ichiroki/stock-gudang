@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\BarangKeluar;
 use App\Models\BarangMasuk;
+use App\Models\Laporan;
 use App\Models\Produk;
 use Inertia\Inertia;
 
@@ -45,6 +46,7 @@ class PagesController extends Controller
 
     public function laporan()
     {
-        return Inertia::render('laporan');
+        $laporans = Laporan::with('product')->get();
+        return Inertia::render('laporan', ['laporans' => $laporans]);
     }
 }
