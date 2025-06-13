@@ -2,6 +2,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectSeparator, SelectTrigger } from '@/components/ui/select';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
+import BarangKeluar from '@/types/BarangKeluar';
 import { Head } from '@inertiajs/react';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -11,15 +12,7 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-interface BarangKeluarProps {
-    reference_code: string
-    date: Date
-    supplier_name: string
-    description: string
-    created_by: string
-}
-
-export default function Dashboard({barang_keluar}: BarangKeluarProps) {
+export default function Dashboard({barang_keluar}: BarangKeluar) {
     console.log(barang_keluar)
     return (
         <AppLayout breadcrumbs={breadcrumbs}>

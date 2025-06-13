@@ -1,8 +1,8 @@
 import { Input } from '@/components/ui/input';
-import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
 import { Select, SelectItem, SelectTrigger } from '@/components/ui/select';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
+import Product from '@/types/ProdukType';
 import { Head } from '@inertiajs/react';
 import { SelectContent, SelectSeparator } from '@radix-ui/react-select';
 
@@ -14,17 +14,7 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-interface ProductProps {
-    products: {
-        name: string
-        code: string
-        category: string
-        unit: string
-        minimum_stock: number
-    }
-}
-
-export default function Produk({products}: ProductProps) {
+export default function Produk({products}: Product) {
     console.log(products)
     return (
         <AppLayout breadcrumbs={breadcrumbs}>

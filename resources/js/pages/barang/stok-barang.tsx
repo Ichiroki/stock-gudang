@@ -1,8 +1,8 @@
 import { Input } from '@/components/ui/input';
-import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
 import { Select, SelectContent, SelectItem, SelectSeparator, SelectTrigger } from '@/components/ui/select';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
+import StokBarang from '@/types/StokBarangType';
 import { Head } from '@inertiajs/react';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -12,7 +12,7 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-export default function Dashboard({stok_barang}) {
+export default function Dashboard({stok_barang}: StokBarang) {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Stok Barang" />
