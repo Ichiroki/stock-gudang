@@ -57,7 +57,7 @@ export default function Produk({products}: ProductProps) {
                 </div>
                 <div className="relative min-h-[100vh] flex-1 overflow-hidden rounded-xl border border-sidebar-border/70 md:min-h-min dark:border-sidebar-border">
                     {/* Table */}
-                    <div className="overflow-x-auto rounded-lg border border-gray-200 shadow-sm">
+                    <div className="overflow-x-auto rounded-lg border shadow-sm">
                         <table className="min-w-full divide-y divide-gray-200 text-sm">
                             <thead>
                             <tr>

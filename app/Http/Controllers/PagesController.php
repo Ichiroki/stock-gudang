@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\BarangMasuk;
 use App\Models\Produk;
 use Inertia\Inertia;
 
@@ -15,12 +16,14 @@ class PagesController extends Controller
     public function produk()
     {
         $products = Produk::all();
-        return Inertia::render('produk/produk', ['products'=> $products]);
+
+        return Inertia::render('produk/produk', ['products' => $products]);
     }
 
     public function barangMasuk()
     {
-        return Inertia::render('barang/barang-masuk');
+        $barang_masuk = BarangMasuk::all();
+        return Inertia::render('barang/barang-masuk', ['barang_masuk'=> $barang_masuk]);
     }
 
     public function barangKeluar()
