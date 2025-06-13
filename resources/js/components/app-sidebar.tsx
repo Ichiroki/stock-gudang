@@ -4,7 +4,7 @@ import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { BookOpen, Folder, LayoutGrid } from 'lucide-react';
+import { BookOpen, Folder, LayoutGrid, Box, ArrowDownCircle, ArrowUpCircle, Boxes, Tags, FileBarChart, Users } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const mainNavItems: NavItem[] = [
@@ -12,6 +12,41 @@ const mainNavItems: NavItem[] = [
         title: 'Dashboard',
         href: '/dashboard',
         icon: LayoutGrid,
+    },
+    {
+        title: 'Produk',
+        href: '/produk',
+        icon: Box,
+    },
+    {
+        title: 'Barang Masuk',
+        href: '/barang-masuk',
+        icon: ArrowDownCircle,
+    },
+    {
+        title: 'Barang Keluar',
+        href: '/barang-keluar',
+        icon: ArrowUpCircle,
+    },
+    {
+        title: 'Stok Barang',
+        href: '/stok-barang',
+        icon: Boxes,
+    },
+    {
+        title: 'Kategori',
+        href: '/kategori',
+        icon: Tags,
+    },
+    {
+        title: 'Laporan',
+        href: '/laporan',
+        icon: FileBarChart,
+    },
+    {
+        title: 'Users',
+        href: '/users',
+        icon: Users,
     },
 ];
 
