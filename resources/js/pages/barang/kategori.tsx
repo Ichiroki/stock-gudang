@@ -81,13 +81,69 @@ export default function Dashboard({kategoris}: Kategori) {
                             <tr>
                                 <th className="px-4 py-2 text-left font-semibold">#</th>
                                 <th className="px-4 py-2 text-left font-semibold">Nama</th>
+                                <th className="px-4 py-2 text-left font-semibold">Aksi</th>
                             </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-100">
                             {kategoris.map((kategori, index) => (
                                 <tr key={kategori.id} className="hover:bg-gray-50 hover:text-gray-900">
-                                <td className="px-4 py-2">{index + 1}</td>
-                                <td className="px-4 py-2">{kategori.name}</td>
+                                    <td className="px-4 py-2">{index + 1}</td>
+                                    <td className="px-4 py-2">{kategori.name}</td>
+                                    <td className="px-4 py-2 flex items-center justify-center gap-2">
+                                        {/* Edit */}
+                                        <Dialog>
+                                            <DialogTrigger className="cursor-pointer bg-yellow-400 hover:bg-transparent border rounded-md hover:border-yellow-400 transition text-gray-900 w-full px-3">
+                                                Ubah
+                                            </DialogTrigger>
+                                            <DialogContent>
+                                                <DialogHeader>
+                                                    <DialogTitle>
+                                                        Ubah Kategori
+                                                    </DialogTitle>
+                                                </DialogHeader>
+                                                <DialogDescription className='overflow-auto h-64 md:h-96 scrollable-container'>
+                                                    <form>
+                                                        <div className='mb-3'>
+                                                            <Label>Nama</Label>
+                                                            <Input type="text"></Input>
+                                                        </div>
+                                                    </form>
+                                                </DialogDescription>
+                                                <DialogFooter>
+                                                    <Button type='submit' className='w-full bg-green-400'>Kirim</Button>
+                                                    <DialogClose>
+                                                        <Button className='cursor-pointer bg-rose-500 text-gray-50'>Tutup</Button>
+                                                    </DialogClose>
+                                                </DialogFooter>
+                                            </DialogContent>
+                                        </Dialog>
+                                        {/* Edit */}
+                                        {/* Delete */}
+                                        <Dialog>
+                                            <DialogTrigger className="cursor-pointer bg-rose-400 hover:bg-transparent border rounded-md hover:border-rose-400 transition text-gray-900 w-full px-3">
+                                                Hapus
+                                            </DialogTrigger>
+                                            <DialogContent>
+                                                <DialogHeader>
+                                                    <DialogTitle>
+                                                        Hapus Kategori
+                                                    </DialogTitle>
+                                                </DialogHeader>
+                                                <form action="">
+                                                    <DialogDescription className='overflow-auto h-64 md:h-96 scrollable-container flex items-center justify-center'>
+                                                        <p>Apakah anda yakin ingin menghapus data ini ?</p>
+                                                    </DialogDescription>
+                                                    <DialogFooter className='flex flex-col-reverse'>
+                                                        <DialogClose>
+                                                            <Button className='cursor-pointer bg-rose-500 text-gray-50'>Tutup</Button>
+                                                        </DialogClose>
+                                                        <Button type='submit' className='w-full bg-green-400'>Ya, Hapus data ini</Button>
+                                                    </DialogFooter>
+                                                </form>
+                                            </DialogContent>
+                                        </Dialog>
+                                        {/* Delete */}
+                                    </td>
                                 </tr>
                             ))}
                             </tbody>

@@ -122,6 +122,85 @@ export default function Dashboard({barang_keluar}: BarangKeluar) {
                                 <td className="px-4 py-2">{barang.recipient_name}</td>
                                 <td className="px-4 py-2">{barang.description}</td>
                                 <td className="px-4 py-2">{barang.created_by}</td>
+                                <td className="px-4 py-2 flex items-center justify-center gap-2">
+                                        {/* Edit */}
+                                        <Dialog>
+                                            <DialogTrigger className="cursor-pointer bg-yellow-400 hover:bg-transparent border rounded-md hover:border-yellow-400 transition text-gray-900 w-full px-3">
+                                                Ubah
+                                            </DialogTrigger>
+                                            <DialogContent>
+                                                <DialogHeader>
+                                                    <DialogTitle>
+                                                        Ubah Barang Keluar
+                                                    </DialogTitle>
+                                                </DialogHeader>
+                                                <DialogDescription className='overflow-auto h-64 md:h-96 scrollable-container'>
+                                                    <form>
+                                                        <div className='mb-3'>
+                                                            <Label>Nama</Label>
+                                                            <Input type="text"></Input>
+                                                        </div>
+                                                        <div className='mb-3'>
+                                                            <Label>Kode Referensi</Label>
+                                                            <Input type="date"></Input>
+                                                        </div>
+                                                        <div className='mb-3'>
+                                                            <Label>Tanggal</Label>
+                                                            <Input type="text"></Input>
+                                                        </div>
+                                                        <div className='mb-3'>
+                                                            <Label>Nama Penerima</Label>
+                                                            <Input type="text"></Input>
+                                                        </div>
+                                                        <div className='mb-3 flex flex-col'>
+                                                            <Label className='mb-1'>Deskripsi</Label>
+                                                            <textarea name="" id="" className={cn(
+                                                                "border-input file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground flex h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+                                                                "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
+                                                                "aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
+                                                            )}></textarea>
+                                                        </div>
+                                                        <div className='mb-3'>
+                                                            <Label>Dibuat Oleh</Label>
+                                                            <Input type="text"></Input>
+                                                        </div>
+                                                    </form>
+                                                </DialogDescription>
+                                                <DialogFooter>
+                                                    <Button type='submit' className='w-full bg-green-400'>Kirim</Button>
+                                                    <DialogClose>
+                                                        <Button className='cursor-pointer bg-rose-500 text-gray-50'>Tutup</Button>
+                                                    </DialogClose>
+                                                </DialogFooter>
+                                            </DialogContent>
+                                        </Dialog>
+                                        {/* Edit */}
+                                        {/* Delete */}
+                                        <Dialog>
+                                            <DialogTrigger className="cursor-pointer bg-rose-400 hover:bg-transparent border rounded-md hover:border-rose-400 transition text-gray-900 w-full px-3">
+                                                Hapus
+                                            </DialogTrigger>
+                                            <DialogContent>
+                                                <DialogHeader>
+                                                    <DialogTitle>
+                                                        Hapus Barang Keluar
+                                                    </DialogTitle>
+                                                </DialogHeader>
+                                                <form action="">
+                                                    <DialogDescription className='overflow-auto h-64 md:h-96 scrollable-container flex items-center justify-center'>
+                                                        <p>Apakah anda yakin ingin menghapus data ini ?</p>
+                                                    </DialogDescription>
+                                                    <DialogFooter className='flex flex-col-reverse'>
+                                                        <DialogClose>
+                                                            <Button className='cursor-pointer bg-rose-500 text-gray-50'>Tutup</Button>
+                                                        </DialogClose>
+                                                        <Button type='submit' className='w-full bg-green-400'>Ya, Hapus data ini</Button>
+                                                    </DialogFooter>
+                                                </form>
+                                            </DialogContent>
+                                        </Dialog>
+                                        {/* Delete */}
+                                    </td>
                                 </tr>
                             ))}
                             </tbody>
