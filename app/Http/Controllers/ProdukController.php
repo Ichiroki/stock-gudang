@@ -26,20 +26,25 @@ class ProdukController extends Controller
         }
     }
 
-    // public function update(Request $request, $id) {
-    //     $validated = $request->validate( [
-    //         "name" => "required|string",
-    //         "code" => "required|string",
-    //         "category" => "required|string",
-    //         "units" => "required|string",
-    //         "minimum_stock" => "required|integer"
-    //     ]);
+    public function edit($id) {
+        $produk = Produk::findOrFail($id);
+        return response()->json(["status" => "success", "data" => $produk], 200);
+    }
 
-    //     $produk = Produk::findOrFail($id);
-    //     $produk->update($validated);
+    public function update(Request $request, $id) {
+        $validated = $request->validate( [
+            "name" => "required|string",
+            "code" => "required|string",
+            "category" => "required|string",
+            "units" => "required|string",
+            "minimum_stock" => "required|integer"
+        ]);
 
-    //     return
-    // }
+        $produk = Produk::findOrFail($id);
+        $produk->update($validated);
+
+        return response()->json(["status" => 'success'], 200);
+    }
 
     public function delete($id) {
         $produk = Produk::findOrFail($id);

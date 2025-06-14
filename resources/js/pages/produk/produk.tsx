@@ -8,6 +8,7 @@ import { type BreadcrumbItem } from '@/types';
 import Product from '@/types/ProdukType';
 import { Head, router } from '@inertiajs/react';
 import { SelectContent, SelectSeparator } from '@radix-ui/react-select';
+import axios from 'axios';
 import { useState } from 'react';
 import { ToastContainer, toast } from 'react-toastify'
 
@@ -29,9 +30,43 @@ export default function Produk({products}: Product) {
         minimum_stock: ''
     })
 
+    const [editFormData, setEditFormData] = useState({
+        id: 0,
+        name: '',
+        code: '',
+        category: '',
+        units: '',
+        minimum_stock: ''
+    })
+
+    const fetchProduct = async (id: number) => {
+        try {
+            await fetch(`/produk/${id}/edit`)
+            .then((res) => res.json())
+            .then((res) => {
+                const data = res.data
+                setEditFormData({
+                    id: data.id,
+                    name: data.name,
+                    code: data.code,
+                    category: data.category,
+                    units: data.units,
+                    minimum_stock: data.minimum_stock
+                })
+            })
+        } catch(e) {
+            console.error(e)
+        }
+    }
+
     const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target
         setFormData(prev => ({...prev, [name]: value}))
+    }
+
+    const handleEditChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target
+        setEditFormData(prev => ({...prev, [name]: value}))
     }
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -51,6 +86,25 @@ export default function Produk({products}: Product) {
                     }
                 }
             })
+        } catch(e) {
+            console.error("error njir", e)
+        }
+    }
+
+    const handleUpdate = async (e: React.FormEvent) => {
+        e.preventDefault()
+        try {
+            const res = await axios.put(`/produk/${editFormData.id}/update`, {
+                name: editFormData.name,
+                code: editFormData.code,
+                category: editFormData.category,
+                units: editFormData.units,
+                minimum_stock: editFormData.minimum_stock,
+            })
+
+            if(res.status == 200 && res.data.status == "success") {
+                toast("Produk berhasil diperbarui")
+            }
         } catch(e) {
             console.error("error njir", e)
         }
@@ -176,7 +230,7 @@ export default function Produk({products}: Product) {
                                     <td className="px-4 py-2 flex items-center justify-center gap-2">
                                         {/* Edit */}
                                         <Dialog>
-                                            <DialogTrigger className="cursor-pointer bg-yellow-400 hover:bg-transparent border rounded-md hover:border-yellow-400 transition text-gray-900 w-full px-3">
+                                            <DialogTrigger onClick={() => fetchProduct(product.id)} className="cursor-pointer bg-yellow-400 hover:bg-transparent border rounded-md hover:border-yellow-400 transition text-gray-900 w-full px-3">
                                                 Ubah
                                             </DialogTrigger>
                                             <DialogContent>
@@ -185,36 +239,36 @@ export default function Produk({products}: Product) {
                                                         Ubah Produk
                                                     </DialogTitle>
                                                 </DialogHeader>
-                                                <DialogDescription className='overflow-auto h-64 md:h-96 scrollable-container'>
-                                                    <form>
+                                                <form onSubmit={handleUpdate}>
+                                                    <DialogDescription className='overflow-auto h-64 md:h-96 scrollable-container'>
                                                         <div className='mb-3'>
                                                             <Label>Nama</Label>
-                                                            <Input type="text"></Input>
+                                                            <Input type="text" name="name" onChange={handleEditChange} value={editFormData.name}></Input>
                                                         </div>
                                                         <div className='mb-3'>
                                                             <Label>Kode</Label>
-                                                            <Input type="date"></Input>
+                                                            <Input type="text" name="code" onChange={handleEditChange} value={editFormData.code}></Input>
                                                         </div>
                                                         <div className='mb-3'>
                                                             <Label>Kategori</Label>
-                                                            <Input type="text"></Input>
+                                                            <Input type="text" name="category" onChange={handleEditChange} value={editFormData.category}></Input>
                                                         </div>
                                                         <div className='mb-3'>
                                                             <Label>Satuan</Label>
-                                                            <Input type="text"></Input>
+                                                            <Input type="text" name="units" onChange={handleEditChange} value={editFormData.units}></Input>
                                                         </div>
                                                         <div className='mb-3'>
                                                             <Label>Stok Minimum</Label>
-                                                            <Input type="text"></Input>
+                                                            <Input type="text" name="minimum_stock" onChange={handleEditChange} value={editFormData.minimum_stock}></Input>
                                                         </div>
-                                                    </form>
-                                                </DialogDescription>
-                                                <DialogFooter>
-                                                    <Button type='submit' className='w-full bg-green-400'>Kirim</Button>
-                                                    <DialogClose>
-                                                        <Button className='cursor-pointer bg-rose-500 text-gray-50'>Tutup</Button>
-                                                    </DialogClose>
-                                                </DialogFooter>
+                                                    </DialogDescription>
+                                                    <DialogFooter>
+                                                        <Button type='submit' className='w-full bg-green-400'>Kirim</Button>
+                                                        <DialogClose className='cursor-pointer bg-rose-500 text-gray-50'>
+                                                            Tutup
+                                                        </DialogClose>
+                                                    </DialogFooter>
+                                                </form>
                                             </DialogContent>
                                         </Dialog>
                                         {/* Edit */}
@@ -231,7 +285,7 @@ export default function Produk({products}: Product) {
                                                 </DialogHeader>
                                                 <form onSubmit={handleDelete(product.id)}>
                                                     <DialogDescription className='overflow-auto h-64 md:h-96 scrollable-container flex items-center justify-center'>
-                                                        <p>Apakah anda yakin ingin menghapus data ini ?</p>
+                                                        Apakah anda yakin ingin menghapus data ini ?
                                                     </DialogDescription>
                                                     <DialogFooter className='flex flex-col-reverse'>
                                                         <DialogClose>
