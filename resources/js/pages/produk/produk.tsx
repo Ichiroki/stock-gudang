@@ -1,4 +1,7 @@
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Select, SelectItem, SelectTrigger } from '@/components/ui/select';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
@@ -21,7 +24,51 @@ export default function Produk({products}: Product) {
             <Head title="Produk" />
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4 overflow-x-auto">
                 <div className="flex flex-col md:flex-row gap-3 w-full">
-                    <div className="relative md:w-1/4 overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
+                    <div className="relative md:w-1/3 overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
+                        <Dialog>
+                            <DialogTrigger className="cursor-pointer bg-green-400 hover:bg-transparent hover:border rounded-xl hover:border-green-400 transition text-gray-900 w-full h-full">
+                                Tambah Produk +
+                            </DialogTrigger>
+                            <DialogContent>
+                                <DialogHeader>
+                                    <DialogTitle>
+                                        Tambah Produk
+                                    </DialogTitle>
+                                </DialogHeader>
+                                <DialogDescription className='overflow-auto h-64 md:h-96 scrollable-container'>
+                                    <form>
+                                        <div className='mb-3'>
+                                            <Label>Nama</Label>
+                                            <Input type="text"></Input>
+                                        </div>
+                                        <div className='mb-3'>
+                                            <Label>Kode</Label>
+                                            <Input type="date"></Input>
+                                        </div>
+                                        <div className='mb-3'>
+                                            <Label>Kategori</Label>
+                                            <Input type="text"></Input>
+                                        </div>
+                                        <div className='mb-3'>
+                                            <Label>Satuan</Label>
+                                            <Input type="text"></Input>
+                                        </div>
+                                        <div className='mb-3'>
+                                            <Label>Stok Minimum</Label>
+                                            <Input type="text"></Input>
+                                        </div>
+                                    </form>
+                                </DialogDescription>
+                                <DialogFooter>
+                                    <Button type='submit' className='w-full bg-green-400'>Kirim</Button>
+                                    <DialogClose>
+                                        <Button className='cursor-pointer bg-rose-500 text-gray-50'>Tutup</Button>
+                                    </DialogClose>
+                                </DialogFooter>
+                            </DialogContent>
+                        </Dialog>
+                    </div>
+                    <div className="relative md:w-1/4 rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
                         <Select>
                             <SelectTrigger>
                                 Select

@@ -25,13 +25,13 @@ export default function Dashboard({barang_masuk}: BarangMasuk) {
                 <div className="flex flex-col md:flex-row gap-3 w-full">
                     <div className="relative md:w-1/3 overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
                         <Dialog>
-                            <DialogTrigger className="cursor-pointer bg-green-400 text-gray-900 w-full h-full">
+                        <DialogTrigger className="cursor-pointer bg-green-400 hover:bg-transparent hover:border rounded-xl hover:border-green-400 transition text-gray-900 w-full h-full">
                                 Tambah Barang Masuk +
                             </DialogTrigger>
                             <DialogContent>
                                 <DialogHeader>
                                     <DialogTitle>
-                                        Test
+                                        Tambah Barang Masuk
                                     </DialogTitle>
                                 </DialogHeader>
                                 <DialogDescription className='overflow-auto h-64 md:h-96 scrollable-container'>
