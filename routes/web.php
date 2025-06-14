@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\PagesController;
+use App\Http\Controllers\ProdukController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -9,6 +10,16 @@ Route::get('/', function () {
 })->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
+    Route::prefix('produk')->group(function(){
+        Route::get('/', [PagesController::class,'produk'])->name('produk');
+
+        Route::post('/store', [ProdukController::class, 'store'])->name('produk.store');
+
+        Route::get('/{id}/edit', [ProdukController::class, 'edit'])->name('produk.edit');
+        Route::put('/{id}/update', [ProdukController::class, 'update'])->name('produk.update');
+
+        Route::delete('/{id}/delete', [ProdukController::class, 'delete'])->name('produk.delete');
+    });
     Route::get('dashboard', [PagesController::class, 'dashboard'])->name('dashboard');
     Route::get('produk', [PagesController::class, 'produk'])->name('produk');
     Route::get('barang-masuk', [PagesController::class, 'barangMasuk'])->name('barang-masuk');
@@ -16,6 +27,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('stok-barang', [PagesController::class, 'stokBarang'])->name('stok-barang');
     Route::get('kategori', [PagesController::class, 'kategori'])->name('kategori');
     Route::get('laporan', [PagesController::class, 'laporan'])->name('laporan');
+
 });
 
 require __DIR__.'/settings.php';

@@ -6,8 +6,10 @@ import { Select, SelectItem, SelectTrigger } from '@/components/ui/select';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import Product from '@/types/ProdukType';
-import { Head } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import { SelectContent, SelectSeparator } from '@radix-ui/react-select';
+import { useState } from 'react';
+import { ToastContainer, toast } from 'react-toastify'
 
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -18,10 +20,65 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function Produk({products}: Product) {
-    console.log(products)
+
+    const [formData, setFormData] = useState({
+        name: '',
+        code: '',
+        category: '',
+        units: '',
+        minimum_stock: ''
+    })
+
+    const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target
+        setFormData(prev => ({...prev, [name]: value}))
+    }
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault()
+        try {
+            router.post('/produk/store', formData, {
+                onSuccess: (page) => {
+                    const flash = page.props.flash
+                    if(flash?.code == 201 && flash?.status == "success") {
+                        return toast("Produk berhasil disimpan")
+                    }
+                },
+                onError: (page) => {
+                    const flash = page.props.flash
+                    if(flash?.code == 404 && flash?.status == "failed") {
+                        return toast("Produk gagal tersimpan")
+                    }
+                }
+            })
+        } catch(e) {
+            console.error("error njir", e)
+        }
+    }
+
+    const handleDelete = (id: number) => async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+
+        router.delete(`/produk/${id}/delete`, {
+            onSuccess: (page) => {
+                const flash = page.props.flash;
+                if (flash?.code === 200 && flash?.status === "success") {
+                    return toast("Produk berhasil dihapus");
+                }
+            },
+            onError: (page) => {
+                const flash = page.props.flash;
+                if (flash?.code == 404 && flash?.status == "failed") {
+                    return toast("Produk gagal dihapus");
+                }
+            }
+        });
+    };
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Produk" />
+            <ToastContainer/>
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4 overflow-x-auto">
                 <div className="flex flex-col md:flex-row gap-3 w-full">
                     <div className="relative md:w-1/3 overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
@@ -35,36 +92,36 @@ export default function Produk({products}: Product) {
                                         Tambah Produk
                                     </DialogTitle>
                                 </DialogHeader>
-                                <DialogDescription className='overflow-auto h-64 md:h-96 scrollable-container'>
-                                    <form>
-                                        <div className='mb-3'>
-                                            <Label>Nama</Label>
-                                            <Input type="text"></Input>
-                                        </div>
-                                        <div className='mb-3'>
-                                            <Label>Kode</Label>
-                                            <Input type="date"></Input>
-                                        </div>
-                                        <div className='mb-3'>
-                                            <Label>Kategori</Label>
-                                            <Input type="text"></Input>
-                                        </div>
-                                        <div className='mb-3'>
-                                            <Label>Satuan</Label>
-                                            <Input type="text"></Input>
-                                        </div>
-                                        <div className='mb-3'>
-                                            <Label>Stok Minimum</Label>
-                                            <Input type="text"></Input>
-                                        </div>
-                                    </form>
-                                </DialogDescription>
-                                <DialogFooter>
-                                    <Button type='submit' className='w-full bg-green-400'>Kirim</Button>
-                                    <DialogClose>
-                                        <Button className='cursor-pointer bg-rose-500 text-gray-50'>Tutup</Button>
-                                    </DialogClose>
-                                </DialogFooter>
+                                <form onSubmit={handleSubmit}>
+                                    <DialogDescription className='overflow-auto h-64 md:h-96 scrollable-container'>
+                                            <div className='mb-3'>
+                                                <Label>Nama</Label>
+                                                <Input type="text" name="name" value={formData.name} onChange={handleChange}></Input>
+                                            </div>
+                                            <div className='mb-3'>
+                                                <Label>Kode</Label>
+                                                <Input type="text" name="code" value={formData.code} onChange={handleChange}></Input>
+                                            </div>
+                                            <div className='mb-3'>
+                                                <Label>Kategori</Label>
+                                                <Input type="text" name="category" value={formData.category} onChange={handleChange}></Input>
+                                            </div>
+                                            <div className='mb-3'>
+                                                <Label>Satuan</Label>
+                                                <Input type="text" name="units" value={formData.units} onChange={handleChange}></Input>
+                                            </div>
+                                            <div className='mb-3'>
+                                                <Label>Stok Minimum</Label>
+                                                <Input type="text" name="minimum_stock" value={formData.minimum_stock} onChange={handleChange}></Input>
+                                            </div>
+                                    </DialogDescription>
+                                    <DialogFooter>
+                                        <Button type='submit' className='w-full bg-green-400'>Kirim</Button>
+                                        <DialogClose>
+                                            <Button className='cursor-pointer bg-rose-500 text-gray-50'>Tutup</Button>
+                                        </DialogClose>
+                                    </DialogFooter>
+                                </form>
                             </DialogContent>
                         </Dialog>
                     </div>
@@ -172,7 +229,7 @@ export default function Produk({products}: Product) {
                                                         Hapus Produk
                                                     </DialogTitle>
                                                 </DialogHeader>
-                                                <form action="">
+                                                <form onSubmit={handleDelete(product.id)}>
                                                     <DialogDescription className='overflow-auto h-64 md:h-96 scrollable-container flex items-center justify-center'>
                                                         <p>Apakah anda yakin ingin menghapus data ini ?</p>
                                                     </DialogDescription>
