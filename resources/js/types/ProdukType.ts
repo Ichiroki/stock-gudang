@@ -7,8 +7,8 @@ type ProductType = {
     minimum_stock: number
 }
 
-interface Product {
+interface Products {
     products: ProductType[]
 }
 
-export default Product
+export default Products

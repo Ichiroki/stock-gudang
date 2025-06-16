@@ -26,6 +26,19 @@ class ProdukController extends Controller
         }
     }
 
+    public function show($id) {
+        $produk = Produk::find($id);
+
+        if(!$produk) {
+            return response()->json([
+                'status' => "failed",
+                'message' => 'Produk tidak ditemukan'
+            ], 404);
+        }
+
+        return response()->json(['status' => 'success', 'data' => $produk], 200);
+    }
+
     public function edit($id) {
         $produk = Produk::findOrFail($id);
         return response()->json(["status" => "success", "data" => $produk], 200);

@@ -5,12 +5,11 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectItem, SelectTrigger } from '@/components/ui/select';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
-import Product from '@/types/ProdukType';
 import { Head, router } from '@inertiajs/react';
 import { SelectContent, SelectSeparator } from '@radix-ui/react-select';
 import axios from 'axios';
 import { useState } from 'react';
-import { ToastContainer, toast } from 'react-toastify'
+import { ToastContainer, toast } from 'react-toastify';
 
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -20,7 +19,18 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
+interface Product {
+    id: number,
+    name: string,
+    code: string,
+    category: string,
+    units: number,
+    minimum_stock: number
+}
+
 export default function Produk({products}: Product) {
+
+    const [produk, setProduk] = useState<Product | null>(null)
 
     const [formData, setFormData] = useState({
         name: '',
@@ -129,6 +139,18 @@ export default function Produk({products}: Product) {
         });
     };
 
+    const showProduct = async (id: number) => {
+        try {
+            await fetch(`/produk/${id}`)
+            .then((res) => res.json())
+            .then((res) => {
+                setProduk(res.data)
+            })
+        } catch(e) {
+            console.error('njir error', e)
+        }
+    }
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Produk" />
@@ -228,6 +250,52 @@ export default function Produk({products}: Product) {
                                     <td className="px-4 py-2">{product.units}</td>
                                     <td className="px-4 py-2">{product.minimum_stock}</td>
                                     <td className="px-4 py-2 flex items-center justify-center gap-2">
+                                        {/* Show */}
+                                        <Dialog>
+                                            <DialogTrigger onClick={() => showProduct(product.id)} className="cursor-pointer bg-green-400 hover:bg-transparent border rounded-md hover:border-green-400 transition text-gray-900 w-full px-3">
+                                                Lihat
+                                            </DialogTrigger>
+                                            <DialogContent>
+                                                <DialogHeader>
+                                                    <DialogTitle>
+                                                        Ubah Produk
+                                                    </DialogTitle>
+                                                </DialogHeader>
+                                                <DialogDescription className='overflow-auto h-64 md:h-96 scrollable-container'>
+                                                    {produk && (
+                                                    <>
+                                                        <div className='mb-3'>
+                                                            <Label>Nama</Label>
+                                                            <Input type="text" name="name" defaultValue={produk.name}></Input>
+                                                        </div>
+                                                        <div className='mb-3'>
+                                                            <Label>Kode</Label>
+                                                            <Input type="text" name="code" defaultValue={produk.code}></Input>
+                                                        </div>
+                                                        <div className='mb-3'>
+                                                            <Label>Kategori</Label>
+                                                            <Input type="text" name="category" defaultValue={produk.category}></Input>
+                                                        </div>
+                                                        <div className='mb-3'>
+                                                            <Label>Satuan</Label>
+                                                            <Input type="text" name="units" defaultValue={produk.units}></Input>
+                                                        </div>
+                                                        <div className='mb-3'>
+                                                            <Label>Stok Minimum</Label>
+                                                            <Input type="text" name="minimum_stock" defaultValue={produk.minimum_stock}></Input>
+                                                        </div>
+                                                    </>
+                                                    )}
+                                                </DialogDescription>
+                                                <DialogFooter>
+                                                    <Button type='submit' className='w-full bg-green-400'>Kirim</Button>
+                                                    <DialogClose className='cursor-pointer bg-rose-500 text-gray-50'>
+                                                        Tutup
+                                                    </DialogClose>
+                                                </DialogFooter>
+                                            </DialogContent>
+                                        </Dialog>
+                                        {/* Show */}
                                         {/* Edit */}
                                         <Dialog>
                                             <DialogTrigger onClick={() => fetchProduct(product.id)} className="cursor-pointer bg-yellow-400 hover:bg-transparent border rounded-md hover:border-yellow-400 transition text-gray-900 w-full px-3">
