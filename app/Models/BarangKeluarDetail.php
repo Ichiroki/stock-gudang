@@ -24,6 +24,6 @@ class BarangKeluarDetail extends Model
 
     public function product()
     {
-        return $this->belongsTo(Produk::class);
+        return $this->belongsTo(Produk::class, 'produk_id', 'id');
     }
 }

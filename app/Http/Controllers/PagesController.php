@@ -33,8 +33,9 @@ class PagesController extends Controller
 
     public function barangKeluar()
     {
+        $product = Produk::select(['id', 'name', "unit_price"])->get();
         $barang_keluar = BarangKeluar::all();
-        return Inertia::render('barang/barang-keluar', ['barang_keluar' => $barang_keluar]);
+        return Inertia::render('barang/barang-keluar', ['barang_keluar' => $barang_keluar, 'product' => $product]);
     }
 
     public function stokBarang()

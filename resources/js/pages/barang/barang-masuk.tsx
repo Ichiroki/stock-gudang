@@ -32,7 +32,6 @@ interface BarangMasukType {
             unit_price: number
         }
     }[]
-
 }
 
 export default function BarangMasukPage({barang_masuk, product}: BarangMasuk) {

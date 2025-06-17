@@ -10,6 +10,11 @@ type BarangKeluarType = {
 
 interface BarangKeluar {
     barang_keluar: BarangKeluarType[]
+    product: {
+        id: string
+        name: string
+        unit_price: number
+    }[]
 }
 
 export default BarangKeluar

@@ -1,7 +1,7 @@
 <?php
 
-use App\Http\Controllers\{PagesController, 
-    ProdukController, 
+use App\Http\Controllers\{PagesController,
+    ProdukController,
     BarangController
 };
 use Illuminate\Support\Facades\Route;
@@ -36,6 +36,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::put('/{id}/update', [BarangController::class, 'updateMasuk'])->name('barang-masuk.update');
 
         Route::delete('/{id}/delete', [BarangController::class, 'deleteMasuk'])->name('barang-masuk.delete');
+    });
+
+    Route::prefix('barang-keluar')->group(function() {
+        Route::get('/', [PagesController::class, 'barangKeluar'])->name('barang-keluar');
+
+        Route::post('/store', [BarangController::class, 'storeKeluar'])->name('barang-keluar.store');
+
+        Route::get('/{id}', [BarangController::class, 'showKeluar'])->name('barang-keluar.show');
+
+        Route::get('/{id}/edit', [BarangController::class, 'editKeluar'])->name('barang-keluar.edit');
+        Route::put('/{id}/update', [BarangController::class, 'updateKeluar'])->name('barang-keluar.update');
+
+        Route::delete('/{id}/delete', [BarangController::class, 'deleteKeluar'])->name('barang-keluar.delete');
     });
 
 
