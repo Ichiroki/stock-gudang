@@ -1,9 +1,11 @@
 <?php
 
-use App\Http\Controllers\{PagesController,
+use App\Http\Controllers\{
+    PagesController,
     ProdukController,
     BarangController,
-    StokBarangController
+    StokBarangController,
+    LaporanController
 };
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -65,10 +67,22 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/{id}/delete', [StokBarangController::class, 'delete'])->name('stok-barang.delete');
     });
 
+    Route::prefix('laporan')->group(function() {
+        Route::get('/', [PagesController::class, 'laporan'])->name('laporan');
+
+        Route::post('/store', [LaporanController::class, 'store'])->name('laporan.store');
+
+        Route::get('/{id}', [LaporanController::class, 'show'])->name('laporan.show');
+
+        Route::get('/{id}/edit', [LaporanController::class, 'edit'])->name('laporan.edit');
+        Route::put('/{id}/update', [LaporanController::class, 'update'])->name('laporan.update');
+
+        Route::delete('/{id}/delete', [LaporanController::class, 'delete'])->name('laporan.delete');
+    });
+
 
     Route::get('dashboard', [PagesController::class, 'dashboard'])->name('dashboard');
     Route::get('kategori', [PagesController::class, 'kategori'])->name('kategori');
-    Route::get('laporan', [PagesController::class, 'laporan'])->name('laporan');
 
 });
 

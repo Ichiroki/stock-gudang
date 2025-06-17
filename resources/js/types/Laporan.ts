@@ -15,6 +15,10 @@ type LaporanType = {
 
 interface Laporan {
     laporans: LaporanType[]
+    products: {
+        id: number
+        name: string
+    }[]
 }
 
 export default Laporan

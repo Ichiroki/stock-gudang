@@ -53,7 +53,8 @@ class PagesController extends Controller
 
     public function laporan()
     {
+        $products = Produk::select(['id', 'name'])->get();
         $laporans = Laporan::with('product')->get();
-        return Inertia::render('laporan', ['laporans' => $laporans]);
+        return Inertia::render('laporan', ['laporans' => $laporans, 'products' => $products]);
     }
 }
