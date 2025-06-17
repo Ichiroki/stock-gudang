@@ -31,8 +31,8 @@ return new class extends Migration
             $table->string('notes')->nullable();
             $table->timestamps();
 
-            $table->foreign('barang_masuk_id')->references('id')->on('barang_masuk_masters');
-            $table->foreign('produk_id')->references('id')->on('produks');
+            $table->foreign('barang_masuk_id')->references('id')->on('barang_masuk_masters')->onDelete('cascade');
+            $table->foreign('produk_id')->references('id')->on('produks')->onDelete('cascade');
         });
     }
 

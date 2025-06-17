@@ -164,20 +164,20 @@ export default function BarangMasukPage({barang_masuk, product}: BarangMasuk) {
     const handleDelete = (id: number) => async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
-        router.delete(`/barang-masuk/${id}/delete`, {
-            onSuccess: (page) => {
-                const flash = page.props.flash;
-                if (flash?.code === 200 && flash?.status === "success") {
-                    return toast("barang-masuk berhasil dihapus");
+        try {
+            await axios.delete(`/barang-masuk/${id}/delete`)
+            .then((res) => {
+                const status = res.data.status
+
+                if(res.status && status === "success") {
+                    return toast("data barang masuk ini berhasil dihapus");
+                } else {
+                    return toast("data barang masuk ini gagal dihapus");
                 }
-            },
-            onError: (page) => {
-                const flash = page.props.flash;
-                if (flash?.code == 404 && flash?.status == "failed") {
-                    return toast("barang-masuk gagal dihapus");
-                }
-            }
-        });
+            })
+        } catch(e) {
+            return toast(`Internal server error, try again ${e}`)
+        }
     };
 
     const showBarangMasuk = async (id: number) => {
@@ -468,7 +468,7 @@ export default function BarangMasukPage({barang_masuk, product}: BarangMasuk) {
                                                         Hapus Barang Masuk
                                                     </DialogTitle>
                                                 </DialogHeader>
-                                                <form action="" onSubmit={() => handleDelete(barang.id)}>
+                                                <form onSubmit={handleDelete(barang.id)}>
                                                     <DialogDescription className='overflow-auto h-64 md:h-96 scrollable-container flex items-center justify-center'>
                                                         <p>Apakah anda yakin ingin menghapus data ini ?</p>
                                                     </DialogDescription>

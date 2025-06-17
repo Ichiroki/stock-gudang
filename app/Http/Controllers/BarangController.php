@@ -89,9 +89,17 @@ class BarangController extends Controller
 
     public function deleteMasuk($id) {
         $barangMasuk = BarangMasuk::findOrFail($id);
-        $barangMasuk->delete();
 
-        return redirect()->back()->with(["code"=> 200, "status"=> "success"]);
+        try {
+            BarangMasukDetail::where('barang_masuk_id', '=', $barangMasuk->id)->delete();
+
+            $barangMasuk->delete();
+
+            return response()->json(['status' => 'success'], 200);
+        } catch(Exception $e) {
+            DB::rollBack();
+            return response()->json(['status' => 'failed', 'error' => $e->getMessage()], 404);
+        }
     }
 
     public function storeKeluar(Request $request) {
