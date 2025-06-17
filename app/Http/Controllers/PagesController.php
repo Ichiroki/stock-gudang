@@ -40,8 +40,9 @@ class PagesController extends Controller
 
     public function stokBarang()
     {
+        $products = Produk::select(['id', 'name'])->get();
         $stok_barang = StokBarang::with('product')->get();
-        return Inertia::render('barang/stok-barang', ['stok_barang' => $stok_barang]);
+        return Inertia::render('barang/stok-barang', ['stok_barang' => $stok_barang, 'products' => $products]);
     }
 
     public function kategori()

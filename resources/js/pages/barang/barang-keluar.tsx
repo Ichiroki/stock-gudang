@@ -22,7 +22,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 interface BarangKeluarType {
     reference_code: string
     date: string
-    supplier_name: string
+    recipient_name: string
     description: string
     created_by: string
     details: {
@@ -34,10 +34,9 @@ interface BarangKeluarType {
     }[]
 }
 
-export default function Dashboard({barang_keluar, product}: BarangKeluar) {
+export default function BarangKeluarDashboard({barang_keluar, product}: BarangKeluar) {
 
     const [barangKeluar, setBarangKeluar] = useState<BarangKeluarType | null>(null)
-    console.log(barangKeluar)
 
     const [formData, setFormData] = useState({
         reference_code: '',
@@ -210,37 +209,33 @@ export default function Dashboard({barang_keluar, product}: BarangKeluar) {
                                         Tambah Barang Keluar
                                     </DialogTitle>
                                 </DialogHeader>
-                                <DialogDescription className='overflow-auto h-64 md:h-96 scrollable-container'>
-                                    <form>
-                                        <div className='mb-3'>
-                                            <Label>Nama</Label>
-                                            <Input type="text"></Input>
-                                        </div>
-                                        <div className='mb-3'>
-                                            <Label>Kode Referensi</Label>
-                                            <Input type="date"></Input>
-                                        </div>
-                                        <div className='mb-3'>
-                                            <Label>Tanggal</Label>
-                                            <Input type="text"></Input>
-                                        </div>
-                                        <div className='mb-3'>
-                                            <Label>Nama Penerima</Label>
-                                            <Input type="text"></Input>
-                                        </div>
-                                        <div className='mb-3 flex flex-col'>
-                                            <Label className='mb-1'>Deskripsi</Label>
-                                            <textarea name="" id="" className={cn(
-                                                "border-input file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground flex h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
-                                                "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
-                                                "aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
-                                            )}></textarea>
-                                        </div>
-                                        <div className='mb-3'>
-                                            <Label>Dibuat Oleh</Label>
-                                            <Input type="text"></Input>
-                                        </div>
-                                        <div className='mb-3'>
+                                <form onSubmit={handleSubmit}>
+                                    <DialogDescription className='overflow-auto h-64 md:h-96 scrollable-container'>
+                                            <div className='mb-3'>
+                                                <Label>Kode Referensi</Label>
+                                                <Input type="text" name="reference_code" onChange={handleChange} value={formData.reference_code}></Input>
+                                            </div>
+                                            <div className='mb-3'>
+                                                <Label>Tanggal</Label>
+                                                <Input type="date" name="date" onChange={handleChange} value={formData.date}></Input>
+                                            </div>
+                                            <div className='mb-3'>
+                                                <Label>Nama Supplier</Label>
+                                                <Input type="text" name="supplier_name" onChange={handleChange} value={formData.supplier_name}></Input>
+                                            </div>
+                                            <div className='mb-3 flex flex-col'>
+                                                <Label className='mb-1'>Deskripsi</Label>
+                                                <textarea name="description" id="" className={cn(
+                                                    "border-input file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground flex h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+                                                    "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
+                                                    "aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
+                                                )}>{formData.description}</textarea>
+                                            </div>
+                                            <div className='mb-3'>
+                                                <Label>Dibuat Oleh</Label>
+                                                <Input type="text" name="created_by" onChange={handleChange} value={formData.created_by}></Input>
+                                            </div>
+                                            <div className='mb-3'>
                                                 <Label>Detail Produk</Label>
                                                 {formData.product_details.map((detail, index) => (
                                                     <div key={index} className="mb-3 border p-3 rounded-md">
@@ -296,14 +291,14 @@ export default function Dashboard({barang_keluar, product}: BarangKeluar) {
                                             <Button type="button" className="w-full mt-2 bg-yellow-400" onClick={addProductField}>
                                                 + Tambah Produk
                                             </Button>
-                                    </form>
-                                </DialogDescription>
-                                <DialogFooter>
-                                    <Button type='submit' className='w-full bg-green-400'>Kirim</Button>
-                                    <DialogClose>
-                                        <Button className='cursor-pointer bg-rose-500 text-gray-50'>Tutup</Button>
-                                    </DialogClose>
-                                </DialogFooter>
+                                    </DialogDescription>
+                                    <DialogFooter>
+                                        <Button type='submit' className='w-full bg-green-400'>Kirim</Button>
+                                        <DialogClose>
+                                            <Button className='cursor-pointer bg-rose-500 text-gray-50'>Tutup</Button>
+                                        </DialogClose>
+                                    </DialogFooter>
+                                </form>
                             </DialogContent>
                         </Dialog>
                     </div>
@@ -379,10 +374,10 @@ export default function Dashboard({barang_keluar, product}: BarangKeluar) {
                                                         </div>
                                                         <div className='mb-3'>
                                                             <Label>Nama Supplier</Label>
-                                                            <Input type="text" name="category" defaultValue={barangKeluar.supplier_name}></Input>
+                                                            <Input type="text" name="category" defaultValue={barangKeluar.recipient_name}></Input>
                                                         </div>
                                                         <div className='mb-3'>
-                                                            <Label>Unit</Label>
+                                                            <Label>Deskripsi</Label>
                                                             <Input type="text" name="units" defaultValue={barangKeluar.description}></Input>
                                                         </div>
                                                         <div className='mb-3'>

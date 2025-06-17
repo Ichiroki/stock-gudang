@@ -2,7 +2,8 @@
 
 use App\Http\Controllers\{PagesController,
     ProdukController,
-    BarangController
+    BarangController,
+    StokBarangController
 };
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -51,11 +52,21 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/{id}/delete', [BarangController::class, 'deleteKeluar'])->name('barang-keluar.delete');
     });
 
+    Route::prefix('stok-barang')->group(function() {
+        Route::get('/', [PagesController::class, 'stokBarang'])->name('stok-barang');
+
+        Route::post('/store', [StokBarangController::class, 'store'])->name('stok-barang.store');
+
+        Route::get('/{id}', [StokBarangController::class, 'show'])->name('stok-barang.show');
+
+        Route::get('/{id}/edit', [StokBarangController::class, 'edit'])->name('stok-barang.edit');
+        Route::put('/{id}/update', [StokBarangController::class, 'update'])->name('stok-barang.update');
+
+        Route::delete('/{id}/delete', [StokBarangController::class, 'delete'])->name('stok-barang.delete');
+    });
+
 
     Route::get('dashboard', [PagesController::class, 'dashboard'])->name('dashboard');
-    Route::get('produk', [PagesController::class, 'produk'])->name('produk');
-    Route::get('barang-keluar', [PagesController::class, 'barangKeluar'])->name('barang-keluar');
-    Route::get('stok-barang', [PagesController::class, 'stokBarang'])->name('stok-barang');
     Route::get('kategori', [PagesController::class, 'kategori'])->name('kategori');
     Route::get('laporan', [PagesController::class, 'laporan'])->name('laporan');
 

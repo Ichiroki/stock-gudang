@@ -11,6 +11,10 @@ type StokBarangType = {
 
 interface StokBarang {
     stok_barang : StokBarangType[]
+    products: {
+        id: number
+        name: string
+    }[]
 }
 
 export default StokBarang
