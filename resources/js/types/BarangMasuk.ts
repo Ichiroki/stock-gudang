@@ -9,6 +9,11 @@ type BarangMasukType = {
 
 interface BarangMasuk {
     barang_masuk: BarangMasukType[]
+    product: {
+        id: string
+        name: string,
+        unit_price: number
+    }[]
 }
 
 export default BarangMasuk

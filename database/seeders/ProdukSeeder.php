@@ -17,6 +17,7 @@ class ProdukSeeder extends Seeder
             'code' => 'BP-001',
             'category' => 'Alat Tulis',
             'units' => 'Pcs',
+            'unit_price' => 5000,
             'minimum_stock' => 10,
         ]);
 
@@ -25,6 +26,7 @@ class ProdukSeeder extends Seeder
             'code' => 'KP-A480',
             'category' => 'Kertas',
             'units' => 'Rim',
+            'unit_price' => 50400,
             'minimum_stock' => 5,
         ]);
 
@@ -33,6 +35,7 @@ class ProdukSeeder extends Seeder
             'code' => 'TN-HP22',
             'category' => 'Tinta Printer',
             'units' => 'Botol',
+            'unit_price' => 32.800,
             'minimum_stock' => 3,
         ]);
 
@@ -41,6 +44,7 @@ class ProdukSeeder extends Seeder
             'code' => 'KB-HD15',
             'category' => 'Elektronik',
             'units' => 'Unit',
+            'unit_price' => 19.999,
             'minimum_stock' => 2,
         ]);
 
@@ -49,6 +53,7 @@ class ProdukSeeder extends Seeder
             'code' => 'MS-WRL1',
             'category' => 'Perangkat',
             'units' => 'Unit',
+            'unit_price' => 159.999,
             'minimum_stock' => 4,
         ]);
 
@@ -57,6 +62,7 @@ class ProdukSeeder extends Seeder
             'code' => 'AMP-COK',
             'category' => 'Alat Tulis',
             'units' => 'Lembar',
+            'unit_price' => 5.000,
             'minimum_stock' => 20,
         ]);
 
@@ -65,6 +71,7 @@ class ProdukSeeder extends Seeder
             'code' => 'ST-KK30',
             'category' => 'Alat Tulis',
             'units' => 'Unit',
+            'unit_price' => 9.999,
             'minimum_stock' => 2,
         ]);
 
@@ -73,6 +80,7 @@ class ProdukSeeder extends Seeder
             'code' => 'BK-NT01',
             'category' => 'Kertas',
             'units' => 'Buku',
+            'unit_price' => 1.200,
             'minimum_stock' => 6,
         ]);
 
@@ -81,6 +89,7 @@ class ProdukSeeder extends Seeder
             'code' => 'FD-32GB',
             'category' => 'Perangkat',
             'units' => 'Unit',
+            'unit_price' => 47.800,
             'minimum_stock' => 5,
         ]);
 
@@ -89,6 +98,7 @@ class ProdukSeeder extends Seeder
             'code' => 'LB-BRC1',
             'category' => 'Cetakan',
             'units' => 'Roll',
+            'unit_price' => 3.920,
             'minimum_stock' => 10,
         ]);
     }

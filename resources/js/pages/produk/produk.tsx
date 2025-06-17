@@ -5,6 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectItem, SelectTrigger } from '@/components/ui/select';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
+import Products from '@/types/ProdukType';
 import { Head, router } from '@inertiajs/react';
 import { SelectContent, SelectSeparator } from '@radix-ui/react-select';
 import axios from 'axios';
@@ -25,7 +26,9 @@ interface Product {
     code: string,
     category: string,
     units: number,
+    unit_price: number,
     minimum_stock: number
+    products: Products
 }
 
 export default function Produk({products}: Product) {
@@ -37,6 +40,7 @@ export default function Produk({products}: Product) {
         code: '',
         category: '',
         units: '',
+        unit_price: 0,
         minimum_stock: ''
     })
 
@@ -46,6 +50,7 @@ export default function Produk({products}: Product) {
         code: '',
         category: '',
         units: '',
+        unit_price: 0,
         minimum_stock: ''
     })
 
@@ -61,6 +66,7 @@ export default function Produk({products}: Product) {
                     code: data.code,
                     category: data.category,
                     units: data.units,
+                    unit_price: data.unit_price,
                     minimum_stock: data.minimum_stock
                 })
             })
@@ -109,6 +115,7 @@ export default function Produk({products}: Product) {
                 code: editFormData.code,
                 category: editFormData.category,
                 units: editFormData.units,
+                unit_price: editFormData.unit_price,
                 minimum_stock: editFormData.minimum_stock,
             })
 
@@ -187,6 +194,10 @@ export default function Produk({products}: Product) {
                                                 <Input type="text" name="units" value={formData.units} onChange={handleChange}></Input>
                                             </div>
                                             <div className='mb-3'>
+                                                <Label>Harga Unit</Label>
+                                                <Input type="text" name="unit_price" value={formData.units} onChange={handleChange}></Input>
+                                            </div>
+                                            <div className='mb-3'>
                                                 <Label>Stok Minimum</Label>
                                                 <Input type="text" name="minimum_stock" value={formData.minimum_stock} onChange={handleChange}></Input>
                                             </div>
@@ -236,6 +247,7 @@ export default function Produk({products}: Product) {
                                 <th className="px-4 py-2 text-left font-semibold">Kode</th>
                                 <th className="px-4 py-2 text-left font-semibold">Kategori</th>
                                 <th className="px-4 py-2 text-left font-semibold">Satuan</th>
+                                <th className="px-4 py-2 text-left font-semibold">Harga Unit</th>
                                 <th className="px-4 py-2 text-left font-semibold">Stok Minimum</th>
                                 <th className="px-4 py-2 text-left font-semibold">Aksi</th>
                             </tr>
@@ -248,6 +260,7 @@ export default function Produk({products}: Product) {
                                     <td className="px-4 py-2">{product.code}</td>
                                     <td className="px-4 py-2">{product.category}</td>
                                     <td className="px-4 py-2">{product.units}</td>
+                                    <td className="px-4 py-2">{product.unit_price}</td>
                                     <td className="px-4 py-2">{product.minimum_stock}</td>
                                     <td className="px-4 py-2 flex items-center justify-center gap-2">
                                         {/* Show */}
@@ -258,7 +271,7 @@ export default function Produk({products}: Product) {
                                             <DialogContent>
                                                 <DialogHeader>
                                                     <DialogTitle>
-                                                        Ubah Produk
+                                                        Detail Produk
                                                     </DialogTitle>
                                                 </DialogHeader>
                                                 <DialogDescription className='overflow-auto h-64 md:h-96 scrollable-container'>
@@ -281,6 +294,10 @@ export default function Produk({products}: Product) {
                                                             <Input type="text" name="units" defaultValue={produk.units}></Input>
                                                         </div>
                                                         <div className='mb-3'>
+                                                            <Label>Harga Unit</Label>
+                                                            <Input type="text" name="units" defaultValue={produk.unit_price}></Input>
+                                                        </div>
+                                                        <div className='mb-3'>
                                                             <Label>Stok Minimum</Label>
                                                             <Input type="text" name="minimum_stock" defaultValue={produk.minimum_stock}></Input>
                                                         </div>
@@ -288,7 +305,6 @@ export default function Produk({products}: Product) {
                                                     )}
                                                 </DialogDescription>
                                                 <DialogFooter>
-                                                    <Button type='submit' className='w-full bg-green-400'>Kirim</Button>
                                                     <DialogClose className='cursor-pointer bg-rose-500 text-gray-50'>
                                                         Tutup
                                                     </DialogClose>

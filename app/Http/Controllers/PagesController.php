@@ -26,8 +26,9 @@ class PagesController extends Controller
 
     public function barangMasuk()
     {
+        $product = Produk::select(['id', 'name', "unit_price"])->get();
         $barang_masuk = BarangMasuk::all();
-        return Inertia::render('barang/barang-masuk', ['barang_masuk'=> $barang_masuk]);
+        return Inertia::render('barang/barang-masuk', ['barang_masuk'=> $barang_masuk, 'product' => $product]);
     }
 
     public function barangKeluar()

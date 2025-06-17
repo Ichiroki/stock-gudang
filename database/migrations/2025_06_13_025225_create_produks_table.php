@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('code');
             $table->string('category');
             $table->string('units');
+            $table->decimal('unit_price');
             $table->integer('minimum_stock');
             $table->timestamps();
         });
