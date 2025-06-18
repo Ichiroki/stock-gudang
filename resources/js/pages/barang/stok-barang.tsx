@@ -6,10 +6,10 @@ import { Select, SelectContent, SelectItem, SelectSeparator, SelectTrigger } fro
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import StokBarang from '@/types/StokBarangType';
-import { Head, router } from '@inertiajs/react';
+import { Head } from '@inertiajs/react';
 import axios from 'axios';
 import { useState } from 'react';
-import { toast } from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -52,9 +52,10 @@ export default function StokBarangDashboard({stok_barang, products}: StokBarang)
             .then((res) => res.json())
             .then((res) => {
                 const data = res.data
+
                 setEditFormData({
                     id: data.id,
-                    product: data.product,
+                    product: data.produk_id,
                     stock: data.stock,
                     minimum_stock: data.minimum_stock,
                     last_updated_by: data.last_updated_by,
@@ -97,7 +98,7 @@ export default function StokBarangDashboard({stok_barang, products}: StokBarang)
         e.preventDefault()
         try {
             const res = await axios.put(`/stok-barang/${editFormData.id}/update`, {
-                product: editFormData.product,
+                produk_id: editFormData.product,
                 stock: editFormData.stock,
                 minimum_stock: editFormData.minimum_stock,
                 last_updated_by: editFormData.last_updated_by,
@@ -142,6 +143,7 @@ export default function StokBarangDashboard({stok_barang, products}: StokBarang)
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
+            <ToastContainer/>
             <Head title="Stok Barang" />
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4 overflow-x-auto">
                 <div className="flex flex-col md:flex-row gap-3 w-full">
@@ -296,32 +298,44 @@ export default function StokBarangDashboard({stok_barang, products}: StokBarang)
                                                         Ubah Barang Masuk
                                                     </DialogTitle>
                                                 </DialogHeader>
-                                                <DialogDescription className='overflow-auto h-64 md:h-96 scrollable-container'>
-                                                    <form onSubmit={handleUpdate}>
-                                                        <div className='mb-3'>
-                                                            <Label>Produk</Label>
-                                                            <Input type="text" name="product" onChange={handleEditChange} value={editFormData.product}></Input>
-                                                        </div>
-                                                        <div className='mb-3'>
-                                                            <Label>Stok</Label>
-                                                            <Input type="date" name="stok" onChange={handleEditChange} value={editFormData.stock}></Input>
-                                                        </div>
-                                                        <div className='mb-3'>
-                                                            <Label>Stok Minimum</Label>
-                                                            <Input type="text" name="minimum_stock" onChange={handleEditChange} value={editFormData.minimum_stock}></Input>
-                                                        </div>
-                                                        <div className='mb-3'>
-                                                            <Label>Diubah Oleh</Label>
-                                                            <Input type="text" name="last_updated_by" onChange={handleEditChange} value={editFormData.last_updated_by}></Input>
-                                                        </div>
-                                                    </form>
-                                                </DialogDescription>
-                                                <DialogFooter>
-                                                    <Button type='submit' className='w-full bg-green-400'>Kirim</Button>
-                                                    <DialogClose>
-                                                        <Button className='cursor-pointer bg-rose-500 text-gray-50'>Tutup</Button>
-                                                    </DialogClose>
-                                                </DialogFooter>
+                                                <form onSubmit={handleUpdate}>
+                                                    <DialogDescription className='overflow-auto h-64 md:h-96 scrollable-container'>
+                                                            <div className='mb-3'>
+                                                                <Label>Produk</Label>
+                                                                <select
+                                                                    name="product"
+                                                                    value={editFormData.product}
+                                                                    onChange={handleEditChange}
+                                                                    className="w-full mt-1 mb-2 border rounded p-2"
+                                                                >
+                                                                    <option value="">-- Pilih Produk --</option>
+                                                                    {products.map((p, i) => (
+                                                                    <option key={i} value={p.id}>
+                                                                        {p.name}
+                                                                    </option>
+                                                                    ))}
+                                                                </select>
+                                                            </div>
+                                                            <div className='mb-3'>
+                                                                <Label>Stok</Label>
+                                                                <Input type="text" name="stock" onChange={handleEditChange} value={editFormData.stock}></Input>
+                                                            </div>
+                                                            <div className='mb-3'>
+                                                                <Label>Minimum Stok</Label>
+                                                                <Input type="text" name="minimum_stock" onChange={handleEditChange} value={editFormData.minimum_stock}></Input>
+                                                            </div>
+                                                            <div className='mb-3'>
+                                                                <Label>Diubah Oleh</Label>
+                                                                <Input type="text" name="last_updated_by" onChange={handleEditChange} value={editFormData.last_updated_by}></Input>
+                                                            </div>
+                                                    </DialogDescription>
+                                                    <DialogFooter>
+                                                        <Button type='submit' className='w-full bg-green-400'>Kirim</Button>
+                                                        <DialogClose>
+                                                            <Button className='cursor-pointer bg-rose-500 text-gray-50'>Tutup</Button>
+                                                        </DialogClose>
+                                                    </DialogFooter>
+                                                </form>
                                             </DialogContent>
                                         </Dialog>
                                         {/* Edit */}

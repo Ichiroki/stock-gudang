@@ -49,7 +49,7 @@ class StokBarangController extends Controller
 
     public function update(Request $request, $id) {
         $validated = $request->validate( [
-            "produk_id" => "required|exists:produks.id",
+            "produk_id" => "required|exists:produks,id",
             "stock" => "required|integer",
             "minimum_stock" => "required|integer",
             "last_updated_by" => "required|string",
