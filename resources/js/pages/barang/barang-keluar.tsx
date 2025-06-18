@@ -43,7 +43,7 @@ export default function BarangKeluarDashboard({barang_keluar, product}: BarangKe
         recipient_name: '',
         description: '',
         created_by: '',
-        product_details: [{ product_id: 0, quantity: 1, unit_price: 0, subtotal: 0 }]
+        product_details: [{ id: 0, product_id: 0, quantity: 1, unit_price: 0, subtotal: 0 }]
     })
 
 
@@ -54,6 +54,7 @@ export default function BarangKeluarDashboard({barang_keluar, product}: BarangKe
         recipient_name: '',
         description: '',
         created_by: '',
+        product_details: [{ id: 0, product_id: 0, quantity: 1, unit_price: 0, subtotal: 0 }]
     })
 
     const handleDetailChange = (i: number, e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -78,10 +79,33 @@ export default function BarangKeluarDashboard({barang_keluar, product}: BarangKe
         setFormData({...formData, product_details: updated})
     }
 
+    const handleEditDetailChange = (i: number, e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+        const {name, value} = e.target
+        const updatedDetails = [...editFormData.product_details]
+
+        updatedDetails[i] = { ...updatedDetails[i], [name]: name === "quantity" ? parseInt(value) : value }
+
+        if(name == "product_id") {
+            const selectedProduct = product.find(p => parseInt(p.id) === parseInt(value))
+            if(selectedProduct) {
+                updatedDetails[i].unit_price = selectedProduct.unit_price
+            } else {
+                updatedDetails[i].unit_price = 0
+            }
+        }
+
+
+        const quantity = updatedDetails[i].quantity || 0
+        const unit_price = updatedDetails[i].unit_price || 0
+        updatedDetails[i].subtotal = quantity * unit_price
+
+        setEditFormData(prev => ({...prev, product_details: updatedDetails}))
+    }
+
     const addProductField = () => {
         setFormData({
             ...formData,
-            product_details: [...formData.product_details, { product_id: 0, quantity: 1, unit_price: 0, subtotal: 0 }]
+            product_details: [...formData.product_details, { id: 0, product_id: 0, quantity: 1, unit_price: 0, subtotal: 0 }]
         })
     }
 
@@ -97,13 +121,26 @@ export default function BarangKeluarDashboard({barang_keluar, product}: BarangKe
             .then((res) => res.json())
             .then((res) => {
                 const data = res.data
+
+                console.log(data)
+
+                const product_details = data.details.map((detail: any) => ({
+                    id: detail.id,
+                    product_id: detail.produk_id,
+                    quantity: detail.quantity,
+                    unit_price: parseFloat(detail.unit_price),
+                    subtotal: parseFloat(detail.subtotal),
+                    produk: detail.produk
+                }))
+
                 setEditFormData({
                     id: data.id,
                     reference_code: data.reference_code,
                     date: data.date,
                     recipient_name: data.recipient_name,
                     description: data.description,
-                    created_by: data.created_by
+                    created_by: data.created_by,
+                    product_details: product_details
                 })
             })
         } catch(e) {
@@ -134,7 +171,7 @@ export default function BarangKeluarDashboard({barang_keluar, product}: BarangKe
             })
 
             if(res.status == 200 && res.data.status == "success") {
-                toast("barang-masuk berhasil diperbarui")
+                toast("Data barang keluar berhasil ditambahkan")
             }
         } catch(e) {
             console.error("error njir", e)
@@ -150,10 +187,11 @@ export default function BarangKeluarDashboard({barang_keluar, product}: BarangKe
                 recipient_name: editFormData.recipient_name,
                 description: editFormData.description,
                 created_by: editFormData.created_by,
+                product_details: editFormData.product_details
             })
 
             if(res.status == 200 && res.data.status == "success") {
-                toast("barang-masuk berhasil diperbarui")
+                toast("Data barang keluar berhasil diperbarui")
             }
         } catch(e) {
             console.error("error njir", e)
@@ -421,40 +459,103 @@ export default function BarangKeluarDashboard({barang_keluar, product}: BarangKe
                                                         Ubah Barang Masuk
                                                     </DialogTitle>
                                                 </DialogHeader>
-                                                <DialogDescription className='overflow-auto h-64 md:h-96 scrollable-container'>
-                                                    <form onSubmit={handleUpdate}>
-                                                        <div className='mb-3'>
-                                                            <Label>Kode Referensi</Label>
-                                                            <Input type="text" name="reference_code" onChange={handleEditChange} value={editFormData.reference_code}></Input>
-                                                        </div>
-                                                        <div className='mb-3'>
-                                                            <Label>Tanggal</Label>
-                                                            <Input type="date" name="date" onChange={handleEditChange} value={editFormData.date}></Input>
-                                                        </div>
-                                                        <div className='mb-3'>
-                                                            <Label>Nama recipient</Label>
-                                                            <Input type="text" name="recipient_name" onChange={handleEditChange} value={editFormData.recipient_name}></Input>
-                                                        </div>
-                                                        <div className='mb-3 flex flex-col'>
-                                                            <Label className='mb-1'>Deskripsi</Label>
-                                                            <textarea name="description" id="" className={cn(
-                                                                "border-input file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground flex h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
-                                                                "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
-                                                                "aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
-                                                            )} value={editFormData.description} onChange={handleEditChange}></textarea>
-                                                        </div>
-                                                        <div className='mb-3'>
-                                                            <Label>Dibuat Oleh</Label>
-                                                            <Input type="text" name="created_by" onChange={handleEditChange} value={editFormData.created_by}></Input>
-                                                        </div>
-                                                    </form>
-                                                </DialogDescription>
-                                                <DialogFooter>
-                                                    <Button type='submit' className='w-full bg-green-400'>Kirim</Button>
-                                                    <DialogClose>
-                                                        <Button className='cursor-pointer bg-rose-500 text-gray-50'>Tutup</Button>
-                                                    </DialogClose>
-                                                </DialogFooter>
+                                                <form onSubmit={handleUpdate}>
+                                                    <DialogDescription className='overflow-auto h-64 md:h-96 scrollable-container'>
+                                                            <div className='mb-3'>
+                                                                <Label>Kode Referensi</Label>
+                                                                <Input type="text" name="reference_code" onChange={handleEditChange} value={editFormData.reference_code}></Input>
+                                                            </div>
+                                                            <div className='mb-3'>
+                                                                <Label>Tanggal</Label>
+                                                                <Input type="date" name="date" onChange={handleEditChange} value={editFormData.date}></Input>
+                                                            </div>
+                                                            <div className='mb-3'>
+                                                                <Label>Nama recipient</Label>
+                                                                <Input type="text" name="recipient_name" onChange={handleEditChange} value={editFormData.recipient_name}></Input>
+                                                            </div>
+                                                            <div className='mb-3 flex flex-col'>
+                                                                <Label className='mb-1'>Deskripsi</Label>
+                                                                <textarea name="description" id="" className={cn(
+                                                                    "border-input file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground flex h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+                                                                    "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
+                                                                    "aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
+                                                                )} value={editFormData.description} onChange={handleEditChange}></textarea>
+                                                            </div>
+                                                            <div className='mb-3'>
+                                                                <Label>Dibuat Oleh</Label>
+                                                                <Input type="text" name="created_by" onChange={handleEditChange} value={editFormData.created_by}></Input>
+                                                            </div>
+                                                            <div className='mb-3'>
+                                                                <Label>Detail Produk</Label>
+                                                                {editFormData.product_details.map((detail, index) => (
+                                                                    <div key={index} className="mb-3 border p-3 rounded-md">
+                                                                    <Label>Produk</Label>
+                                                                    <select
+                                                                        name="product_id"
+                                                                        value={detail.product_id}
+                                                                        onChange={(e) => handleEditDetailChange(index, e)}
+                                                                        className="w-full mt-1 mb-2 border rounded p-2"
+                                                                    >
+                                                                        <option value="">-- Pilih Produk --</option>
+                                                                        {product.map((p) => (
+                                                                        <option key={p.id} value={p.id}>
+                                                                            {p.name}
+                                                                        </option>
+                                                                        ))}
+                                                                    </select>
+
+                                                                    <Input
+                                                                        name="id"
+                                                                        type="hidden"
+                                                                        value={detail.id}
+                                                                        onChange={(e) => handleEditDetailChange(index, e)}
+                                                                    />
+
+                                                                    <Label>Quantity</Label>
+                                                                    <Input
+                                                                        name="quantity"
+                                                                        type="number"
+                                                                        value={detail.quantity}
+                                                                        onChange={(e) => handleEditDetailChange(index, e)}
+                                                                    />
+
+                                                                    <Label className="mt-2">Harga Satuan</Label>
+                                                                    <Input
+                                                                        name="unit_price"
+                                                                        type="number"
+                                                                        value={detail.unit_price}
+                                                                        onChange={(e) => handleEditDetailChange(index, e)}
+                                                                        readOnly
+                                                                    />
+
+                                                                    <Label className="mt-2">Subtotal</Label>
+                                                                    <Input
+                                                                        name="subtotal"
+                                                                        type="number"
+                                                                        value={detail.subtotal}
+                                                                        onChange={(e) => handleEditDetailChange(index, e)}
+                                                                        readOnly
+                                                                    />
+
+                                                                    {formData.product_details.length > 1 && (
+                                                                        <Button type="button" className="mt-2 bg-red-400" onClick={() => removeProductField(index)}>
+                                                                        Hapus Produk Ini
+                                                                        </Button>
+                                                                    )}
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                            <Button type="button" className="w-full mt-2 bg-yellow-400" onClick={addProductField}>
+                                                                + Tambah Produk
+                                                            </Button>
+                                                    </DialogDescription>
+                                                    <DialogFooter>
+                                                        <Button type='submit' className='w-full bg-green-400'>Kirim</Button>
+                                                        <DialogClose className='cursor-pointer bg-rose-500 text-gray-50'>
+                                                            Tutup
+                                                        </DialogClose>
+                                                    </DialogFooter>
+                                                </form>
                                             </DialogContent>
                                         </Dialog>
                                         {/* Edit */}

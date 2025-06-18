@@ -107,8 +107,6 @@ class BarangController extends Controller
             }
         });
 
-
-
         return response()->json(["status" => 'success'], 200);
     }
 
@@ -182,21 +180,45 @@ class BarangController extends Controller
     }
 
     public function editKeluar($id) {
-        $barangKeluar = BarangKeluar::findOrFail($id);
+        $barangKeluar = BarangKeluar::with(['details.product' => function($query) {
+            $query->select('id', 'name', 'unit_price');
+        }])->where('id', '=', $id)->first();
         return response()->json(["status" => "success", "data" => $barangKeluar], 200);
     }
 
     public function updateKeluar(Request $request, $id) {
         $validated = $request->validate( [
-            "name" => "required|string",
-            "code" => "required|string",
-            "category" => "required|string",
-            "units" => "required|string",
-            "minimum_stock" => "required|integer"
+            "reference_code" => "required|string",
+            "date" => "required|string",
+            "recipient_name" => "required|string",
+            "description" => "required|string",
+            "created_by" => "required",
+            "product_details" => "required|array",
+            "product_details.*.id" => "required|exists:barang_keluar_details,id",
+            "product_details.*.product_id" => "required|exists:produks,id",
+            "product_details.*.quantity" => "required|integer",
+            "product_details.*.unit_price" => "required|numeric",
+            "product_details.*.subtotal" => "required|numeric",
         ]);
 
-        $barangKeluar = BarangKeluar::findOrFail($id);
-        $barangKeluar->update($validated);
+        DB::transaction(function () use ($validated, $id) {
+            BarangKeluar::where('id', '=', $id)->update([
+                'reference_code' => $validated['reference_code'],
+                'date' => $validated['date'],
+                'recipient_name' => $validated['recipient_name'],
+                'description' => $validated['description'],
+                'created_by' => $validated['created_by'],
+            ]);
+
+            foreach ($validated['product_details'] as $detail) {
+                BarangKeluarDetail::where('id', '=', $detail['id'])->update([
+                    'produk_id' => $detail['product_id'],
+                    'quantity' => $detail['quantity'],
+                    'unit_price' => $detail['unit_price'],
+                    'subtotal' => $detail['subtotal'],
+                ]);
+            }
+        });
 
         return response()->json(["status" => 'success'], 200);
     }
