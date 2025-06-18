@@ -67,21 +67,47 @@ class BarangController extends Controller
     }
 
     public function editMasuk($id) {
-        $barangMasuk = BarangMasuk::findOrFail($id);
+        $barangMasuk = BarangMasuk::with(['details.product' => function($query) {
+            $query->select('id', 'name', 'unit_price');
+        }])->where('id', '=', $id)->get();
         return response()->json(["status" => "success", "data" => $barangMasuk], 200);
     }
 
     public function updateMasuk(Request $request, $id) {
         $validated = $request->validate( [
-            "name" => "required|string",
-            "code" => "required|string",
-            "category" => "required|string",
-            "units" => "required|string",
-            "minimum_stock" => "required|integer"
+            "reference_code" => "required|string",
+            "date" => "required|string",
+            "supplier_name" => "required|string",
+            "description" => "required|string",
+            "created_by" => "required",
+            "product_details" => "required|array",
+            "product_details.*.product_id" => "required|exists:produks,id",
+            "product_details.*.quantity" => "required|integer",
+            "product_details.*.unit_price" => "required|numeric",
+            "product_details.*.subtotal" => "required|numeric",
         ]);
 
-        $barangMasuk = BarangMasuk::findOrFail($id);
-        $barangMasuk->update($validated);
+        DB::transaction(function () use ($validated, $id) {
+
+            BarangMasuk::where('id', '=', $id)->update([
+                'reference_code' => $validated['reference_code'],
+                'date' => $validated['date'],
+                'supplier_name' => $validated['supplier_name'],
+                'description' => $validated['description'],
+                'created_by' => $validated['created_by'],
+            ]);
+
+            foreach ($validated['product_details'] as $detail) {
+                BarangMasukDetail::where('barang_masuk_id', '=', $id)->update([
+                    'produk_id' => $detail['product_id'],
+                    'quantity' => $detail['quantity'],
+                    'unit_price' => $detail['unit_price'],
+                    'subtotal' => $detail['subtotal'],
+                ]);
+            }
+        });
+
+
 
         return response()->json(["status" => 'success'], 200);
     }
