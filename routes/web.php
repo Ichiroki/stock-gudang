@@ -4,6 +4,7 @@ use App\Http\Controllers\{
     PagesController,
     ProdukController,
     BarangController,
+    KategoriController,
     StokBarangController,
     LaporanController
 };
@@ -80,9 +81,21 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/{id}/delete', [LaporanController::class, 'delete'])->name('laporan.delete');
     });
 
+    Route::prefix('kategori')->group(function() {
+        Route::get('/', [PagesController::class, 'kategori'])->name('kategori');
+
+        Route::post('/store', [KategoriController::class, 'store'])->name('kategori.store');
+
+        Route::get('/{id}', [KategoriController::class, 'show'])->name('kategori.show');
+
+        Route::get('/{id}/edit', [KategoriController::class, 'edit'])->name('kategori.edit');
+        Route::put('/{id}/update', [KategoriController::class, 'update'])->name('kategori.update');
+
+        Route::delete('/{id}/delete', [KategoriController::class, 'delete'])->name('kategori.delete');
+    });
+
 
     Route::get('dashboard', [PagesController::class, 'dashboard'])->name('dashboard');
-    Route::get('kategori', [PagesController::class, 'kategori'])->name('kategori');
 
 });
 

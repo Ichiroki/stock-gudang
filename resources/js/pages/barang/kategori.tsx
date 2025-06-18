@@ -7,6 +7,9 @@ import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import Kategori from '@/types/Kategori';
 import { Head } from '@inertiajs/react';
+import axios from 'axios';
+import { FormEvent, useState } from 'react';
+import { toast } from 'react-toastify';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -15,7 +18,46 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-export default function Dashboard({kategoris}: Kategori) {
+export default function KategoriDashboard({kategoris}: Kategori) {
+
+    const [formData, setFormData] = useState({
+        name: ''
+    })
+
+    const handleSubmit = async (e: FormEvent) => {
+        e.preventDefault()
+        try {
+            await axios.post(`/kategori/store`, formData)
+            .then((res) => {
+                if(res.data.status === "success") {
+                    toast('Data kategori berhasil ditambahkan')
+                }
+            })
+        } catch(e) {
+            toast(`Njir gagal ${e}`)
+        }
+    }
+
+    const handleDelete = (id: number) => async (e: FormEvent) => {
+        e.preventDefault()
+        try {
+            await axios.delete(`/kategori/${id}/delete`)
+            .then((res) => {
+                if(res.data.status === "success") {
+                    toast('Data kategori berhasil ditambahkan')
+                }
+            })
+        } catch(e) {
+            toast(`Njir gagal ${e}`)
+        }
+    }
+
+    const handleChange = async (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        e.preventDefault()
+        const { name, value } = e.target
+        setFormData(prev => ({...prev, [name]: value}))
+    }
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Kategori" />
@@ -32,20 +74,20 @@ export default function Dashboard({kategoris}: Kategori) {
                                         Tambah Kategori
                                     </DialogTitle>
                                 </DialogHeader>
-                                <DialogDescription className='overflow-auto h-64 md:h-96 scrollable-container'>
-                                    <form>
-                                        <div className='mb-3'>
-                                            <Label>Nama Kategori</Label>
-                                            <Input type="text"></Input>
-                                        </div>
-                                    </form>
-                                </DialogDescription>
-                                <DialogFooter>
-                                    <Button type='submit' className='w-full bg-green-400'>Kirim</Button>
-                                    <DialogClose>
-                                        <Button className='cursor-pointer bg-rose-500 text-gray-50'>Tutup</Button>
-                                    </DialogClose>
-                                </DialogFooter>
+                                <form onSubmit={handleSubmit}>
+                                    <DialogDescription className='overflow-auto h-64 md:h-96 scrollable-container'>
+                                            <div className='mb-3'>
+                                                <Label>Nama Kategori</Label>
+                                                <Input type="text" name="name" onChange={handleChange} value={formData.name}></Input>
+                                            </div>
+                                    </DialogDescription>
+                                    <DialogFooter>
+                                        <Button type='submit' className='w-full bg-green-400'>Kirim</Button>
+                                        <DialogClose>
+                                            <Button className='cursor-pointer bg-rose-500 text-gray-50'>Tutup</Button>
+                                        </DialogClose>
+                                    </DialogFooter>
+                                </form>
                             </DialogContent>
                         </Dialog>
                     </div>
@@ -129,7 +171,7 @@ export default function Dashboard({kategoris}: Kategori) {
                                                         Hapus Kategori
                                                     </DialogTitle>
                                                 </DialogHeader>
-                                                <form action="">
+                                                <form onSubmit={handleDelete(kategori.id)}>
                                                     <DialogDescription className='overflow-auto h-64 md:h-96 scrollable-container flex items-center justify-center'>
                                                         <p>Apakah anda yakin ingin menghapus data ini ?</p>
                                                     </DialogDescription>
