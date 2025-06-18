@@ -11,6 +11,7 @@ class Produk extends Model
         'code',
         'category',
         'units',
+        'unit_price',
         'minimum_stock',
     ];
 }

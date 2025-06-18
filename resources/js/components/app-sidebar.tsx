@@ -38,11 +38,11 @@ const mainNavItems: NavItem[] = [
         href: '/kategori',
         icon: Tags,
     },
-    {
-        title: 'Laporan',
-        href: '/laporan',
-        icon: FileBarChart,
-    },
+    // {
+    //     title: 'Laporan',
+    //     href: '/laporan',
+    //     icon: FileBarChart,
+    // },
     {
         title: 'Users',
         href: '/users',

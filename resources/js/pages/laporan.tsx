@@ -10,7 +10,7 @@ import Laporan from '@/types/Laporan';
 import { Head, router } from '@inertiajs/react';
 import axios from 'axios';
 import { useState } from 'react';
-import { toast } from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -32,6 +32,7 @@ interface LaporanType {
     product: {
         id: number
         name: string
+        unit_price: number
     }
 }
 
@@ -40,18 +41,28 @@ export default function LaporanDashboard({laporans, products}: Laporan) {
     const [laporan, setLaporan] = useState<LaporanType | null>(null)
 
     const [formData, setFormData] = useState({
-        product: 0,
-        stock: 0,
-        minimum_stock: 0,
-        last_updated_by: '',
+        product_id: 0,
+        type: '',
+        quantity: 0,
+        unit_price: 0,
+        total: 0,
+        reference_code: '',
+        date: '',
+        created_by: '',
+        description: '',
     })
 
     const [editFormData, setEditFormData] = useState({
         id: 0,
-        product: 0,
-        stock: 0,
-        minimum_stock: 0,
-        last_updated_by: '',
+        product_id: 0,
+        type: '',
+        quantity: 0,
+        unit_price: 0,
+        total: 0,
+        reference_code: '',
+        date: '',
+        created_by: '',
+        description: '',
     })
 
     const fetchLaporan = async (id: number) => {
@@ -62,10 +73,15 @@ export default function LaporanDashboard({laporans, products}: Laporan) {
                 const data = res.data
                 setEditFormData({
                     id: data.id,
-                    product: data.product,
-                    stock: data.stock,
-                    minimum_stock: data.minimum_stock,
-                    last_updated_by: data.last_updated_by,
+                    product_id: data.product_id,
+                    type: data.type,
+                    quantity: data.quantity,
+                    unit_price: data.unit_price,
+                    total: data.total,
+                    reference_code: data.reference_code,
+                    date: data.date,
+                    created_by: data.created_by,
+                    description: data.description,
                 })
             })
         } catch(e) {
@@ -73,9 +89,29 @@ export default function LaporanDashboard({laporans, products}: Laporan) {
         }
     }
 
-    const handleChange = async (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const handleChange = async (index: number, e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target
-        setFormData(prev => ({...prev, [name]: value}))
+        setFormData(prev => {
+            const updated = [...prev]
+            updated[index] = {
+                ...updated[index],
+                [name]: index
+            }
+
+            if(name === "product_id") {
+                const selectedProd = products.find((product) => product.id === parseInt(value) )
+                if(selectedProd) {
+                    updated[index].unit_price = selectedProd.unit_price
+                    updated[index].subtotal = selectedProd.unit_price * updated[index].quantity
+                }
+            }
+
+            if(name === "quantity") {
+                updated[index].subtotal = updated[index].unit_price * parseInt(value)
+            }
+
+            return updated
+        })
     }
 
     const handleEditChange = async (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -86,18 +122,13 @@ export default function LaporanDashboard({laporans, products}: Laporan) {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         try {
-            router.post('/laporan/store', formData, {
-                onSuccess: (page) => {
-                    const flash = page.props.flash
-                    if(flash?.code == 201 && flash?.status == "success") {
-                        return toast("barang-masuk berhasil disimpan")
-                    }
-                },
-                onError: (page) => {
-                    const flash = page.props.flash
-                    if(flash?.code == 404 && flash?.status == "failed") {
-                        return toast("barang-masuk gagal tersimpan")
-                    }
+            await axios.post(`/laporan/store`, formData)
+            .then((res) => {
+                const data = res.data
+                if(data.status === "success") {
+                    toast.success('Data berhasil ditambahkan')
+                } else {
+                    toast.error('Data gagal ditambahkan')
                 }
             })
         } catch(e) {
@@ -109,10 +140,16 @@ export default function LaporanDashboard({laporans, products}: Laporan) {
         e.preventDefault()
         try {
             const res = await axios.put(`/laporan/${editFormData.id}/update`, {
-                product: editFormData.product,
-                stock: editFormData.stock,
-                minimum_stock: editFormData.minimum_stock,
-                last_updated_by: editFormData.last_updated_by,
+                id: editFormData.id,
+                produk_id: editFormData.product_id,
+                type: editFormData.type,
+                quantity: editFormData.quantity,
+                total: editFormData.total,
+                unit_price: editFormData.unit_price,
+                reference_code: editFormData.reference_code,
+                date: editFormData.date,
+                created_by: editFormData.created_by,
+                description: editFormData.description,
             })
 
             if(res.status == 200 && res.data.status == "success") {
@@ -156,18 +193,19 @@ export default function LaporanDashboard({laporans, products}: Laporan) {
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
+            <ToastContainer/>
             <Head title="Laporan" />
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4 overflow-x-auto">
                 <div className="flex flex-col md:flex-row gap-3 w-full">
                 <div className="relative md:w-1/3 overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
                     <Dialog>
                         <DialogTrigger className="cursor-pointer bg-green-400 hover:bg-transparent hover:border rounded-xl hover:border-green-400 transition text-gray-900 w-full h-full">
-                            Tambah Stok Barang +
+                            Tambah Laporan +
                         </DialogTrigger>
                         <DialogContent>
                             <DialogHeader>
                                 <DialogTitle>
-                                    Tambah Stok Barang
+                                    Tambah Laporan
                                 </DialogTitle>
                             </DialogHeader>
                                 <form onSubmit={handleSubmit}>
@@ -176,7 +214,7 @@ export default function LaporanDashboard({laporans, products}: Laporan) {
                                             <Label>Produk</Label>
                                             <select
                                                 name="product_id"
-                                                value={formData.product}
+                                                value={formData.product_id}
                                                 onChange={(e) => handleChange(index, e)}
                                                 className="w-full mt-1 mb-2 border rounded p-2"
                                             >
@@ -189,16 +227,40 @@ export default function LaporanDashboard({laporans, products}: Laporan) {
                                             </select>
                                         </div>
                                         <div className='mb-3'>
-                                            <Label>Stok</Label>
+                                            <Label>Tipe</Label>
+                                            <Input type="text" name="type" onChange={handleChange} value={formData.type}></Input>
+                                        </div>
+                                        <div className='mb-3'>
+                                            <Label>Jumlah</Label>
+                                            <Input type="text" name="quantity" onChange={handleChange} value={formData.quantity}></Input>
+                                        </div>
+                                        <div className='mb-3'>
+                                            <Label>Harga Unit</Label>
+                                            <Input type="text" name="unit_price" onChange={handleChange} value={formData.unit_price}></Input>
+                                        </div>
+                                        <div className='mb-3'>
+                                            <Label>Total</Label>
+                                            <Input type="text" name="total" onChange={handleChange} value={formData.total}></Input>
+                                        </div>
+                                        <div className='mb-3'>
+                                            <Label>Kode Referensi</Label>
+                                            <Input type="text" name="reference_code" onChange={handleChange} value={formData.reference_code}></Input>
+                                        </div>
+                                        <div className='mb-3'>
+                                            <Label>Tanggal</Label>
                                             <Input type="date" name="date" onChange={handleChange} value={formData.date}></Input>
                                         </div>
                                         <div className='mb-3'>
-                                            <Label>Minimum Stok</Label>
-                                            <Input type="text" name="supplier_name" onChange={handleChange} value={formData.supplier_name}></Input>
+                                            <Label>Dibuat Oleh</Label>
+                                            <Input type="text" name="reference_code" onChange={handleChange} value={formData.reference_code}></Input>
                                         </div>
                                         <div className='mb-3'>
-                                            <Label>Diubah Oleh</Label>
-                                            <Input type="text" name="created_by" onChange={handleChange} value={formData.created_by}></Input>
+                                            <Label>Deskripsi</Label>
+                                            <textarea name="description" id="" className={cn(
+                                                "border-input file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground flex h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+                                                "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
+                                                "aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
+                                            )} onChange={handleChange} value={formData.description} cols={5} rows={5}></textarea>
                                         </div>
                                     </DialogDescription>
                                     <DialogFooter>
@@ -342,6 +404,22 @@ export default function LaporanDashboard({laporans, products}: Laporan) {
                                                 </DialogHeader>
                                                 <DialogDescription className='overflow-auto h-64 md:h-96 scrollable-container'>
                                                     <form onSubmit={handleUpdate}>
+                                                        <div className='mb-3'>
+                                                            <Label>Produk</Label>
+                                                            <Input type="text" name="product_id" onChange={handleEditChange} value={editFormData.product}></Input>
+                                                        </div>
+                                                        <div className='mb-3'>
+                                                            <Label>Stok</Label>
+                                                            <Input type="date" name="stok" onChange={handleEditChange} value={editFormData.stock}></Input>
+                                                        </div>
+                                                        <div className='mb-3'>
+                                                            <Label>Stok Minimum</Label>
+                                                            <Input type="text" name="minimum_stock" onChange={handleEditChange} value={editFormData.minimum_stock}></Input>
+                                                        </div>
+                                                        <div className='mb-3'>
+                                                            <Label>Diubah Oleh</Label>
+                                                            <Input type="text" name="last_updated_by" onChange={handleEditChange} value={editFormData.last_updated_by}></Input>
+                                                        </div>
                                                         <div className='mb-3'>
                                                             <Label>Produk</Label>
                                                             <Input type="text" name="product" onChange={handleEditChange} value={editFormData.product}></Input>

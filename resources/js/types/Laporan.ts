@@ -18,6 +18,7 @@ interface Laporan {
     products: {
         id: number
         name: string
+        unit_price: number
     }[]
 }
 
