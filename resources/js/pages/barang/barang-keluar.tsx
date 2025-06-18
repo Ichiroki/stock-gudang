@@ -7,7 +7,7 @@ import AppLayout from '@/layouts/app-layout';
 import { cn } from '@/lib/utils';
 import { type BreadcrumbItem } from '@/types';
 import BarangKeluar from '@/types/BarangKeluar';
-import { Head, router } from '@inertiajs/react';
+import { Head } from '@inertiajs/react';
 import axios from 'axios';
 import { useState } from 'react';
 import { toast, ToastContainer } from 'react-toastify';
@@ -40,7 +40,7 @@ export default function BarangKeluarDashboard({barang_keluar, product}: BarangKe
     const [formData, setFormData] = useState({
         reference_code: '',
         date: '',
-        supplier_name: '',
+        recipient_name: '',
         description: '',
         created_by: '',
         product_details: [{ product_id: 0, quantity: 1, unit_price: 0, subtotal: 0 }]
@@ -51,7 +51,7 @@ export default function BarangKeluarDashboard({barang_keluar, product}: BarangKe
         id: 0,
         reference_code: '',
         date: '',
-        supplier_name: '',
+        recipient_name: '',
         description: '',
         created_by: '',
     })
@@ -101,7 +101,7 @@ export default function BarangKeluarDashboard({barang_keluar, product}: BarangKe
                     id: data.id,
                     reference_code: data.reference_code,
                     date: data.date,
-                    supplier_name: data.supplier_name,
+                    recipient_name: data.recipient_name,
                     description: data.description,
                     created_by: data.created_by
                 })
@@ -124,12 +124,13 @@ export default function BarangKeluarDashboard({barang_keluar, product}: BarangKe
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         try {
-            const res = await axios.put(`/barang-keluar/store`, {
+            const res = await axios.post(`/barang-keluar/store`, {
                 reference_code: formData.reference_code,
                 date: formData.date,
-                supplier_name: formData.supplier_name,
+                recipient_name: formData.recipient_name,
                 description: formData.description,
                 created_by: formData.created_by,
+                product_details: formData.product_details
             })
 
             if(res.status == 200 && res.data.status == "success") {
@@ -146,7 +147,7 @@ export default function BarangKeluarDashboard({barang_keluar, product}: BarangKe
             const res = await axios.put(`/barang-keluar/${editFormData.id}/update`, {
                 reference_code: editFormData.reference_code,
                 date: editFormData.date,
-                supplier_name: editFormData.supplier_name,
+                recipient_name: editFormData.recipient_name,
                 description: editFormData.description,
                 created_by: editFormData.created_by,
             })
@@ -223,8 +224,8 @@ export default function BarangKeluarDashboard({barang_keluar, product}: BarangKe
                                                 <Input type="date" name="date" onChange={handleChange} value={formData.date}></Input>
                                             </div>
                                             <div className='mb-3'>
-                                                <Label>Nama Supplier</Label>
-                                                <Input type="text" name="supplier_name" onChange={handleChange} value={formData.supplier_name}></Input>
+                                                <Label>Nama recipient</Label>
+                                                <Input type="text" name="recipient_name" onChange={handleChange} value={formData.recipient_name}></Input>
                                             </div>
                                             <div className='mb-3 flex flex-col'>
                                                 <Label className='mb-1'>Deskripsi</Label>
@@ -372,7 +373,7 @@ export default function BarangKeluarDashboard({barang_keluar, product}: BarangKe
                                                             <Input type="text" name="date" defaultValue={barangKeluar.date}></Input>
                                                         </div>
                                                         <div className='mb-3'>
-                                                            <Label>Nama Supplier</Label>
+                                                            <Label>Nama recipient</Label>
                                                             <Input type="text" name="category" defaultValue={barangKeluar.recipient_name}></Input>
                                                         </div>
                                                         <div className='mb-3'>
@@ -431,8 +432,8 @@ export default function BarangKeluarDashboard({barang_keluar, product}: BarangKe
                                                             <Input type="date" name="date" onChange={handleEditChange} value={editFormData.date}></Input>
                                                         </div>
                                                         <div className='mb-3'>
-                                                            <Label>Nama Supplier</Label>
-                                                            <Input type="text" name="supplier_name" onChange={handleEditChange} value={editFormData.supplier_name}></Input>
+                                                            <Label>Nama recipient</Label>
+                                                            <Input type="text" name="recipient_name" onChange={handleEditChange} value={editFormData.recipient_name}></Input>
                                                         </div>
                                                         <div className='mb-3 flex flex-col'>
                                                             <Label className='mb-1'>Deskripsi</Label>

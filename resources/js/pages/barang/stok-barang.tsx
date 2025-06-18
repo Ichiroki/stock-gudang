@@ -78,20 +78,16 @@ export default function StokBarangDashboard({stok_barang, products}: StokBarang)
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         try {
-            router.post('/stok-barang/store', formData, {
-                onSuccess: (page) => {
-                    const flash = page.props.flash
-                    if(flash?.code == 201 && flash?.status == "success") {
-                        return toast("barang-masuk berhasil disimpan")
-                    }
-                },
-                onError: (page) => {
-                    const flash = page.props.flash
-                    if(flash?.code == 404 && flash?.status == "failed") {
-                        return toast("barang-masuk gagal tersimpan")
-                    }
-                }
+            const res = await axios.post(`/stok-barang/store`, {
+                produk_id: formData.product,
+                stock: formData.stock,
+                minimum_stock: formData.minimum_stock,
+                last_updated_by: formData.last_updated_by,
             })
+
+            if(res.status == 200 && res.data.status == "success") {
+                toast("barang-masuk berhasil diperbarui")
+            }
         } catch(e) {
             console.error("error njir", e)
         }
@@ -118,20 +114,18 @@ export default function StokBarangDashboard({stok_barang, products}: StokBarang)
     const handleDelete = (id: number) => async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
-        router.delete(`/barang-masuk/${id}/delete`, {
-            onSuccess: (page) => {
-                const flash = page.props.flash;
-                if (flash?.code === 200 && flash?.status === "success") {
-                    return toast("barang-masuk berhasil dihapus");
+        try {
+            await axios.delete(`/stok-barang/${id}/delete`)
+            .then((res) => {
+                if(res.status === 200) {
+                    toast("barang-masuk berhasil dihapus")
+                } else {
+                    toast("barang-masuk gagal diperbarui")
                 }
-            },
-            onError: (page) => {
-                const flash = page.props.flash;
-                if (flash?.code == 404 && flash?.status == "failed") {
-                    return toast("barang-masuk gagal dihapus");
-                }
-            }
-        });
+            })
+        } catch(e) {
+            console.error("error njir", e)
+        }
     };
 
     const showStokBarang = async (id: number) => {
@@ -167,9 +161,9 @@ export default function StokBarangDashboard({stok_barang, products}: StokBarang)
                                         <div className='mb-3'>
                                             <Label>Produk</Label>
                                             <select
-                                                name="product_id"
+                                                name="product"
                                                 value={formData.product}
-                                                onChange={(e) => handleChange(index, e)}
+                                                onChange={handleChange}
                                                 className="w-full mt-1 mb-2 border rounded p-2"
                                             >
                                                 <option value="">-- Pilih Produk --</option>
@@ -182,15 +176,15 @@ export default function StokBarangDashboard({stok_barang, products}: StokBarang)
                                         </div>
                                         <div className='mb-3'>
                                             <Label>Stok</Label>
-                                            <Input type="date" name="date" onChange={handleChange} value={formData.date}></Input>
+                                            <Input type="text" name="stock" onChange={handleChange} value={formData.stock}></Input>
                                         </div>
                                         <div className='mb-3'>
                                             <Label>Minimum Stok</Label>
-                                            <Input type="text" name="supplier_name" onChange={handleChange} value={formData.supplier_name}></Input>
+                                            <Input type="text" name="minimum_stock" onChange={handleChange} value={formData.minimum_stock}></Input>
                                         </div>
                                         <div className='mb-3'>
                                             <Label>Diubah Oleh</Label>
-                                            <Input type="text" name="created_by" onChange={handleChange} value={formData.created_by}></Input>
+                                            <Input type="text" name="last_updated_by" onChange={handleChange} value={formData.last_updated_by}></Input>
                                         </div>
                                     </DialogDescription>
                                     <DialogFooter>
@@ -342,7 +336,7 @@ export default function StokBarangDashboard({stok_barang, products}: StokBarang)
                                                         Hapus Barang Masuk
                                                     </DialogTitle>
                                                 </DialogHeader>
-                                                <form action="" onSubmit={() => handleDelete(stok.id)}>
+                                                <form action="" onSubmit={handleDelete(stok.id)}>
                                                     <DialogDescription className='overflow-auto h-64 md:h-96 scrollable-container flex items-center justify-center'>
                                                         <p>Apakah anda yakin ingin menghapus data ini ?</p>
                                                     </DialogDescription>

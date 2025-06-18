@@ -7,7 +7,7 @@ import AppLayout from '@/layouts/app-layout';
 import { cn } from '@/lib/utils';
 import { type BreadcrumbItem } from '@/types';
 import BarangMasuk from '@/types/BarangMasuk';
-import { Head, router } from '@inertiajs/react';
+import { Head } from '@inertiajs/react';
 import axios from 'axios';
 import { useState } from 'react';
 import { toast } from 'react-toastify';

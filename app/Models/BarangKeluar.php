@@ -11,7 +11,7 @@ class BarangKeluar extends Model
     protected $fillable = [
         'reference_code',
         'date',
-        'supplier_name',
+        'recipient_name',
         'description',
         'created_by',
     ];

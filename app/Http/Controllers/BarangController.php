@@ -105,38 +105,37 @@ class BarangController extends Controller
         $validated = $request->validate( [
             "reference_code" => "required|string",
             "date" => "required|string",
-            "supplier_name" => "required|string",
+            "recipient_name" => "required|string",
             "description" => "required|string",
             "created_by" => "required",
             "product_details" => "required|array",
             "product_details.*.product_id" => "required|exists:produks,id",
             "product_details.*.quantity" => "required|integer",
-            "product_details.*.unit_price" => "required|integer",
+            "product_details.*.unit_price" => "required|numeric",
+            "product_details.*.subtotal" => "required|numeric",
         ]);
 
-        DB::beginTransaction();
-        try {
+        DB::transaction(function () use ($validated) {
             $master = BarangKeluar::create([
                 'reference_code' => $validated['reference_code'],
                 'date' => $validated['date'],
-                'supplier_name' => $validated['supplier_name'],
+                'recipient_name' => $validated['recipient_name'],
                 'description' => $validated['description'],
                 'created_by' => $validated['created_by'],
             ]);
 
             foreach ($validated['product_details'] as $detail) {
                 BarangKeluarDetail::create([
-                    'barang_Keluar_id' => $master->id,
+                    'barang_keluar_id' => $master->id,
                     'produk_id' => $detail['product_id'],
                     'quantity' => $detail['quantity'],
-                    'unit_price' => $detail['unit_price']
+                    'unit_price' => $detail['unit_price'],
+                    'subtotal' => $detail['subtotal'],
                 ]);
             }
+        });
 
-            return redirect()->back()->with(["code" => 201 ,"status" => "success"]);
-        } catch (Exception $e) {
-            return redirect()->back()->with(["code"=> 404 , "status" => "failed"]);
-        }
+        return response()->json(['status' => 'success', 'message' => 'Data telah ditambahkan'], 201);
     }
 
     public function showKeluar($id) {
@@ -180,9 +179,9 @@ class BarangController extends Controller
         $barangKeluar = BarangKeluar::findOrFail($id);
 
         try {
-            // BarangKeluarDetail::where('barang_keluar_id', '=', $barangKeluar->id)->delete();
+            BarangKeluarDetail::where('barang_keluar_id', '=', $barangKeluar->id)->delete();
 
-            // $barangKeluar->delete();
+            $barangKeluar->delete();
 
             return response()->json(['status' => 'success'], 200);
         } catch(Exception $e) {

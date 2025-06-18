@@ -11,7 +11,7 @@ class StokBarangController extends Controller
     public function store(Request $request) {
         try {
             $validated = $request->validate( [
-                "produk_id" => "required|exists:produks.id",
+                "produk_id" => "required|exists:produks,id",
                 "stock" => "required|integer",
                 "minimum_stock" => "required|integer",
                 "last_updated_by" => "required|string",
@@ -19,9 +19,9 @@ class StokBarangController extends Controller
 
             StokBarang::create($validated);
 
-            return redirect()->back()->with(["code" => 201 ,"status" => "success"]);
+            return response()->json(['status' => 'success'], 201);
         } catch (Exception $e) {
-            return redirect()->back()->with(["code"=> 404 , "status" => "failed"]);
+            return response()->json(['status' => 'failed', 'error' => $e->getMessage() ], 404);
         }
     }
 
@@ -65,6 +65,6 @@ class StokBarangController extends Controller
         $StokBarang = StokBarang::findOrFail($id);
         $StokBarang->delete();
 
-        return redirect()->back()->with(["code"=> 200, "status"=> "success"]);
+        return response()->json(["status" => 'success'], 200);
     }
 }
