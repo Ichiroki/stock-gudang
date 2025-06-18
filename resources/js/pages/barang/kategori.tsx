@@ -9,7 +9,7 @@ import Kategori from '@/types/Kategori';
 import { Head } from '@inertiajs/react';
 import axios from 'axios';
 import { FormEvent, useState } from 'react';
-import { toast } from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -18,11 +18,50 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
+interface KategoriType {
+    id?: number
+    name: string
+}
+
 export default function KategoriDashboard({kategoris}: Kategori) {
 
-    const [formData, setFormData] = useState({
+    const [formData, setFormData] = useState<KategoriType>({
         name: ''
     })
+
+    const [editFormData, setEditFormData] = useState<KategoriType>({
+        id: 0,
+        name: ''
+    })
+
+    const fetchKategori = async (id: number) => {
+        try {
+            await fetch(`/kategori/${id}/edit`)
+            .then((res) => res.json())
+            .then((res) => {
+                const data = res.data
+
+                setEditFormData({
+                    id: data.id,
+                    name: data.name,
+                })
+            })
+        } catch(e) {
+            console.error(e)
+        }
+    }
+
+    const handleChange = async (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        e.preventDefault()
+        const { name, value } = e.target
+        setFormData(prev => ({...prev, [name]: value}))
+    }
+
+    const handleEditChange = async (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        e.preventDefault()
+        const { name, value } = e.target
+        setEditFormData(prev => ({...prev, [name]: value}))
+    }
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault()
@@ -31,6 +70,20 @@ export default function KategoriDashboard({kategoris}: Kategori) {
             .then((res) => {
                 if(res.data.status === "success") {
                     toast('Data kategori berhasil ditambahkan')
+                }
+            })
+        } catch(e) {
+            toast(`Njir gagal ${e}`)
+        }
+    }
+
+    const handleUpdate = (id: number) => async (e: FormEvent) => {
+        e.preventDefault()
+        try {
+            await axios.put(`/kategori/${id}/update`, editFormData)
+            .then((res) => {
+                if(res.data.status === "success") {
+                    toast('Data kategori berhasil diubah')
                 }
             })
         } catch(e) {
@@ -52,14 +105,9 @@ export default function KategoriDashboard({kategoris}: Kategori) {
         }
     }
 
-    const handleChange = async (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        e.preventDefault()
-        const { name, value } = e.target
-        setFormData(prev => ({...prev, [name]: value}))
-    }
-
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
+            <ToastContainer/>
             <Head title="Kategori" />
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4 overflow-x-auto">
                 <div className="flex flex-col md:flex-row gap-3 w-full">
@@ -134,7 +182,7 @@ export default function KategoriDashboard({kategoris}: Kategori) {
                                     <td className="px-4 py-2 flex items-center justify-center gap-2">
                                         {/* Edit */}
                                         <Dialog>
-                                            <DialogTrigger className="cursor-pointer bg-yellow-400 hover:bg-transparent border rounded-md hover:border-yellow-400 transition text-gray-900 w-full px-3">
+                                            <DialogTrigger className="cursor-pointer bg-yellow-400 hover:bg-transparent border rounded-md hover:border-yellow-400 transition text-gray-900 w-full px-3" onClick={() => fetchKategori(kategori.id)}>
                                                 Ubah
                                             </DialogTrigger>
                                             <DialogContent>
@@ -143,20 +191,18 @@ export default function KategoriDashboard({kategoris}: Kategori) {
                                                         Ubah Kategori
                                                     </DialogTitle>
                                                 </DialogHeader>
-                                                <DialogDescription className='overflow-auto h-64 md:h-96 scrollable-container'>
-                                                    <form>
+                                                <form onSubmit={handleUpdate(kategori.id)}>
+                                                    <DialogDescription className='overflow-auto h-64 md:h-96 scrollable-container'>
                                                         <div className='mb-3'>
                                                             <Label>Nama</Label>
-                                                            <Input type="text"></Input>
+                                                            <Input type="text" name="name" onChange={handleEditChange} value={editFormData.name}></Input>
                                                         </div>
-                                                    </form>
-                                                </DialogDescription>
-                                                <DialogFooter>
-                                                    <Button type='submit' className='w-full bg-green-400'>Kirim</Button>
-                                                    <DialogClose>
-                                                        <Button className='cursor-pointer bg-rose-500 text-gray-50'>Tutup</Button>
-                                                    </DialogClose>
-                                                </DialogFooter>
+                                                    </DialogDescription>
+                                                    <DialogFooter>
+                                                        <Button type='submit' className='w-full bg-green-400'>Kirim</Button>
+                                                        <DialogClose className='cursor-pointer bg-rose-500 text-gray-50'>Tutup</DialogClose>
+                                                    </DialogFooter>
+                                                </form>
                                             </DialogContent>
                                         </Dialog>
                                         {/* Edit */}

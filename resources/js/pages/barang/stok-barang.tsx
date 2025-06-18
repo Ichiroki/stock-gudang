@@ -300,34 +300,34 @@ export default function StokBarangDashboard({stok_barang, products}: StokBarang)
                                                 </DialogHeader>
                                                 <form onSubmit={handleUpdate}>
                                                     <DialogDescription className='overflow-auto h-64 md:h-96 scrollable-container'>
-                                                            <div className='mb-3'>
-                                                                <Label>Produk</Label>
-                                                                <select
-                                                                    name="product"
-                                                                    value={editFormData.product}
-                                                                    onChange={handleEditChange}
-                                                                    className="w-full mt-1 mb-2 border rounded p-2"
-                                                                >
-                                                                    <option value="">-- Pilih Produk --</option>
-                                                                    {products.map((p, i) => (
-                                                                    <option key={i} value={p.id}>
-                                                                        {p.name}
-                                                                    </option>
-                                                                    ))}
-                                                                </select>
-                                                            </div>
-                                                            <div className='mb-3'>
-                                                                <Label>Stok</Label>
-                                                                <Input type="text" name="stock" onChange={handleEditChange} value={editFormData.stock}></Input>
-                                                            </div>
-                                                            <div className='mb-3'>
-                                                                <Label>Minimum Stok</Label>
-                                                                <Input type="text" name="minimum_stock" onChange={handleEditChange} value={editFormData.minimum_stock}></Input>
-                                                            </div>
-                                                            <div className='mb-3'>
-                                                                <Label>Diubah Oleh</Label>
-                                                                <Input type="text" name="last_updated_by" onChange={handleEditChange} value={editFormData.last_updated_by}></Input>
-                                                            </div>
+                                                        <div className='mb-3'>
+                                                            <Label>Produk</Label>
+                                                            <select
+                                                                name="product"
+                                                                value={editFormData.product}
+                                                                onChange={handleEditChange}
+                                                                className="w-full mt-1 mb-2 border rounded p-2"
+                                                            >
+                                                                <option value="">-- Pilih Produk --</option>
+                                                                {products.map((p, i) => (
+                                                                <option key={i} value={p.id}>
+                                                                    {p.name}
+                                                                </option>
+                                                                ))}
+                                                            </select>
+                                                        </div>
+                                                        <div className='mb-3'>
+                                                            <Label>Stok</Label>
+                                                            <Input type="text" name="stock" onChange={handleEditChange} value={editFormData.stock}></Input>
+                                                        </div>
+                                                        <div className='mb-3'>
+                                                            <Label>Minimum Stok</Label>
+                                                            <Input type="text" name="minimum_stock" onChange={handleEditChange} value={editFormData.minimum_stock}></Input>
+                                                        </div>
+                                                        <div className='mb-3'>
+                                                            <Label>Diubah Oleh</Label>
+                                                            <Input type="text" name="last_updated_by" onChange={handleEditChange} value={editFormData.last_updated_by}></Input>
+                                                        </div>
                                                     </DialogDescription>
                                                     <DialogFooter>
                                                         <Button type='submit' className='w-full bg-green-400'>Kirim</Button>
