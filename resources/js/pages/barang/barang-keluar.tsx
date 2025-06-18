@@ -10,7 +10,7 @@ import BarangKeluar from '@/types/BarangKeluar';
 import { Head, router } from '@inertiajs/react';
 import axios from 'axios';
 import { useState } from 'react';
-import { toast } from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -35,7 +35,6 @@ interface BarangKeluarType {
 }
 
 export default function BarangKeluarDashboard({barang_keluar, product}: BarangKeluar) {
-
     const [barangKeluar, setBarangKeluar] = useState<BarangKeluarType | null>(null)
 
     const [formData, setFormData] = useState({
@@ -46,6 +45,7 @@ export default function BarangKeluarDashboard({barang_keluar, product}: BarangKe
         created_by: '',
         product_details: [{ product_id: 0, quantity: 1, unit_price: 0, subtotal: 0 }]
     })
+
 
     const [editFormData, setEditFormData] = useState({
         id: 0,
@@ -124,20 +124,17 @@ export default function BarangKeluarDashboard({barang_keluar, product}: BarangKe
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         try {
-            router.post('/barang-keluar/store', formData, {
-                onSuccess: (page) => {
-                    const flash = page.props.flash
-                    if(flash?.code == 201 && flash?.status == "success") {
-                        return toast("barang-masuk berhasil disimpan")
-                    }
-                },
-                onError: (page) => {
-                    const flash = page.props.flash
-                    if(flash?.code == 404 && flash?.status == "failed") {
-                        return toast("barang-masuk gagal tersimpan")
-                    }
-                }
+            const res = await axios.put(`/barang-keluar/store`, {
+                reference_code: formData.reference_code,
+                date: formData.date,
+                supplier_name: formData.supplier_name,
+                description: formData.description,
+                created_by: formData.created_by,
             })
+
+            if(res.status == 200 && res.data.status == "success") {
+                toast("barang-masuk berhasil diperbarui")
+            }
         } catch(e) {
             console.error("error njir", e)
         }
@@ -165,20 +162,25 @@ export default function BarangKeluarDashboard({barang_keluar, product}: BarangKe
     const handleDelete = (id: number) => async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
-        router.delete(`/barang-masuk/${id}/delete`, {
-            onSuccess: (page) => {
-                const flash = page.props.flash;
-                if (flash?.code === 200 && flash?.status === "success") {
-                    return toast("barang-masuk berhasil dihapus");
+        try {
+            await axios.delete(`/barang-keluar/${id}/delete`)
+            .then((res) => {
+                console.log(res)
+                if(res.status == 200) {
+                    toast.success("data barang masuk ini berhasil dihapus", {
+                        position: 'top-right',
+                        autoClose: 5000,
+                        pauseOnHover: true,
+                        draggable: true,
+                        theme: "light",
+                    });
+                } else {
+                    toast.error("data barang masuk ini gagal dihapus");
                 }
-            },
-            onError: (page) => {
-                const flash = page.props.flash;
-                if (flash?.code == 404 && flash?.status == "failed") {
-                    return toast("barang-masuk gagal dihapus");
-                }
-            }
-        });
+            })
+        } catch(e) {
+            toast(`Internal server error, try again ${e}`)
+        }
     };
 
     const showBarangMasuk = async (id: number) => {
@@ -195,6 +197,7 @@ export default function BarangKeluarDashboard({barang_keluar, product}: BarangKe
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
+            <ToastContainer/>
             <Head title="Barang Masuk" />
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4 overflow-x-auto">
                 <div className="flex flex-col md:flex-row gap-3 w-full">
@@ -225,11 +228,7 @@ export default function BarangKeluarDashboard({barang_keluar, product}: BarangKe
                                             </div>
                                             <div className='mb-3 flex flex-col'>
                                                 <Label className='mb-1'>Deskripsi</Label>
-                                                <textarea name="description" id="" className={cn(
-                                                    "border-input file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground flex h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
-                                                    "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
-                                                    "aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
-                                                )}>{formData.description}</textarea>
+                                                <Input type="text" name="description" onChange={handleChange} value={formData.description} className=''></Input>
                                             </div>
                                             <div className='mb-3'>
                                                 <Label>Dibuat Oleh</Label>
@@ -469,7 +468,7 @@ export default function BarangKeluarDashboard({barang_keluar, product}: BarangKe
                                                         Hapus Barang Masuk
                                                     </DialogTitle>
                                                 </DialogHeader>
-                                                <form action="" onSubmit={() => handleDelete(barang.id)}>
+                                                <form action="" onSubmit={handleDelete(barang.id)}>
                                                     <DialogDescription className='overflow-auto h-64 md:h-96 scrollable-container flex items-center justify-center'>
                                                         <p>Apakah anda yakin ingin menghapus data ini ?</p>
                                                     </DialogDescription>

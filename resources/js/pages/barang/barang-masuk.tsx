@@ -53,6 +53,7 @@ export default function BarangMasukPage({barang_masuk, product}: BarangMasuk) {
         supplier_name: '',
         description: '',
         created_by: '',
+        product_details: [{ product_id: 0, quantity: 1, unit_price: 0, subtotal: 0 }]
     })
 
     const handleDetailChange = (i: number, e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -102,7 +103,8 @@ export default function BarangMasukPage({barang_masuk, product}: BarangMasuk) {
                     date: data.date,
                     supplier_name: data.supplier_name,
                     description: data.description,
-                    created_by: data.created_by
+                    created_by: data.created_by,
+                    product_details: data.product_details
                 })
             })
         } catch(e) {
@@ -123,20 +125,18 @@ export default function BarangMasukPage({barang_masuk, product}: BarangMasuk) {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         try {
-            router.post('/barang-masuk/store', formData, {
-                onSuccess: (page) => {
-                    const flash = page.props.flash
-                    if(flash?.code == 201 && flash?.status == "success") {
-                        return toast("barang-masuk berhasil disimpan")
-                    }
-                },
-                onError: (page) => {
-                    const flash = page.props.flash
-                    if(flash?.code == 404 && flash?.status == "failed") {
-                        return toast("barang-masuk gagal tersimpan")
-                    }
-                }
+            const res = await axios.post(`/barang-masuk/store`, {
+                reference_code: formData.reference_code,
+                date: formData.date,
+                supplier_name: formData.supplier_name,
+                description: formData.description,
+                created_by: formData.created_by,
+                product_details: formData.product_details,
             })
+
+            if(res.status == 200 && res.data.status == "success") {
+                toast("barang-masuk berhasil diperbarui")
+            }
         } catch(e) {
             console.error("error njir", e)
         }
@@ -151,6 +151,7 @@ export default function BarangMasukPage({barang_masuk, product}: BarangMasuk) {
                 supplier_name: editFormData.supplier_name,
                 description: editFormData.description,
                 created_by: editFormData.created_by,
+                product_details: editFormData.product_details,
             })
 
             if(res.status == 200 && res.data.status == "success") {
@@ -228,7 +229,7 @@ export default function BarangMasukPage({barang_masuk, product}: BarangMasuk) {
                                                     "border-input file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground flex h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
                                                     "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
                                                     "aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
-                                                )}>{formData.description}</textarea>
+                                                )} value={formData.description} onChange={handleChange}></textarea>
                                             </div>
                                             <div className='mb-3'>
                                                 <Label>Dibuat Oleh</Label>
