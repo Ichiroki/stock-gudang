@@ -8,10 +8,11 @@ import { addField, createHandleDetailChange, removeField } from '@/lib/handlers/
 import { createHandleChange, createHandleDelete, createHandleEditChange, createHandleSubmit, createHandleUpdate, createShow } from '@/lib/handlers/useHandlers';
 import { cn } from '@/lib/utils';
 import { type BreadcrumbItem } from '@/types';
-import BarangMasuk from '@/types/BarangMasuk';
+import BarangMasuk, { BarangMasukStateType } from '@/types/BarangMasuk';
 import { Head } from '@inertiajs/react';
 import { useState } from 'react';
 import { ToastContainer } from 'react-toastify';
+import { ProductDetailType } from '@/types/ProdukType';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -20,24 +21,8 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-interface BarangMasukType {
-    id: number
-    reference_code: string
-    date: string
-    supplier_name: string
-    description: string
-    created_by: string
-    details: {
-        product: {
-            id: number,
-            name: string,
-            unit_price: number
-        }
-    }[]
-}
-
 export default function BarangMasukPage({barang_masuk, product}: BarangMasuk) {
-    const [barangMasuk, setBarangMasuk] = useState<BarangMasukType | null>(null)
+    const [barangMasuk, setBarangMasuk] = useState<BarangMasukStateType | null>(null)
     const [formData, setFormData] = useState({
         reference_code: '',
         date: '',
@@ -86,12 +71,12 @@ export default function BarangMasukPage({barang_masuk, product}: BarangMasuk) {
             .then((res) => {
                 const data = res.data[0]
 
-                const product_details = data.details.map((detail: any) => ({
+                const product_details = data.details.map((detail: ProductDetailType) => ({
                     id: data.id,
                     product_id: detail.produk_id,
                     quantity: detail.quantity,
-                    unit_price: parseFloat(detail.unit_price),
-                    subtotal: parseFloat(detail.subtotal),
+                    unit_price: detail.unit_price,
+                    subtotal: detail.subtotal,
                     produk: detail.produk
                 }))
 
@@ -110,7 +95,8 @@ export default function BarangMasukPage({barang_masuk, product}: BarangMasuk) {
         }
     }
 
-    const showBarangMasuk = (id: number) => createShow<BarangMasukType>(setBarangMasuk, `/barang-masuk/${id}`, (data) => ({
+    const showBarangMasuk = (id: number) => createShow<BarangMasukStateType | null>(setBarangMasuk, `/barang-masuk/${id}`, (data) => ({
+        id: data.id,
         reference_code: data.reference_code,
         date: data.date,
         supplier_name: data.supplier_name,

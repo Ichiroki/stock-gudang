@@ -4,36 +4,32 @@ import { toast } from 'react-toastify'
 
 type Setter<T> = React.Dispatch<React.SetStateAction<T>>
 
-export const createHandleChange = <T extends object>(setter: Setter<T>) => (e: ChangeEvent<HTMLInputElement | HTMLFormElement>) => {
+export const createHandleChange = <T extends object>(setter: Setter<T>) => (e: ChangeEvent<HTMLInputElement | HTMLFormElement | HTMLTextAreaElement>) => {
     e.preventDefault()
     const { name, value } = e.target
     setter(prev => ({...prev, [name]: value}))
 }
 
-export const createHandleEditChange = <T extends object>(setter: Setter<T>) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+export const createHandleEditChange = <T extends object>(setter: Setter<T>) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLTextAreaElement>) => {
     e.preventDefault()
     const { name, value } = e.target
     setter(prev => ({...prev, [name]: value}))
 }
 
-export const createShow = <T extends object>(
-        setter: React.Dispatch<React.SetStateAction<T>>,
-        url: string,
-        mapFn?: (data: any) => T
-    ) => async() => {
+export const createShow = <T, R = any>(
+    setter: React.Dispatch<React.SetStateAction<T>>,
+    url: string,
+    mapFn?: (data: R) => T
+  ) => async () => {
     try {
-        const res = await axios.get(url)
-        const data = res.data.data
+      const res = await axios.get(url)
+      const data: R = res.data.data
 
-        if(mapFn) {
-            setter(mapFn(data))
-        } else {
-            setter(data)
-        }
-    } catch(e) {
-        console.error('njir error', e)
+      setter(mapFn ? mapFn(data) : (data as unknown as T))
+    } catch (e) {
+      console.error('njir error', e)
     }
-}
+  }
 
 export const createHandleSubmit = (url: string, data: any, successMessage: string) => async (e: FormEvent) => {
     e.preventDefault()

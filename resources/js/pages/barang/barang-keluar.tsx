@@ -90,7 +90,7 @@ export default function BarangKeluarDashboard({barang_keluar, product}: BarangKe
     const handleUpdate = (id: number) => createHandleUpdate(`/barang-keluar/${id}/update`, editFormData, 'Data Barang Keluar berhasil diubah')
     const handleDelete = (id: number) => createHandleDelete(`/barang-keluar/${id}/delete`, 'Data barang keluar berhasil dihapus')
 
-    const showBarangKeluar = (id: number) => createShow<BarangKeluarStateType>(setBarangKeluar, `/barang-keluar/${id}`, (data) => ({
+    const showBarangKeluar = (id: number) => createShow<BarangKeluarStateType | null>(setBarangKeluar, `/barang-keluar/${id}`, (data) => ({
         reference_code: data.reference_code,
         date: data.date,
         recipient_name: data.recipient_name,
