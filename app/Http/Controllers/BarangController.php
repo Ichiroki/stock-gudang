@@ -81,6 +81,7 @@ class BarangController extends Controller
             "description" => "required|string",
             "created_by" => "required",
             "product_details" => "required|array",
+            "product_details.*.id" => 'required|integer',
             "product_details.*.product_id" => "required|exists:produks,id",
             "product_details.*.quantity" => "required|integer",
             "product_details.*.unit_price" => "required|numeric",
@@ -97,8 +98,13 @@ class BarangController extends Controller
                 'created_by' => $validated['created_by'],
             ]);
 
+            BarangMasukDetail::where('barang_masuk_id', $id)->delete();
+
             foreach ($validated['product_details'] as $detail) {
-                BarangMasukDetail::where('barang_masuk_id', '=', $id)->update([
+                BarangMasukDetail::updateOrCreate(
+                    ['id' => $detail['id']],
+                    [
+                    'barang_masuk_id' => $id,
                     'produk_id' => $detail['product_id'],
                     'quantity' => $detail['quantity'],
                     'unit_price' => $detail['unit_price'],

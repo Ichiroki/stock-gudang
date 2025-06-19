@@ -54,7 +54,7 @@ export default function BarangMasukPage({barang_masuk, product}: BarangMasuk) {
         supplier_name: '',
         description: '',
         created_by: '',
-        product_details: [{ product_id: 0, quantity: 1, unit_price: 0, subtotal: 0 }]
+        product_details: [{ id: 0, product_id: 0, quantity: 1, unit_price: 0, subtotal: 0 }]
     })
 
     const handleChange = createHandleChange(setFormData)
@@ -69,7 +69,15 @@ export default function BarangMasukPage({barang_masuk, product}: BarangMasuk) {
         subtotal: 0,
     })
 
+    const addEditProductField = () => addField(setEditFormData, 'product_details', {
+        product_id: 0,
+        quantity: 0,
+        unit_price: 0,
+        subtotal: 0,
+    })
+
     const removeProductField = (index: number) => removeField(setFormData, 'product_details', index)
+    const removeEditProductField = (index: number) => removeField(setEditFormData, 'product_details', index)
 
     const fetchBarangMasuk = async (id: number) => {
         try {
@@ -79,6 +87,7 @@ export default function BarangMasukPage({barang_masuk, product}: BarangMasuk) {
                 const data = res.data[0]
 
                 const product_details = data.details.map((detail: any) => ({
+                    id: data.id,
                     product_id: detail.produk_id,
                     quantity: detail.quantity,
                     unit_price: parseFloat(detail.unit_price),
@@ -111,7 +120,7 @@ export default function BarangMasukPage({barang_masuk, product}: BarangMasuk) {
     }))
 
     const handleSubmit = createHandleSubmit("/barang-masuk/store", formData, "Data Barang Masuk berhasil diubah")
-    const handleUpdate = (id: number) => createHandleUpdate(`/barang-masuk/${id}/update`, editFormData, "Barang Masuk berhasil diubah")
+    const handleUpdate = createHandleUpdate(`/barang-masuk/${editFormData.id}/update`, editFormData, "Barang Masuk berhasil diubah")
     const handleDelete = (id: number) => createHandleDelete(`/barang-masuk/${id}/delete`, "Barang Masuk berhasil dihapus")
 
     return (
@@ -340,7 +349,7 @@ export default function BarangMasukPage({barang_masuk, product}: BarangMasuk) {
                                                     Ubah Barang Masuk
                                                 </DialogTitle>
                                             </DialogHeader>
-                                            <form onSubmit={handleUpdate(barang.id)}>
+                                            <form onSubmit={handleUpdate}>
                                                 <DialogDescription className='overflow-auto h-64 md:h-96 scrollable-container'>
                                                     <div className='mb-3'>
                                                         <Label>Kode Referensi</Label>
@@ -385,6 +394,13 @@ export default function BarangMasukPage({barang_masuk, product}: BarangMasuk) {
                                                                 ))}
                                                             </select>
 
+                                                            <Input
+                                                                name="id"
+                                                                type="hidden"
+                                                                value={detail.id}
+                                                                onChange={(e) => handleEditDetailChange(index, e)}
+                                                            />
+
                                                             <Label>Quantity</Label>
                                                             <Input
                                                                 name="quantity"
@@ -412,20 +428,22 @@ export default function BarangMasukPage({barang_masuk, product}: BarangMasuk) {
                                                             />
 
                                                             {formData.product_details.length > 1 && (
-                                                                <Button type="button" className="mt-2 bg-red-400" onClick={() => removeProductField(index)}>
+                                                                <Button type="button" className="mt-2 bg-red-400" onClick={() => removeEditProductField(index)}>
                                                                 Hapus Produk Ini
                                                                 </Button>
                                                             )}
                                                             </div>
                                                         ))}
                                                     </div>
-                                                    <Button type="button" className="w-full mt-2 bg-yellow-400" onClick={addProductField}>
+                                                    <Button type="button" className="w-full mt-2 bg-yellow-400" onClick={addEditProductField}>
                                                         + Edit Produk
                                                     </Button>
                                                     </DialogDescription>
                                                     <DialogFooter>
+                                                        <DialogClose asChild>
+                                                            <Button type='button' className='cursor-pointer bg-rose-500 text-gray-50'>Tutup</Button>
+                                                        </DialogClose>
                                                         <Button type='submit' className='w-full bg-green-400'>Kirim</Button>
-                                                        <DialogClose className='cursor-pointer bg-rose-500 text-gray-50'>Tutup</DialogClose>
                                                     </DialogFooter>
                                                 </form>
                                             </DialogContent>

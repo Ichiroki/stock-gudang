@@ -84,7 +84,7 @@ export default function BarangKeluarDashboard({barang_keluar, product}: BarangKe
     }
 
     const handleChange = () => createHandleDetailChange(setFormData, () => product, 'product_details')
-    const handleEditChange = () => createHandleDetailChange(setFormData, () => product, 'product_details')
+    const handleEditChange = () => createHandleDetailChange(setEditFormData, () => product, 'product_details')
 
     const handleSubmit = createHandleSubmit(`/barang-keluar/store`, formData, 'Data Barang Keluar berhasil ditambahkan')
     const handleUpdate = (id: number) => createHandleUpdate(`/barang-keluar/${id}/update`, editFormData, 'Data Barang Keluar berhasil diubah')
@@ -440,7 +440,9 @@ export default function BarangKeluarDashboard({barang_keluar, product}: BarangKe
                                                         <p>Apakah anda yakin ingin menghapus data ini ?</p>
                                                     </DialogDescription>
                                                     <DialogFooter className='flex flex-col-reverse'>
-                                                        <DialogClose className='cursor-pointer bg-rose-500 text-gray-50'>Tutup</DialogClose>
+                                                        <DialogClose asChild >
+                                                            <Button className='cursor-pointer bg-rose-500 text-gray-50'>Tutup</Button>
+                                                        </DialogClose>
                                                         <Button type='submit' className='w-full bg-green-400'>Ya, Hapus data ini</Button>
                                                     </DialogFooter>
                                                 </form>
