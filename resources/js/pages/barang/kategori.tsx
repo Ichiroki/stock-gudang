@@ -4,12 +4,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectSeparator, SelectTrigger } from '@/components/ui/select';
 import AppLayout from '@/layouts/app-layout';
+import { createHandleChange, createHandleDelete, createHandleEditChange, createHandleSubmit, createHandleUpdate } from '@/lib/handlers/useHandlers';
 import { type BreadcrumbItem } from '@/types';
 import Kategori from '@/types/Kategori';
 import { Head } from '@inertiajs/react';
-import axios from 'axios';
-import { FormEvent, useState } from 'react';
-import { toast, ToastContainer } from 'react-toastify';
+import { useState } from 'react';
+import { ToastContainer } from 'react-toastify';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -24,7 +24,6 @@ interface KategoriType {
 }
 
 export default function KategoriDashboard({kategoris}: Kategori) {
-
     const [formData, setFormData] = useState<KategoriType>({
         name: ''
     })
@@ -33,6 +32,13 @@ export default function KategoriDashboard({kategoris}: Kategori) {
         id: 0,
         name: ''
     })
+
+    const handleChange = createHandleChange(setFormData)
+    const handleEditChange = createHandleEditChange(setEditFormData)
+
+    const handleSubmit = createHandleSubmit("/kategori/store", formData, "Data Kategori berhasil diubah")
+    const handleUpdate = (id: number) => createHandleUpdate(`/kategori/${id}/update`, editFormData, "Kategori berhasil diubah")
+    const handleDelete = (id: number) => createHandleDelete(`/kategori/${id}/delete`, "Kategori berhasil dihapus")
 
     const fetchKategori = async (id: number) => {
         try {
@@ -48,60 +54,6 @@ export default function KategoriDashboard({kategoris}: Kategori) {
             })
         } catch(e) {
             console.error(e)
-        }
-    }
-
-    const handleChange = async (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        e.preventDefault()
-        const { name, value } = e.target
-        setFormData(prev => ({...prev, [name]: value}))
-    }
-
-    const handleEditChange = async (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        e.preventDefault()
-        const { name, value } = e.target
-        setEditFormData(prev => ({...prev, [name]: value}))
-    }
-
-    const handleSubmit = async (e: FormEvent) => {
-        e.preventDefault()
-        try {
-            await axios.post(`/kategori/store`, formData)
-            .then((res) => {
-                if(res.data.status === "success") {
-                    toast('Data kategori berhasil ditambahkan')
-                }
-            })
-        } catch(e) {
-            toast(`Njir gagal ${e}`)
-        }
-    }
-
-    const handleUpdate = (id: number) => async (e: FormEvent) => {
-        e.preventDefault()
-        try {
-            await axios.put(`/kategori/${id}/update`, editFormData)
-            .then((res) => {
-                if(res.data.status === "success") {
-                    toast('Data kategori berhasil diubah')
-                }
-            })
-        } catch(e) {
-            toast(`Njir gagal ${e}`)
-        }
-    }
-
-    const handleDelete = (id: number) => async (e: FormEvent) => {
-        e.preventDefault()
-        try {
-            await axios.delete(`/kategori/${id}/delete`)
-            .then((res) => {
-                if(res.data.status === "success") {
-                    toast('Data kategori berhasil ditambahkan')
-                }
-            })
-        } catch(e) {
-            toast(`Njir gagal ${e}`)
         }
     }
 

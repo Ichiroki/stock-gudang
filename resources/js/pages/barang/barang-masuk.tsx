@@ -4,13 +4,14 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectSeparator, SelectTrigger } from '@/components/ui/select';
 import AppLayout from '@/layouts/app-layout';
+import { addField, createHandleDetailChange, removeField } from '@/lib/handlers/useInputs';
+import { createHandleChange, createHandleDelete, createHandleEditChange, createHandleSubmit, createHandleUpdate, createShow } from '@/lib/handlers/useHandlers';
 import { cn } from '@/lib/utils';
 import { type BreadcrumbItem } from '@/types';
 import BarangMasuk from '@/types/BarangMasuk';
 import { Head } from '@inertiajs/react';
-import axios from 'axios';
 import { useState } from 'react';
-import { toast } from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -20,6 +21,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 interface BarangMasukType {
+    id: number
     reference_code: string
     date: string
     supplier_name: string
@@ -36,7 +38,6 @@ interface BarangMasukType {
 
 export default function BarangMasukPage({barang_masuk, product}: BarangMasuk) {
     const [barangMasuk, setBarangMasuk] = useState<BarangMasukType | null>(null)
-
     const [formData, setFormData] = useState({
         reference_code: '',
         date: '',
@@ -56,63 +57,19 @@ export default function BarangMasukPage({barang_masuk, product}: BarangMasuk) {
         product_details: [{ product_id: 0, quantity: 1, unit_price: 0, subtotal: 0 }]
     })
 
-    const handleDetailChange = (i: number, e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        const {name, value} = e.target
-        const updated = [...formData.product_details]
+    const handleChange = createHandleChange(setFormData)
+    const handleEditChange = createHandleEditChange(setEditFormData)
+    const handleDetailChange = createHandleDetailChange(setFormData, () => product, 'product_details')
+    const handleEditDetailChange = createHandleDetailChange(setEditFormData, () => product, 'product_details')
 
-        updated[i] = { ...updated[i], [e.target.name]: e.target.value }
+    const addProductField = () => addField(setFormData, 'product_details', {
+        product_id: 0,
+        quantity: 0,
+        unit_price: 0,
+        subtotal: 0,
+    })
 
-        if(name == "product_id") {
-            const selectedProduct = product.find(p => parseInt(p.id) === parseInt(value))
-            if(selectedProduct) {
-                updated[i].unit_price = selectedProduct.unit_price
-            } else {
-                updated[i].unit_price = 0
-            }
-        }
-
-        const quantity = updated[i].quantity || 0
-        const unit_price = updated[i].unit_price || 0
-        updated[i].subtotal = quantity * unit_price
-
-        setFormData({...formData, product_details: updated})
-    }
-
-    const handleEditDetailChange = (i: number, e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        const {name, value} = e.target
-        const updatedDetails = [...editFormData.product_details]
-
-        updatedDetails[i] = { ...updatedDetails[i], [name]: name === "quantity" ? parseInt(value) : value }
-
-        if(name == "product_id") {
-            const selectedProduct = product.find(p => parseInt(p.id) === parseInt(value))
-            if(selectedProduct) {
-                updatedDetails[i].unit_price = selectedProduct.unit_price
-            } else {
-                updatedDetails[i].unit_price = 0
-            }
-        }
-
-
-        const quantity = updatedDetails[i].quantity || 0
-        const unit_price = updatedDetails[i].unit_price || 0
-        updatedDetails[i].subtotal = quantity * unit_price
-
-        setEditFormData(prev => ({...prev, product_details: updatedDetails}))
-    }
-
-    const addProductField = () => {
-        setFormData({
-            ...formData,
-            product_details: [...formData.product_details, { product_id: 0, quantity: 1, unit_price: 0, subtotal: 0 }]
-        })
-    }
-
-    const removeProductField = (index: number) => {
-        const updated = [...formData.product_details];
-        updated.splice(index, 1);
-        setFormData({ ...formData, product_details: updated });
-    };
+    const removeProductField = (index: number) => removeField(setFormData, 'product_details', index)
 
     const fetchBarangMasuk = async (id: number) => {
         try {
@@ -144,89 +101,22 @@ export default function BarangMasukPage({barang_masuk, product}: BarangMasuk) {
         }
     }
 
-    const handleChange = async (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        const { name, value } = e.target
-        setFormData(prev => ({...prev, [name]: value}))
-    }
+    const showBarangMasuk = (id: number) => createShow<BarangMasukType>(setBarangMasuk, `/barang-masuk/${id}`, (data) => ({
+        reference_code: data.reference_code,
+        date: data.date,
+        supplier_name: data.supplier_name,
+        description: data.description,
+        created_by: data.created_by,
+        details: data.details
+    }))
 
-    const handleEditChange = async (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        const { name, value } = e.target
-        setEditFormData(prev => ({...prev, [name]: value}))
-    }
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault()
-        try {
-            const res = await axios.post(`/barang-masuk/store`, {
-                reference_code: formData.reference_code,
-                date: formData.date,
-                supplier_name: formData.supplier_name,
-                description: formData.description,
-                created_by: formData.created_by,
-                product_details: formData.product_details,
-            })
-
-            if(res.status == 200 && res.data.status == "success") {
-                toast("barang-masuk berhasil diperbarui")
-            }
-        } catch(e) {
-            console.error("error njir", e)
-        }
-    }
-
-    const handleUpdate = async (e: React.FormEvent) => {
-        e.preventDefault()
-        try {
-            const res = await axios.put(`/barang-masuk/${editFormData.id}/update`, {
-                reference_code: editFormData.reference_code,
-                date: editFormData.date,
-                supplier_name: editFormData.supplier_name,
-                description: editFormData.description,
-                created_by: editFormData.created_by,
-                product_details: editFormData.product_details,
-            })
-
-            if(res.status == 200 && res.data.status == "success") {
-                toast("barang-masuk berhasil diperbarui")
-            }
-        } catch(e) {
-            console.error("error njir", e)
-        }
-    }
-
-    const handleDelete = (id: number) => async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-
-        try {
-            await axios.delete(`/barang-masuk/${id}/delete`)
-            .then((res) => {
-                const status = res.data.status
-
-                if(res.status && status === "success") {
-                    return toast("data barang masuk ini berhasil dihapus");
-                } else {
-                    return toast("data barang masuk ini gagal dihapus");
-                }
-            })
-        } catch(e) {
-            return toast(`Internal server error, try again ${e}`)
-        }
-    };
-
-    const showBarangMasuk = async (id: number) => {
-        try {
-            await fetch(`/barang-masuk/${id}`)
-            .then((res) => res.json())
-            .then((res) => {
-                setBarangMasuk(res.data)
-            })
-        } catch(e) {
-            console.error('njir error', e)
-        }
-    }
+    const handleSubmit = createHandleSubmit("/barang-masuk/store", formData, "Data Barang Masuk berhasil diubah")
+    const handleUpdate = (id: number) => createHandleUpdate(`/barang-masuk/${id}/update`, editFormData, "Barang Masuk berhasil diubah")
+    const handleDelete = (id: number) => createHandleDelete(`/barang-masuk/${id}/delete`, "Barang Masuk berhasil dihapus")
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
+            <ToastContainer/>
             <Head title="Barang Masuk" />
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4 overflow-x-auto">
                 <div className="flex flex-col md:flex-row gap-3 w-full">
@@ -269,13 +159,13 @@ export default function BarangMasukPage({barang_masuk, product}: BarangMasuk) {
                                             </div>
                                             <div className='mb-3'>
                                                 <Label>Detail Produk</Label>
-                                                {formData.product_details.map((detail, index) => (
-                                                    <div key={index} className="mb-3 border p-3 rounded-md">
+                                                {formData.product_details.map((detail, i) => (
+                                                    <div key={i} className="mb-3 border p-3 rounded-md">
                                                     <Label>Produk</Label>
                                                     <select
                                                         name="product_id"
-                                                        value={detail.product_id}
-                                                        onChange={(e) => handleDetailChange(index, e)}
+                                                        value={formData.product_details[i].product_id}
+                                                        onChange={(e) => handleDetailChange(i, e)}
                                                         className="w-full mt-1 mb-2 border rounded p-2"
                                                     >
                                                         <option value="">-- Pilih Produk --</option>
@@ -290,16 +180,16 @@ export default function BarangMasukPage({barang_masuk, product}: BarangMasuk) {
                                                     <Input
                                                         name="quantity"
                                                         type="number"
-                                                        value={detail.quantity}
-                                                        onChange={(e) => handleDetailChange(index, e)}
+                                                        value={formData.product_details[i].quantity}
+                                                        onChange={(e) => handleDetailChange(i, e)}
                                                     />
 
                                                     <Label className="mt-2">Harga Satuan</Label>
                                                     <Input
                                                         name="unit_price"
                                                         type="number"
-                                                        value={detail.unit_price}
-                                                        onChange={(e) => handleDetailChange(index, e)}
+                                                        value={formData.product_details[i].unit_price}
+                                                        onChange={(e) => handleDetailChange(i, e)}
                                                         readOnly
                                                     />
 
@@ -307,13 +197,13 @@ export default function BarangMasukPage({barang_masuk, product}: BarangMasuk) {
                                                     <Input
                                                         name="subtotal"
                                                         type="number"
-                                                        value={detail.subtotal}
-                                                        onChange={(e) => handleDetailChange(index, e)}
+                                                        value={formData.product_details[i].subtotal}
+                                                        onChange={(e) => handleDetailChange(i, e)}
                                                         readOnly
                                                     />
 
                                                     {formData.product_details.length > 1 && (
-                                                        <Button type="button" className="mt-2 bg-red-400" onClick={() => removeProductField(index)}>
+                                                        <Button type="button" className="mt-2 bg-red-400" onClick={() => removeProductField(i)}>
                                                         Hapus Produk Ini
                                                         </Button>
                                                     )}
@@ -326,9 +216,7 @@ export default function BarangMasukPage({barang_masuk, product}: BarangMasuk) {
                                     </DialogDescription>
                                     <DialogFooter>
                                         <Button type='submit' className='w-full bg-green-400'>Kirim</Button>
-                                        <DialogClose>
-                                            <Button className='cursor-pointer bg-rose-500 text-gray-50'>Tutup</Button>
-                                        </DialogClose>
+                                        <DialogClose className='cursor-pointer bg-rose-500 text-gray-50'>Tutup</DialogClose>
                                     </DialogFooter>
                                 </form>
                             </DialogContent>
@@ -384,7 +272,7 @@ export default function BarangMasukPage({barang_masuk, product}: BarangMasuk) {
                                     <td className="px-4 py-2 flex items-center justify-center gap-2">
                                         {/* Show */}
                                         <Dialog>
-                                            <DialogTrigger onClick={() => showBarangMasuk(barang.id)} className="cursor-pointer bg-green-400 hover:bg-transparent border rounded-md hover:border-green-400 transition text-gray-900 w-full px-3">
+                                            <DialogTrigger onClick={showBarangMasuk(barang.id)} className="cursor-pointer bg-green-400 hover:bg-transparent border rounded-md hover:border-green-400 transition text-gray-900 w-full px-3">
                                                 Lihat
                                             </DialogTrigger>
                                             <DialogContent>
@@ -422,14 +310,13 @@ export default function BarangMasukPage({barang_masuk, product}: BarangMasuk) {
                                                                 <th className='border-2 px-5 text-center'>Nama</th>
                                                                 <th className='border-2 px-5 text-center'>Harga Unit</th>
                                                             </tr>
-                                                            {barangMasuk.details.map((detail, i) => (
-                                                                <tr key={detail.product.id}>
-                                                                    <td className='border-2 px-5 text-center'>{i}</td>
+                                                            {barangMasuk.details.map((detail, i) =>
+                                                                <tr key={i}>
+                                                                    <td className='border-2 px-5 text-center'>{i + 1}</td>
                                                                     <td className='border-2 px-5 text-center'>{detail.product.name}</td>
                                                                     <td className='border-2 px-5 text-center'>{detail.product.unit_price}</td>
                                                                 </tr>
-                                                            ))
-                                                            }
+                                                            )}
                                                         </table>
                                                     </>
                                                     )}
@@ -453,7 +340,7 @@ export default function BarangMasukPage({barang_masuk, product}: BarangMasuk) {
                                                     Ubah Barang Masuk
                                                 </DialogTitle>
                                             </DialogHeader>
-                                            <form onSubmit={handleUpdate}>
+                                            <form onSubmit={handleUpdate(barang.id)}>
                                                 <DialogDescription className='overflow-auto h-64 md:h-96 scrollable-container'>
                                                     <div className='mb-3'>
                                                         <Label>Kode Referensi</Label>
@@ -533,14 +420,12 @@ export default function BarangMasukPage({barang_masuk, product}: BarangMasuk) {
                                                         ))}
                                                     </div>
                                                     <Button type="button" className="w-full mt-2 bg-yellow-400" onClick={addProductField}>
-                                                        + Tambah Produk
+                                                        + Edit Produk
                                                     </Button>
                                                     </DialogDescription>
                                                     <DialogFooter>
                                                         <Button type='submit' className='w-full bg-green-400'>Kirim</Button>
-                                                        <DialogClose>
-                                                            <Button className='cursor-pointer bg-rose-500 text-gray-50'>Tutup</Button>
-                                                        </DialogClose>
+                                                        <DialogClose className='cursor-pointer bg-rose-500 text-gray-50'>Tutup</DialogClose>
                                                     </DialogFooter>
                                                 </form>
                                             </DialogContent>

@@ -7,8 +7,15 @@ type ProductType = {
     minimum_stock: number
 }
 
-interface Products {
+export interface Products {
     products: ProductType[]
 }
 
-export default Products
+export interface ProductDetailType {
+    id: number
+    produk_id: number
+    quantity: number
+    unit_price: number
+    subtotal: number
+    produk: Products
+}

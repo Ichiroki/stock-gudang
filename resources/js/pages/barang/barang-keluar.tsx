@@ -4,13 +4,15 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectSeparator, SelectTrigger } from '@/components/ui/select';
 import AppLayout from '@/layouts/app-layout';
+import { createHandleChange, createHandleDelete, createHandleSubmit, createHandleUpdate, createShow } from '@/lib/handlers/useHandlers';
+import { createHandleDetailChange } from '@/lib/handlers/useInputs';
 import { cn } from '@/lib/utils';
 import { type BreadcrumbItem } from '@/types';
-import BarangKeluar from '@/types/BarangKeluar';
+import { BarangKeluar, BarangKeluarStateType } from '@/types/BarangKeluar';
+import { ProductDetailType } from '@/types/ProdukType';
 import { Head } from '@inertiajs/react';
-import axios from 'axios';
 import { useState } from 'react';
-import { toast, ToastContainer } from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -19,23 +21,8 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-interface BarangKeluarType {
-    reference_code: string
-    date: string
-    recipient_name: string
-    description: string
-    created_by: string
-    details: {
-        product: {
-            id: number,
-            name: string,
-            unit_price: number
-        }
-    }[]
-}
-
 export default function BarangKeluarDashboard({barang_keluar, product}: BarangKeluar) {
-    const [barangKeluar, setBarangKeluar] = useState<BarangKeluarType | null>(null)
+    const [barangKeluar, setBarangKeluar] = useState<BarangKeluarStateType | null>(null)
 
     const [formData, setFormData] = useState({
         reference_code: '',
@@ -45,7 +32,6 @@ export default function BarangKeluarDashboard({barang_keluar, product}: BarangKe
         created_by: '',
         product_details: [{ id: 0, product_id: 0, quantity: 1, unit_price: 0, subtotal: 0 }]
     })
-
 
     const [editFormData, setEditFormData] = useState({
         id: 0,
@@ -57,65 +43,14 @@ export default function BarangKeluarDashboard({barang_keluar, product}: BarangKe
         product_details: [{ id: 0, product_id: 0, quantity: 1, unit_price: 0, subtotal: 0 }]
     })
 
-    const handleDetailChange = (i: number, e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        const {name, value} = e.target
-        const updated = [...formData.product_details]
+    const handleDetailChange = createHandleDetailChange(setFormData, () => product, 'product_details')
+    const handleEditDetailChange = createHandleDetailChange(setEditFormData, () => product, 'product_details')
 
-        updated[i] = { ...updated[i], [e.target.name]: e.target.value }
+    const addProductField = () => createHandleChange(setFormData)
 
-        if(name == "product_id") {
-            const selectedProduct = product.find(p => parseInt(p.id) === parseInt(value))
-            if(selectedProduct) {
-                updated[i].unit_price = selectedProduct.unit_price
-            } else {
-                updated[i].unit_price = 0
-            }
-        }
+    const removeProductField = () => createHandleChange(setFormData)
 
-        const quantity = updated[i].quantity || 0
-        const unit_price = updated[i].unit_price || 0
-        updated[i].subtotal = quantity * unit_price
-
-        setFormData({...formData, product_details: updated})
-    }
-
-    const handleEditDetailChange = (i: number, e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        const {name, value} = e.target
-        const updatedDetails = [...editFormData.product_details]
-
-        updatedDetails[i] = { ...updatedDetails[i], [name]: name === "quantity" ? parseInt(value) : value }
-
-        if(name == "product_id") {
-            const selectedProduct = product.find(p => parseInt(p.id) === parseInt(value))
-            if(selectedProduct) {
-                updatedDetails[i].unit_price = selectedProduct.unit_price
-            } else {
-                updatedDetails[i].unit_price = 0
-            }
-        }
-
-
-        const quantity = updatedDetails[i].quantity || 0
-        const unit_price = updatedDetails[i].unit_price || 0
-        updatedDetails[i].subtotal = quantity * unit_price
-
-        setEditFormData(prev => ({...prev, product_details: updatedDetails}))
-    }
-
-    const addProductField = () => {
-        setFormData({
-            ...formData,
-            product_details: [...formData.product_details, { id: 0, product_id: 0, quantity: 1, unit_price: 0, subtotal: 0 }]
-        })
-    }
-
-    const removeProductField = (index: number) => {
-        const updated = [...formData.product_details];
-        updated.splice(index, 1);
-        setFormData({ ...formData, product_details: updated });
-    };
-
-    const fetchBarangMasuk = async (id: number) => {
+    const fetchBarangKeluar = async (id: number) => {
         try {
             await fetch(`/barang-keluar/${id}/edit`)
             .then((res) => res.json())
@@ -124,12 +59,12 @@ export default function BarangKeluarDashboard({barang_keluar, product}: BarangKe
 
                 console.log(data)
 
-                const product_details = data.details.map((detail: any) => ({
+                const product_details = data.details.map((detail: ProductDetailType) => ({
                     id: detail.id,
                     product_id: detail.produk_id,
                     quantity: detail.quantity,
-                    unit_price: parseFloat(detail.unit_price),
-                    subtotal: parseFloat(detail.subtotal),
+                    unit_price: detail.unit_price,
+                    subtotal: detail.subtotal,
                     produk: detail.produk
                 }))
 
@@ -148,91 +83,21 @@ export default function BarangKeluarDashboard({barang_keluar, product}: BarangKe
         }
     }
 
-    const handleChange = async (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        const { name, value } = e.target
-        setFormData(prev => ({...prev, [name]: value}))
-    }
+    const handleChange = () => createHandleDetailChange(setFormData, () => product, 'product_details')
+    const handleEditChange = () => createHandleDetailChange(setFormData, () => product, 'product_details')
 
-    const handleEditChange = async (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        const { name, value } = e.target
-        setEditFormData(prev => ({...prev, [name]: value}))
-    }
+    const handleSubmit = createHandleSubmit(`/barang-keluar/store`, formData, 'Data Barang Keluar berhasil ditambahkan')
+    const handleUpdate = (id: number) => createHandleUpdate(`/barang-keluar/${id}/update`, editFormData, 'Data Barang Keluar berhasil diubah')
+    const handleDelete = (id: number) => createHandleDelete(`/barang-keluar/${id}/delete`, 'Data barang keluar berhasil dihapus')
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault()
-        try {
-            const res = await axios.post(`/barang-keluar/store`, {
-                reference_code: formData.reference_code,
-                date: formData.date,
-                recipient_name: formData.recipient_name,
-                description: formData.description,
-                created_by: formData.created_by,
-                product_details: formData.product_details
-            })
-
-            if(res.status == 200 && res.data.status == "success") {
-                toast("Data barang keluar berhasil ditambahkan")
-            }
-        } catch(e) {
-            console.error("error njir", e)
-        }
-    }
-
-    const handleUpdate = async (e: React.FormEvent) => {
-        e.preventDefault()
-        try {
-            const res = await axios.put(`/barang-keluar/${editFormData.id}/update`, {
-                reference_code: editFormData.reference_code,
-                date: editFormData.date,
-                recipient_name: editFormData.recipient_name,
-                description: editFormData.description,
-                created_by: editFormData.created_by,
-                product_details: editFormData.product_details
-            })
-
-            if(res.status == 200 && res.data.status == "success") {
-                toast("Data barang keluar berhasil diperbarui")
-            }
-        } catch(e) {
-            console.error("error njir", e)
-        }
-    }
-
-    const handleDelete = (id: number) => async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-
-        try {
-            await axios.delete(`/barang-keluar/${id}/delete`)
-            .then((res) => {
-                console.log(res)
-                if(res.status == 200) {
-                    toast.success("data barang masuk ini berhasil dihapus", {
-                        position: 'top-right',
-                        autoClose: 5000,
-                        pauseOnHover: true,
-                        draggable: true,
-                        theme: "light",
-                    });
-                } else {
-                    toast.error("data barang masuk ini gagal dihapus");
-                }
-            })
-        } catch(e) {
-            toast(`Internal server error, try again ${e}`)
-        }
-    };
-
-    const showBarangMasuk = async (id: number) => {
-        try {
-            await fetch(`/barang-keluar/${id}`)
-            .then((res) => res.json())
-            .then((res) => {
-                setBarangKeluar(res.data)
-            })
-        } catch(e) {
-            console.error('njir error', e)
-        }
-    }
+    const showBarangKeluar = (id: number) => createShow<BarangKeluarStateType>(setBarangKeluar, `/barang-keluar/${id}`, (data) => ({
+        reference_code: data.reference_code,
+        date: data.date,
+        recipient_name: data.recipient_name,
+        description: data.description,
+        created_by: data.created_by,
+        details: data.details
+    }))
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -309,7 +174,7 @@ export default function BarangKeluarDashboard({barang_keluar, product}: BarangKe
                                                         readOnly
                                                     />
 
-                                                    <Label className="mt-2">Harga Satuan</Label>
+                                                    <Label className="mt-2">Subtotal</Label>
                                                     <Input
                                                         name="subtotal"
                                                         type="number"
@@ -319,7 +184,7 @@ export default function BarangKeluarDashboard({barang_keluar, product}: BarangKe
                                                     />
 
                                                     {formData.product_details.length > 1 && (
-                                                        <Button type="button" className="mt-2 bg-red-400" onClick={() => removeProductField(index)}>
+                                                        <Button type="button" className="mt-2 bg-red-400" onClick={removeProductField}>
                                                         Hapus Produk Ini
                                                         </Button>
                                                     )}
@@ -390,7 +255,7 @@ export default function BarangKeluarDashboard({barang_keluar, product}: BarangKe
                                     <td className="px-4 py-2 flex items-center justify-center gap-2">
                                         {/* Show */}
                                         <Dialog>
-                                            <DialogTrigger onClick={() => showBarangMasuk(barang.id)} className="cursor-pointer bg-green-400 hover:bg-transparent border rounded-md hover:border-green-400 transition text-gray-900 w-full px-3">
+                                            <DialogTrigger onClick={showBarangKeluar(barang.id)} className="cursor-pointer bg-green-400 hover:bg-transparent border rounded-md hover:border-green-400 transition text-gray-900 w-full px-3">
                                                 Lihat
                                             </DialogTrigger>
                                             <DialogContent>
@@ -450,7 +315,7 @@ export default function BarangKeluarDashboard({barang_keluar, product}: BarangKe
                                         {/* Show */}
                                         {/* Edit */}
                                         <Dialog>
-                                            <DialogTrigger className="cursor-pointer bg-yellow-400 hover:bg-transparent border rounded-md hover:border-yellow-400 transition text-gray-900 w-full px-3" onClick={() => fetchBarangMasuk(barang.id)}>
+                                            <DialogTrigger className="cursor-pointer bg-yellow-400 hover:bg-transparent border rounded-md hover:border-yellow-400 transition text-gray-900 w-full px-3" onClick={() => fetchBarangKeluar(barang.id)}>
                                                 Ubah
                                             </DialogTrigger>
                                             <DialogContent>
@@ -459,7 +324,7 @@ export default function BarangKeluarDashboard({barang_keluar, product}: BarangKe
                                                         Ubah Barang Masuk
                                                     </DialogTitle>
                                                 </DialogHeader>
-                                                <form onSubmit={handleUpdate}>
+                                                <form onSubmit={handleUpdate(barang.id)}>
                                                     <DialogDescription className='overflow-auto h-64 md:h-96 scrollable-container'>
                                                             <div className='mb-3'>
                                                                 <Label>Kode Referensi</Label>
@@ -538,7 +403,7 @@ export default function BarangKeluarDashboard({barang_keluar, product}: BarangKe
                                                                     />
 
                                                                     {formData.product_details.length > 1 && (
-                                                                        <Button type="button" className="mt-2 bg-red-400" onClick={() => removeProductField(index)}>
+                                                                        <Button type="button" className="mt-2 bg-red-400" onClick={removeProductField}>
                                                                         Hapus Produk Ini
                                                                         </Button>
                                                                     )}
@@ -575,9 +440,7 @@ export default function BarangKeluarDashboard({barang_keluar, product}: BarangKe
                                                         <p>Apakah anda yakin ingin menghapus data ini ?</p>
                                                     </DialogDescription>
                                                     <DialogFooter className='flex flex-col-reverse'>
-                                                        <DialogClose>
-                                                            <Button className='cursor-pointer bg-rose-500 text-gray-50'>Tutup</Button>
-                                                        </DialogClose>
+                                                        <DialogClose className='cursor-pointer bg-rose-500 text-gray-50'>Tutup</DialogClose>
                                                         <Button type='submit' className='w-full bg-green-400'>Ya, Hapus data ini</Button>
                                                     </DialogFooter>
                                                 </form>

@@ -10,7 +10,7 @@ type BarangMasukType = {
 interface BarangMasuk {
     barang_masuk: BarangMasukType[]
     product: {
-        id: string
+        id: number
         name: string,
         unit_price: number
     }[]

@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectSeparator, SelectTrigger } from '@/components/ui/select';
 import AppLayout from '@/layouts/app-layout';
+import { createHandleChange, createHandleDelete, createHandleEditChange, createHandleSubmit, createHandleUpdate, createShow } from '@/lib/handlers/useHandlers';
 import { type BreadcrumbItem } from '@/types';
 import StokBarang from '@/types/StokBarangType';
 import { Head } from '@inertiajs/react';
@@ -46,6 +47,24 @@ export default function StokBarangDashboard({stok_barang, products}: StokBarang)
         last_updated_by: '',
     })
 
+    const handleChange = createHandleChange(setFormData)
+    const handleEditChange = createHandleEditChange(setEditFormData)
+
+    const showStokBarang = (id: number) => createShow<StokBarangType>(setStokBarang, `/stok-barang/${id}`, (data) => ({
+        id: data.id,
+        product_id: data.produk_id,
+        stock: data.stock,
+        minimum_stock: data.minimum_stock,
+        last_updated_by: data.last_updated_by,
+        product: {
+            name: data.product.name
+        }
+    }))
+
+    const handleSubmit = createHandleSubmit("/kategori/store", formData, "Data Kategori berhasil diubah")
+    const handleUpdate = (id: number) => createHandleUpdate(`/kategori/${id}/update`, editFormData, "Kategori berhasil diubah")
+    const handleDelete = (id: number) => createHandleDelete(`/kategori/${id}/delete`, "Kategori berhasil dihapus")
+
     const fetchStokBarang = async (id: number) => {
         try {
             await fetch(`/stok-barang/${id}/edit`)
@@ -63,81 +82,6 @@ export default function StokBarangDashboard({stok_barang, products}: StokBarang)
             })
         } catch(e) {
             console.error(e)
-        }
-    }
-
-    const handleChange = async (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        const { name, value } = e.target
-        setFormData(prev => ({...prev, [name]: value}))
-    }
-
-    const handleEditChange = async (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        const { name, value } = e.target
-        setEditFormData(prev => ({...prev, [name]: value}))
-    }
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault()
-        try {
-            const res = await axios.post(`/stok-barang/store`, {
-                produk_id: formData.product,
-                stock: formData.stock,
-                minimum_stock: formData.minimum_stock,
-                last_updated_by: formData.last_updated_by,
-            })
-
-            if(res.status == 200 && res.data.status == "success") {
-                toast("barang-masuk berhasil diperbarui")
-            }
-        } catch(e) {
-            console.error("error njir", e)
-        }
-    }
-
-    const handleUpdate = async (e: React.FormEvent) => {
-        e.preventDefault()
-        try {
-            const res = await axios.put(`/stok-barang/${editFormData.id}/update`, {
-                produk_id: editFormData.product,
-                stock: editFormData.stock,
-                minimum_stock: editFormData.minimum_stock,
-                last_updated_by: editFormData.last_updated_by,
-            })
-
-            if(res.status == 200 && res.data.status == "success") {
-                toast("barang-masuk berhasil diperbarui")
-            }
-        } catch(e) {
-            console.error("error njir", e)
-        }
-    }
-
-    const handleDelete = (id: number) => async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-
-        try {
-            await axios.delete(`/stok-barang/${id}/delete`)
-            .then((res) => {
-                if(res.status === 200) {
-                    toast("barang-masuk berhasil dihapus")
-                } else {
-                    toast("barang-masuk gagal diperbarui")
-                }
-            })
-        } catch(e) {
-            console.error("error njir", e)
-        }
-    };
-
-    const showStokBarang = async (id: number) => {
-        try {
-            await fetch(`/stok-barang/${id}`)
-            .then((res) => res.json())
-            .then((res) => {
-                setStokBarang(res.data)
-            })
-        } catch(e) {
-            console.error('njir error', e)
         }
     }
 
@@ -191,9 +135,7 @@ export default function StokBarangDashboard({stok_barang, products}: StokBarang)
                                     </DialogDescription>
                                     <DialogFooter>
                                         <Button type='submit' className='w-full bg-green-400'>Kirim</Button>
-                                        <DialogClose>
-                                            <Button className='cursor-pointer bg-rose-500 text-gray-50'>Tutup</Button>
-                                        </DialogClose>
+                                        <DialogClose className='cursor-pointer bg-rose-500 text-gray-50'>Tutup</DialogClose>
                                     </DialogFooter>
                                 </form>
                             </DialogContent>
@@ -248,7 +190,7 @@ export default function StokBarangDashboard({stok_barang, products}: StokBarang)
                                     <td className="px-4 py-2 flex items-center justify-center gap-2">
                                         {/* Show */}
                                         <Dialog>
-                                            <DialogTrigger onClick={() => showStokBarang(stok.id)} className="cursor-pointer bg-green-400 hover:bg-transparent border rounded-md hover:border-green-400 transition text-gray-900 w-full px-3">
+                                            <DialogTrigger onClick={showStokBarang(stok.id)} className="cursor-pointer bg-green-400 hover:bg-transparent border rounded-md hover:border-green-400 transition text-gray-900 w-full px-3">
                                                 Lihat
                                             </DialogTrigger>
                                             <DialogContent>
@@ -262,27 +204,25 @@ export default function StokBarangDashboard({stok_barang, products}: StokBarang)
                                                     <>
                                                         <div className='mb-3'>
                                                             <Label>Produk</Label>
-                                                            <Input type="text" name="product" defaultValue={stokBarang?.product.name}></Input>
+                                                            <Input type="text" name="product" readOnly defaultValue={stokBarang?.product.name}></Input>
                                                         </div>
                                                         <div className='mb-3'>
                                                             <Label>Stok</Label>
-                                                            <Input type="text" name="date" defaultValue={stokBarang?.stock}></Input>
+                                                            <Input type="text" name="date" readOnly defaultValue={stokBarang?.stock}></Input>
                                                         </div>
                                                         <div className='mb-3'>
                                                             <Label>Stok Minimum</Label>
-                                                            <Input type="text" name="category" defaultValue={stokBarang?.minimum_stock}></Input>
+                                                            <Input type="text" name="category" readOnly defaultValue={stokBarang?.minimum_stock}></Input>
                                                         </div>
                                                         <div className='mb-3'>
                                                             <Label>Diubah Oleh</Label>
-                                                            <Input type="text" name="units" defaultValue={stokBarang?.last_updated_by}></Input>
+                                                            <Input type="text" name="units" readOnly defaultValue={stokBarang?.last_updated_by}></Input>
                                                         </div>
                                                     </>
                                                     )}
                                                 </DialogDescription>
                                                 <DialogFooter>
-                                                    <DialogClose className='cursor-pointer bg-rose-500 text-gray-50'>
-                                                        Tutup
-                                                    </DialogClose>
+                                                    <DialogClose className='cursor-pointer bg-rose-500 text-gray-50'>Tutup</DialogClose>
                                                 </DialogFooter>
                                             </DialogContent>
                                         </Dialog>
@@ -298,7 +238,7 @@ export default function StokBarangDashboard({stok_barang, products}: StokBarang)
                                                         Ubah Barang Masuk
                                                     </DialogTitle>
                                                 </DialogHeader>
-                                                <form onSubmit={handleUpdate}>
+                                                <form onSubmit={handleUpdate(stok.id)}>
                                                     <DialogDescription className='overflow-auto h-64 md:h-96 scrollable-container'>
                                                         <div className='mb-3'>
                                                             <Label>Produk</Label>
@@ -331,9 +271,7 @@ export default function StokBarangDashboard({stok_barang, products}: StokBarang)
                                                     </DialogDescription>
                                                     <DialogFooter>
                                                         <Button type='submit' className='w-full bg-green-400'>Kirim</Button>
-                                                        <DialogClose>
-                                                            <Button className='cursor-pointer bg-rose-500 text-gray-50'>Tutup</Button>
-                                                        </DialogClose>
+                                                        <DialogClose className='cursor-pointer bg-rose-500 text-gray-50'>Tutup</DialogClose>
                                                     </DialogFooter>
                                                 </form>
                                             </DialogContent>
