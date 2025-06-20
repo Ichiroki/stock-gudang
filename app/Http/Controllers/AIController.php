@@ -77,14 +77,11 @@ class AIController extends Controller
         ])
         ->toArray();
 
-        $response = Http::withToken(env('OPENAI_API_KEY'))->post('https://api.openai.com/v1/chat/completions', [
-            'model' => 'gpt-3.5-turbo',
+        $response = Http::post('http://localhost:11434/chat', [
+            'model' => 'llama3',
             'messages' => $messages,
+            'stream' => false
         ]);
-
-        dd($response->json());
-
-        logger()->debug('OpenAI Response', ['response' => $response->json()]);
 
         $aiReply = $response['choices'][0]['message']['content'] ?? "Maaf, saya tidak bisa menjawab saat ini";
 
