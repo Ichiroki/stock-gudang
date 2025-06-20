@@ -2,16 +2,16 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Eraser, Eye, PencilLine } from 'lucide-react';
 import { Select, SelectItem, SelectTrigger } from '@/components/ui/select';
 import AppLayout from '@/layouts/app-layout';
+import { createHandleChange, createHandleDelete, createHandleSubmit, createHandleUpdate, createShow } from '@/lib/handlers/useHandlers';
 import { type BreadcrumbItem } from '@/types';
-import Products from '@/types/ProdukType';
-import { Head, router } from '@inertiajs/react';
+import { Head } from '@inertiajs/react';
 import { SelectContent, SelectSeparator } from '@radix-ui/react-select';
-import axios from 'axios';
 import { useState } from 'react';
-import { ToastContainer, toast } from 'react-toastify';
-
+import { ToastContainer } from 'react-toastify';
+import { Product, ProductStateType } from '@/types/ProdukType';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -20,20 +20,10 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-interface Product {
-    id: number,
-    name: string,
-    code: string,
-    category: string,
-    units: number,
-    unit_price: number,
-    minimum_stock: number
-    products: Products
-}
 
 export default function Produk({products}: Product) {
 
-    const [produk, setProduk] = useState<Product | null>(null)
+    const [produk, setProduk] = useState<ProductStateType | null>(null)
 
     const [formData, setFormData] = useState({
         name: '',
@@ -75,88 +65,24 @@ export default function Produk({products}: Product) {
         }
     }
 
-    const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target
-        setFormData(prev => ({...prev, [name]: value}))
-    }
+    const handleChange = createHandleChange(setFormData)
+    const handleEditChange = createHandleChange(setEditFormData)
 
-    const handleEditChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target
-        setEditFormData(prev => ({...prev, [name]: value}))
-    }
+    const handleSubmit = createHandleSubmit('/produk/store', formData, "Data Produk berhasil ditambahkan")
+    const handleUpdate = createHandleUpdate('/produk/store', editFormData, "Data Produk berhasil dirubah")
+    const handleDelete = createHandleDelete('/produk/store', "Data Produk berhasil dihapus")
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault()
-        try {
-            router.post('/produk/store', formData, {
-                onSuccess: (page) => {
-                    const flash = page.props.flash
-                    if(flash?.code == 201 && flash?.status == "success") {
-                        return toast("Produk berhasil disimpan")
-                    }
-                },
-                onError: (page) => {
-                    const flash = page.props.flash
-                    if(flash?.code == 404 && flash?.status == "failed") {
-                        return toast("Produk gagal tersimpan")
-                    }
-                }
-            })
-        } catch(e) {
-            console.error("error njir", e)
-        }
-    }
-
-    const handleUpdate = async (e: React.FormEvent) => {
-        e.preventDefault()
-        try {
-            const res = await axios.put(`/produk/${editFormData.id}/update`, {
-                name: editFormData.name,
-                code: editFormData.code,
-                category: editFormData.category,
-                units: editFormData.units,
-                unit_price: editFormData.unit_price,
-                minimum_stock: editFormData.minimum_stock,
-            })
-
-            if(res.status == 200 && res.data.status == "success") {
-                toast("Produk berhasil diperbarui")
-            }
-        } catch(e) {
-            console.error("error njir", e)
-        }
-    }
-
-    const handleDelete = (id: number) => async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-
-        router.delete(`/produk/${id}/delete`, {
-            onSuccess: (page) => {
-                const flash = page.props.flash;
-                if (flash?.code === 200 && flash?.status === "success") {
-                    return toast("Produk berhasil dihapus");
-                }
-            },
-            onError: (page) => {
-                const flash = page.props.flash;
-                if (flash?.code == 404 && flash?.status == "failed") {
-                    return toast("Produk gagal dihapus");
-                }
-            }
+    const showProduct = (id: number) => createShow<ProductStateType | null>(setProduk, `/produk/${id}`, (data) => {
+        return ({
+            id: data.id,
+            name: data.name,
+            code: data.code,
+            category: data.category,
+            units: data.units,
+            unit_price: data.unit_price,
+            minimum_stock: data.minimum_stock
         });
-    };
-
-    const showProduct = async (id: number) => {
-        try {
-            await fetch(`/produk/${id}`)
-            .then((res) => res.json())
-            .then((res) => {
-                setProduk(res.data)
-            })
-        } catch(e) {
-            console.error('njir error', e)
-        }
-    }
+    })
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -166,7 +92,7 @@ export default function Produk({products}: Product) {
                 <div className="flex flex-col md:flex-row gap-3 w-full">
                     <div className="relative md:w-1/3 overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
                         <Dialog>
-                            <DialogTrigger className="cursor-pointer bg-green-400 hover:bg-transparent hover:border rounded-xl hover:border-green-400 transition text-gray-900 w-full h-full">
+                            <DialogTrigger className="cursor-pointer bg-green-400 hover:bg-transparent border rounded-xl hover:border-green-400 transition text-gray-900 w-full h-9">
                                 Tambah Produk +
                             </DialogTrigger>
                             <DialogContent>
@@ -202,11 +128,11 @@ export default function Produk({products}: Product) {
                                                 <Input type="text" name="minimum_stock" value={formData.minimum_stock} onChange={handleChange}></Input>
                                             </div>
                                     </DialogDescription>
-                                    <DialogFooter>
-                                        <Button type='submit' className='w-full bg-green-400'>Kirim</Button>
-                                        <DialogClose>
+                                    <DialogFooter className='flex md:flex-row-reverse mt-3'>
+                                        <DialogClose asChild>
                                             <Button className='cursor-pointer bg-rose-500 text-gray-50'>Tutup</Button>
                                         </DialogClose>
+                                        <Button type='submit' className='w-full bg-green-400'>Kirim</Button>
                                     </DialogFooter>
                                 </form>
                             </DialogContent>
@@ -239,7 +165,7 @@ export default function Produk({products}: Product) {
                 <div className="relative min-h-[100vh] flex-1 overflow-hidden rounded-xl border border-sidebar-border/70 md:min-h-min dark:border-sidebar-border">
                     {/* Table */}
                     <div className="overflow-x-auto rounded-lg border shadow-sm">
-                        <table className="min-w-full divide-y divide-gray-200 text-sm">
+                        <table className="min-w-full divide-y divide-gray-200 text-sm table table-fixed">
                             <thead>
                             <tr>
                                 <th className="px-4 py-2 text-left font-semibold">#</th>
@@ -262,11 +188,11 @@ export default function Produk({products}: Product) {
                                     <td className="px-4 py-2">{product.units}</td>
                                     <td className="px-4 py-2">{product.unit_price}</td>
                                     <td className="px-4 py-2">{product.minimum_stock}</td>
-                                    <td className="px-4 py-2 flex items-center justify-center gap-2">
+                                    <td className="px-4 py-2 flex items-center justify-center gap-2 h-[3.5rem]">
                                         {/* Show */}
                                         <Dialog>
-                                            <DialogTrigger onClick={() => showProduct(product.id)} className="cursor-pointer bg-green-400 hover:bg-transparent border rounded-md hover:border-green-400 transition text-gray-900 w-full px-3">
-                                                Lihat
+                                            <DialogTrigger onClick={() => showProduct(product.id)} className="cursor-pointer bg-green-400 hover:bg-transparent border rounded-md hover:border-green-400 transition text-gray-900 w-full px-3 h-full flex justify-center items-center group">
+                                                <Eye className='text-[#eee] group-hover:text-green-500'/>
                                             </DialogTrigger>
                                             <DialogContent>
                                                 <DialogHeader>
@@ -314,8 +240,8 @@ export default function Produk({products}: Product) {
                                         {/* Show */}
                                         {/* Edit */}
                                         <Dialog>
-                                            <DialogTrigger onClick={() => fetchProduct(product.id)} className="cursor-pointer bg-yellow-400 hover:bg-transparent border rounded-md hover:border-yellow-400 transition text-gray-900 w-full px-3">
-                                                Ubah
+                                            <DialogTrigger onClick={() => fetchProduct(product.id)} className="cursor-pointer bg-yellow-400 hover:bg-transparent border rounded-md hover:border-yellow-400 transition text-gray-900 w-full px-3 flex items-center justify-center h-full group">
+                                                <PencilLine className='text-[#eee] group-hover:text-yellow-500'/>
                                             </DialogTrigger>
                                             <DialogContent>
                                                 <DialogHeader>
@@ -358,8 +284,8 @@ export default function Produk({products}: Product) {
                                         {/* Edit */}
                                         {/* Delete */}
                                         <Dialog>
-                                            <DialogTrigger className="cursor-pointer bg-rose-400 hover:bg-transparent border rounded-md hover:border-rose-400 transition text-gray-900 w-full px-3">
-                                                Hapus
+                                            <DialogTrigger className="cursor-pointer bg-rose-400 hover:bg-transparent border rounded-md hover:border-rose-400 transition text-gray-900 w-full flex items-center justify-center h-full px-3 group">
+                                                <Eraser className='text-[#eee] group-hover:text-red-600'/>
                                             </DialogTrigger>
                                             <DialogContent>
                                                 <DialogHeader>
@@ -367,7 +293,7 @@ export default function Produk({products}: Product) {
                                                         Hapus Produk
                                                     </DialogTitle>
                                                 </DialogHeader>
-                                                <form onSubmit={handleDelete(product.id)}>
+                                                <form onSubmit={() => handleDelete(product.id)}>
                                                     <DialogDescription className='overflow-auto h-64 md:h-96 scrollable-container flex items-center justify-center'>
                                                         Apakah anda yakin ingin menghapus data ini ?
                                                     </DialogDescription>

@@ -8,6 +8,7 @@ use App\Http\Controllers\{
     StokBarangController,
     LaporanController
 };
+use App\Http\Controllers\AIController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -94,6 +95,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/{id}/delete', [KategoriController::class, 'delete'])->name('kategori.delete');
     });
 
+    Route::prefix('/chat')->group(function() {
+        Route::get('/sessions', [AIController::class, 'index']);
+        Route::post('/sessions', [AIController::class, 'createSession']);
+        Route::get('/sessions/{id}/messages', [AIController::class, 'getMessages']);
+        Route::post('/sessions/{id}/messages', [AIController::class, 'addMessage']);
+
+        Route::post('sessions/{id}/ask', [AIController::class, 'addMessageWithAI']);
+        Route::get('sessions/{id}/search', [AIController::class, 'searchMessages']);
+        Route::delete('sessions/{id}', [AIController::class, 'deleteSession']);
+    });
 
     Route::get('dashboard', [PagesController::class, 'dashboard'])->name('dashboard');
 
