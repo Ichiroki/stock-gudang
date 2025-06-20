@@ -8,10 +8,30 @@ use App\Models\Kategori;
 use App\Models\Laporan;
 use App\Models\Produk;
 use App\Models\StokBarang;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class PagesController extends Controller
 {
+    public function dashboardChart() {
+        $barangMasuk = DB::table('barang_masuk_details')
+        ->join('barang_masuk_masters', 'barang_masuk_details.barang_masuk_id', '=', 'barang_masuk_masters.id')
+        ->selectRaw('MONTH(barang_masuk_masters.date) as month, SUM(quantity) as total')
+        ->groupBy('month')
+        ->get();
+
+        $barangKeluar = DB::table('barang_keluar_details')
+        ->join('barang_keluar_masters', 'barang_keluar_details.barang_keluar_id', '=', 'barang_keluar_masters.id')
+        ->selectRaw('MONTH(barang_keluar_masters.date) as month, SUM(quantity) as total')
+        ->groupBy('month')
+        ->get();
+
+        return response()->json([
+            'masuk' => $barangMasuk,
+            'keluar' => $barangKeluar
+        ]);
+    }
+
     public function dashboard()
     {
         return Inertia::render('dashboard');

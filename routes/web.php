@@ -106,7 +106,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('sessions/{id}', [AIController::class, 'deleteSession']);
     });
 
-    Route::get('dashboard', [PagesController::class, 'dashboard'])->name('dashboard');
+    Route::prefix('dashboard')->group(function() {
+        Route::get('/', [PagesController::class, 'dashboard'])->name('dashboard');
+
+        Route::get('/chart-data', [PagesController::class, 'dashboardChart'])->name('dashboard.chart');
+    });
+
 
 });
 
