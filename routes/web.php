@@ -113,7 +113,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/chart-data', [PagesController::class, 'dashboardChart'])->name('dashboard.chart');
     });
 
-
+    Route::prefix('/data')->group(function() {
+        Route::get('/produk', [ProdukController::class, 'index']);
+    });
 });
 
 require __DIR__.'/settings.php';

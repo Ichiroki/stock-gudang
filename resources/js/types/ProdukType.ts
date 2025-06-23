@@ -1,4 +1,4 @@
-type ProductType = {
+export type ProductType = {
     id: number
     name: string
     code: string
@@ -19,7 +19,7 @@ export interface Product {
     units: number,
     unit_price: number,
     minimum_stock: number
-    products: Product
+    products: Product[]
 }
 
 export interface ProductStateType {

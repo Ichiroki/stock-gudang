@@ -2,16 +2,16 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Eraser, Eye, PencilLine } from 'lucide-react';
 import { Select, SelectItem, SelectTrigger } from '@/components/ui/select';
 import AppLayout from '@/layouts/app-layout';
-import { createHandleChange, createHandleDelete, createHandleSubmit, createHandleUpdate, createShow } from '@/lib/handlers/useHandlers';
+import { createGetData, createHandleChange, createHandleDelete, createHandleSubmit, createHandleUpdate, createShow } from '@/lib/handlers/useHandlers';
 import { type BreadcrumbItem } from '@/types';
+import { Product, ProductStateType } from '@/types/ProdukType';
 import { Head } from '@inertiajs/react';
 import { SelectContent, SelectSeparator } from '@radix-ui/react-select';
-import { useState } from 'react';
+import { Eraser, Eye, PencilLine } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { ToastContainer } from 'react-toastify';
-import { Product, ProductStateType } from '@/types/ProdukType';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -21,9 +21,10 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 
-export default function Produk({products}: Product) {
+export default function Produk() {
 
-    const [produk, setProduk] = useState<ProductStateType | null>(null)
+    const [products, setProducts] = useState<Product[]>([])
+    const [showProduct, setShowProduct] = useState<ProductStateType | null>(null)
 
     const [formData, setFormData] = useState({
         name: '',
@@ -44,35 +45,15 @@ export default function Produk({products}: Product) {
         minimum_stock: ''
     })
 
-    const fetchProduct = async (id: number) => {
-        try {
-            await fetch(`/produk/${id}/edit`)
-            .then((res) => res.json())
-            .then((res) => {
-                const data = res.data
-                setEditFormData({
-                    id: data.id,
-                    name: data.name,
-                    code: data.code,
-                    category: data.category,
-                    units: data.units,
-                    unit_price: data.unit_price,
-                    minimum_stock: data.minimum_stock
-                })
-            })
-        } catch(e) {
-            console.error(e)
-        }
-    }
-
     const handleChange = createHandleChange(setFormData)
     const handleEditChange = createHandleChange(setEditFormData)
 
+    const handleGet = createGetData(setProducts, '/data/produk')
     const handleSubmit = createHandleSubmit('/produk/store', formData, "Data Produk berhasil ditambahkan")
-    const handleUpdate = createHandleUpdate('/produk/store', editFormData, "Data Produk berhasil dirubah")
-    const handleDelete = createHandleDelete('/produk/store', "Data Produk berhasil dihapus")
+    const handleUpdate = (id: number) => createHandleUpdate(`/produk/${id}/update`, editFormData, "Data Produk berhasil dirubah")
+    const handleDelete = (id: number) =>  createHandleDelete(`/produk/${id}/delete`, "Data Produk berhasil dihapus")
 
-    const showProduct = (id: number) => createShow<ProductStateType | null>(setProduk, `/produk/${id}`, (data) => {
+    const showProductById = (id: number) => createShow<ProductStateType | null>(setShowProduct, `/produk/${id}`, (data) => {
         return ({
             id: data.id,
             name: data.name,
@@ -82,7 +63,25 @@ export default function Produk({products}: Product) {
             unit_price: data.unit_price,
             minimum_stock: data.minimum_stock
         });
-    })
+    })()
+
+    const fetchProduct = (id: number) => createShow<ProductStateType | null>(setEditFormData, `/produk/${id}/edit`, (data) => {
+        return ({
+            id: data.id,
+            name: data.name,
+            code: data.code,
+            category: data.category,
+            units: data.units,
+            unit_price: data.unit_price,
+            minimum_stock: data.minimum_stock
+        });
+    })()
+
+    useEffect(() => {
+        handleGet()
+    }, [])
+
+    // useEffect(() => )
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -191,7 +190,7 @@ export default function Produk({products}: Product) {
                                     <td className="px-4 py-2 flex items-center justify-center gap-2 h-[3.5rem]">
                                         {/* Show */}
                                         <Dialog>
-                                            <DialogTrigger onClick={() => showProduct(product.id)} className="cursor-pointer bg-green-400 hover:bg-transparent border rounded-md hover:border-green-400 transition text-gray-900 w-full px-3 h-full flex justify-center items-center group">
+                                            <DialogTrigger onClick={() => showProductById(product.id)} className="cursor-pointer bg-green-400 hover:bg-transparent border rounded-md hover:border-green-400 transition text-gray-900 w-full px-3 h-full flex justify-center items-center group">
                                                 <Eye className='text-[#eee] group-hover:text-green-500'/>
                                             </DialogTrigger>
                                             <DialogContent>
@@ -201,31 +200,31 @@ export default function Produk({products}: Product) {
                                                     </DialogTitle>
                                                 </DialogHeader>
                                                 <DialogDescription className='overflow-auto h-64 md:h-96 scrollable-container'>
-                                                    {produk && (
+                                                    {showProduct && (
                                                     <>
                                                         <div className='mb-3'>
                                                             <Label>Nama</Label>
-                                                            <Input type="text" name="name" defaultValue={produk.name}></Input>
+                                                            <Input type="text" name="name" readOnly defaultValue={showProduct.name}></Input>
                                                         </div>
                                                         <div className='mb-3'>
                                                             <Label>Kode</Label>
-                                                            <Input type="text" name="code" defaultValue={produk.code}></Input>
+                                                            <Input type="text" name="code" readOnly defaultValue={showProduct.code}></Input>
                                                         </div>
                                                         <div className='mb-3'>
                                                             <Label>Kategori</Label>
-                                                            <Input type="text" name="category" defaultValue={produk.category}></Input>
+                                                            <Input type="text" name="category" readOnly defaultValue={showProduct.category}></Input>
                                                         </div>
                                                         <div className='mb-3'>
                                                             <Label>Satuan</Label>
-                                                            <Input type="text" name="units" defaultValue={produk.units}></Input>
+                                                            <Input type="text" name="units" readOnly defaultValue={showProduct.units}></Input>
                                                         </div>
                                                         <div className='mb-3'>
                                                             <Label>Harga Unit</Label>
-                                                            <Input type="text" name="units" defaultValue={produk.unit_price}></Input>
+                                                            <Input type="text" name="units" readOnly defaultValue={showProduct.unit_price}></Input>
                                                         </div>
                                                         <div className='mb-3'>
                                                             <Label>Stok Minimum</Label>
-                                                            <Input type="text" name="minimum_stock" defaultValue={produk.minimum_stock}></Input>
+                                                            <Input type="text" name="minimum_stock" readOnly defaultValue={showProduct.minimum_stock}></Input>
                                                         </div>
                                                     </>
                                                     )}
@@ -249,7 +248,7 @@ export default function Produk({products}: Product) {
                                                         Ubah Produk
                                                     </DialogTitle>
                                                 </DialogHeader>
-                                                <form onSubmit={handleUpdate}>
+                                                <form onSubmit={handleUpdate(product.id)}>
                                                     <DialogDescription className='overflow-auto h-64 md:h-96 scrollable-container'>
                                                         <div className='mb-3'>
                                                             <Label>Nama</Label>

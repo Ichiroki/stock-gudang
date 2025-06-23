@@ -16,18 +16,30 @@ export const createHandleEditChange = <T extends object>(setter: Setter<T>) => (
     setter(prev => ({...prev, [name]: value}))
 }
 
+export const createGetData = <T = any>(
+    setter: React.Dispatch<React.SetStateAction<T>>,
+    url: string
+    ) => async () => {
+    try {
+        const response = await axios.get(url)
+        const { data } = response.data
+        setter(data)
+    } catch(e) {
+        console.error(e)
+    }
+}
+
 export const createShow = <T, R = any>(
     setter: React.Dispatch<React.SetStateAction<T>>,
     url: string,
     mapFn?: (data: R) => T
   ) => async () => {
     try {
-      const res = await axios.get(url)
-      const data: R = res.data.data
-
-      setter(mapFn ? mapFn(data) : (data as unknown as T))
+        const res = await axios.get(url)
+        const data: R = res.data.data
+        setter(mapFn ? mapFn(data) : (data as unknown as T))
     } catch (e) {
-      console.error('njir error', e)
+        console.error('njir error', e)
     }
   }
 
