@@ -5,11 +5,11 @@ import { Label } from '@/components/ui/label';
 import { Eraser, Eye, PencilLine } from 'lucide-react';
 import { Select, SelectItem, SelectTrigger } from '@/components/ui/select';
 import AppLayout from '@/layouts/app-layout';
-import { createHandleChange, createHandleDelete, createHandleSubmit, createHandleUpdate, createShow } from '@/lib/handlers/useHandlers';
+import { createGet, createHandleChange, createHandleDelete, createHandleSubmit, createHandleUpdate, createShow } from '@/lib/handlers/useHandlers';
 import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/react';
-import { SelectContent, SelectSeparator } from '@radix-ui/react-select';
-import { useState } from 'react';
+import { SelectContent, SelectSeparator, SelectValue } from '@radix-ui/react-select';
+import { useEffect, useState } from 'react';
 import { ToastContainer } from 'react-toastify';
 import { Product, ProductStateType } from '@/types/ProdukType';
 
@@ -21,9 +21,10 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 
-export default function Produk({products}: Product) {
+export default function Produk() {
 
-    const [produk, setProduk] = useState<ProductStateType | null>(null)
+    const [produk, setProduk] = useState<Product[]>([])
+    const [showProduk, setShowProduk] = useState<ProductStateType | null>(null)
 
     const [formData, setFormData] = useState({
         name: '',
@@ -44,35 +45,25 @@ export default function Produk({products}: Product) {
         minimum_stock: ''
     })
 
-    const fetchProduct = async (id: number) => {
-        try {
-            await fetch(`/produk/${id}/edit`)
-            .then((res) => res.json())
-            .then((res) => {
-                const data = res.data
-                setEditFormData({
-                    id: data.id,
-                    name: data.name,
-                    code: data.code,
-                    category: data.category,
-                    units: data.units,
-                    unit_price: data.unit_price,
-                    minimum_stock: data.minimum_stock
-                })
-            })
-        } catch(e) {
-            console.error(e)
-        }
-    }
-
     const handleChange = createHandleChange(setFormData)
     const handleEditChange = createHandleChange(setEditFormData)
 
+    const handleGet = createGet('/data/produk', setProduk)
     const handleSubmit = createHandleSubmit('/produk/store', formData, "Data Produk berhasil ditambahkan")
-    const handleUpdate = createHandleUpdate('/produk/store', editFormData, "Data Produk berhasil dirubah")
-    const handleDelete = createHandleDelete('/produk/store', "Data Produk berhasil dihapus")
+    const handleUpdate = (id: number) => createHandleUpdate(`/produk/${id}/update`, editFormData, "Data Produk berhasil dirubah")
+    const handleDelete = (id: number) => createHandleDelete(`/produk/${id}/delete`, "Data Produk berhasil dihapus")
 
-    const showProduct = (id: number) => createShow<ProductStateType | null>(setProduk, `/produk/${id}`, (data) => {
+    const fetchProduct = (id: number) => {
+        setEditFormData({
+            id: 0,
+            name: '',
+            code: '',
+            category: '',
+            units: '',
+            unit_price: 0,
+            minimum_stock: ''
+        })
+        createShow<ProductStateType | null>(setEditFormData, `/produk/${id}/edit`, (data) => {
         return ({
             id: data.id,
             name: data.name,
@@ -82,7 +73,29 @@ export default function Produk({products}: Product) {
             unit_price: data.unit_price,
             minimum_stock: data.minimum_stock
         });
-    })
+        })()
+    }
+
+    const showProduct = (id: number) => {
+        setShowProduk(null)
+        createShow<ProductStateType | null>(
+            setShowProduk,
+            `/produk/${id}`,
+            (data) => ({
+                id: data.id,
+                name: data.name,
+                code: data.code,
+                category: data.category,
+                units: data.units,
+                unit_price: data.unit_price,
+                minimum_stock: data.minimum_stock
+            })
+        )()
+    }
+
+    useEffect(() => {
+        handleGet()
+    }, [])
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -92,7 +105,7 @@ export default function Produk({products}: Product) {
                 <div className="flex flex-col md:flex-row gap-3 w-full">
                     <div className="relative md:w-1/3 overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
                         <Dialog>
-                            <DialogTrigger className="cursor-pointer bg-green-400 hover:bg-transparent border rounded-xl hover:border-green-400 transition text-gray-900 w-full h-9">
+                            <DialogTrigger className="cursor-pointer bg-green-400 hover:bg-transparent hover:text-green-400 border rounded-xl hover:border-green-400 transition text-gray-50 w-full h-9">
                                 Tambah Produk +
                             </DialogTrigger>
                             <DialogContent>
@@ -129,29 +142,27 @@ export default function Produk({products}: Product) {
                                             </div>
                                     </DialogDescription>
                                     <DialogFooter className='flex md:flex-row-reverse mt-3'>
-                                        <DialogClose asChild>
-                                            <Button className='cursor-pointer bg-rose-500 text-gray-50'>Tutup</Button>
+                                        <DialogClose className='cursor-pointer text-gray-50 bg-rose-500 border py-2 md:py-1 px-3 text-sm rounded-md hover:bg-transparent hover:text-rose-500 hover:border-rose-500 transition'>
+                                            Tutup
                                         </DialogClose>
-                                        <Button type='submit' className='w-full bg-green-400'>Kirim</Button>
+                                        <Button type='submit' className='w-full cursor-pointer text-gray-50 bg-green-400 border hover:text-green-400 hover:border-green-400 hover:bg-transparent transition'>Kirim</Button>
                                     </DialogFooter>
                                 </form>
                             </DialogContent>
                         </Dialog>
                     </div>
                     <div className="relative md:w-1/4 rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
-                        <Select>
+                        <Select onValueChange={(value) => console.log(value)}>
                             <SelectTrigger>
-                                Select
+                                <SelectValue placeholder="Atur data berdasarkan..."/>
                             </SelectTrigger>
-                            <SelectContent>
+                            <SelectContent className='bg-gray-200 z-50 w-72'>
                                 <SelectItem value='nama'>
                                     Nama
                                 </SelectItem>
-                                <SelectSeparator/>
                                 <SelectItem value='kategori'>
                                     Kategori
                                 </SelectItem>
-                                <SelectSeparator/>
                                 <SelectItem value='stok'>
                                     Stok
                                 </SelectItem>
@@ -179,8 +190,8 @@ export default function Produk({products}: Product) {
                             </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-100">
-                            {products.map((product, index) => (
-                                <tr key={product.id} className="hover:bg-gray-50 hover:text-gray-900">
+                            {produk.map((product, index) => (
+                                <tr key={product.id} className="hover:bg-gray-600 hover:text-gray-50">
                                     <td className="px-4 py-2">{index + 1}</td>
                                     <td className="px-4 py-2">{product.name}</td>
                                     <td className="px-4 py-2">{product.code}</td>
@@ -191,8 +202,8 @@ export default function Produk({products}: Product) {
                                     <td className="px-4 py-2 flex items-center justify-center gap-2 h-[3.5rem]">
                                         {/* Show */}
                                         <Dialog>
-                                            <DialogTrigger onClick={() => showProduct(product.id)} className="cursor-pointer bg-green-400 hover:bg-transparent border rounded-md hover:border-green-400 transition text-gray-900 w-full px-3 h-full flex justify-center items-center group">
-                                                <Eye className='text-[#eee] group-hover:text-green-500'/>
+                                            <DialogTrigger onClick={() => showProduct(product.id)} className="cursor-pointer bg-green-400 hover:bg-transparent border rounded-md hover:border-green-400 transition text-gray-50 w-full px-3 h-full flex justify-center items-center group">
+                                                <Eye className='text-gray-50 dark:text-gray-100 group-hover:text-green-500'/>
                                             </DialogTrigger>
                                             <DialogContent>
                                                 <DialogHeader>
@@ -201,37 +212,37 @@ export default function Produk({products}: Product) {
                                                     </DialogTitle>
                                                 </DialogHeader>
                                                 <DialogDescription className='overflow-auto h-64 md:h-96 scrollable-container'>
-                                                    {produk && (
+                                                    {showProduk && (
                                                     <>
                                                         <div className='mb-3'>
                                                             <Label>Nama</Label>
-                                                            <Input type="text" name="name" defaultValue={produk.name}></Input>
+                                                            <Input type="text" name="name" defaultValue={showProduk.name}></Input>
                                                         </div>
                                                         <div className='mb-3'>
                                                             <Label>Kode</Label>
-                                                            <Input type="text" name="code" defaultValue={produk.code}></Input>
+                                                            <Input type="text" name="code" defaultValue={showProduk.code}></Input>
                                                         </div>
                                                         <div className='mb-3'>
                                                             <Label>Kategori</Label>
-                                                            <Input type="text" name="category" defaultValue={produk.category}></Input>
+                                                            <Input type="text" name="category" defaultValue={showProduk.category}></Input>
                                                         </div>
                                                         <div className='mb-3'>
                                                             <Label>Satuan</Label>
-                                                            <Input type="text" name="units" defaultValue={produk.units}></Input>
+                                                            <Input type="text" name="units" defaultValue={showProduk.units}></Input>
                                                         </div>
                                                         <div className='mb-3'>
                                                             <Label>Harga Unit</Label>
-                                                            <Input type="text" name="units" defaultValue={produk.unit_price}></Input>
+                                                            <Input type="text" name="units" defaultValue={showProduk.unit_price}></Input>
                                                         </div>
                                                         <div className='mb-3'>
                                                             <Label>Stok Minimum</Label>
-                                                            <Input type="text" name="minimum_stock" defaultValue={produk.minimum_stock}></Input>
+                                                            <Input type="text" name="minimum_stock" defaultValue={showProduk.minimum_stock}></Input>
                                                         </div>
                                                     </>
                                                     )}
                                                 </DialogDescription>
                                                 <DialogFooter>
-                                                    <DialogClose className='cursor-pointer bg-rose-500 text-gray-50'>
+                                                    <DialogClose className='cursor-pointer text-gray-50 bg-rose-500 border  py-1 px-3 text-sm rounded-md hover:bg-transparent hover:text-rose-500 hover:border-rose-500 transition'>
                                                         Tutup
                                                     </DialogClose>
                                                 </DialogFooter>
@@ -240,8 +251,8 @@ export default function Produk({products}: Product) {
                                         {/* Show */}
                                         {/* Edit */}
                                         <Dialog>
-                                            <DialogTrigger onClick={() => fetchProduct(product.id)} className="cursor-pointer bg-yellow-400 hover:bg-transparent border rounded-md hover:border-yellow-400 transition text-gray-900 w-full px-3 flex items-center justify-center h-full group">
-                                                <PencilLine className='text-[#eee] group-hover:text-yellow-500'/>
+                                            <DialogTrigger onClick={() => fetchProduct(product.id)} className="cursor-pointer bg-yellow-400 hover:bg-transparent border rounded-md hover:border-yellow-400 transition text-gray-50 w-full px-3 flex items-center justify-center h-full group">
+                                                <PencilLine className='text-gray-50 dark:text-gray-100 group-hover:text-yellow-500'/>
                                             </DialogTrigger>
                                             <DialogContent>
                                                 <DialogHeader>
@@ -249,7 +260,7 @@ export default function Produk({products}: Product) {
                                                         Ubah Produk
                                                     </DialogTitle>
                                                 </DialogHeader>
-                                                <form onSubmit={handleUpdate}>
+                                                <form onSubmit={handleUpdate(product.id)}>
                                                     <DialogDescription className='overflow-auto h-64 md:h-96 scrollable-container'>
                                                         <div className='mb-3'>
                                                             <Label>Nama</Label>
@@ -273,8 +284,8 @@ export default function Produk({products}: Product) {
                                                         </div>
                                                     </DialogDescription>
                                                     <DialogFooter>
-                                                        <Button type='submit' className='w-full bg-green-400'>Kirim</Button>
-                                                        <DialogClose className='cursor-pointer bg-rose-500 text-gray-50'>
+                                                        <Button type='submit' className='w-full cursor-pointer bg-green-400 border hover:text-green-400 hover:border-green-400 hover:bg-transparent transition'>Kirim</Button>
+                                                        <DialogClose className='cursor-pointer text-gray-50 bg-rose-500 border  py-1 px-3 text-sm rounded-md hover:bg-transparent hover:text-rose-500 hover:border-rose-500 transition'>
                                                             Tutup
                                                         </DialogClose>
                                                     </DialogFooter>
@@ -284,8 +295,8 @@ export default function Produk({products}: Product) {
                                         {/* Edit */}
                                         {/* Delete */}
                                         <Dialog>
-                                            <DialogTrigger className="cursor-pointer bg-rose-400 hover:bg-transparent border rounded-md hover:border-rose-400 transition text-gray-900 w-full flex items-center justify-center h-full px-3 group">
-                                                <Eraser className='text-[#eee] group-hover:text-red-600'/>
+                                            <DialogTrigger className="cursor-pointer bg-rose-400 hover:bg-transparent border rounded-md hover:border-rose-400 transition text-gray-50 w-full flex items-center justify-center h-full px-3 group">
+                                                <Eraser className='text-gray-50 dark:text-gray-100 group-hover:text-red-600'/>
                                             </DialogTrigger>
                                             <DialogContent>
                                                 <DialogHeader>
@@ -298,10 +309,10 @@ export default function Produk({products}: Product) {
                                                         Apakah anda yakin ingin menghapus data ini ?
                                                     </DialogDescription>
                                                     <DialogFooter className='flex flex-col-reverse'>
-                                                        <DialogClose>
-                                                            <Button className='cursor-pointer bg-rose-500 text-gray-50'>Tutup</Button>
-                                                        </DialogClose>
                                                         <Button type='submit' className='w-full bg-green-400'>Ya, Hapus data ini</Button>
+                                                        <DialogClose className='cursor-pointer text-gray-50 bg-rose-500 border  py-1 px-3 text-sm rounded-md hover:bg-transparent hover:text-rose-500 hover:border-rose-500 transition'>
+                                                            Tutup
+                                                        </DialogClose>
                                                     </DialogFooter>
                                                 </form>
                                             </DialogContent>
@@ -317,5 +328,4 @@ export default function Produk({products}: Product) {
                 </div>
             </div>
         </AppLayout>
-    );
-}
+    )}

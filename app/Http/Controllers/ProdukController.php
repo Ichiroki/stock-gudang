@@ -8,6 +8,11 @@ use Illuminate\Http\Request;
 
 class ProdukController extends Controller
 {
+    public function index() {
+        $produk = Produk::paginate(10)->all();
+        return response()->json(['data' => $produk]);
+    }
+
     public function store(Request $request) {
         $validated = $request->validate( [
             "name" => "required|string",
