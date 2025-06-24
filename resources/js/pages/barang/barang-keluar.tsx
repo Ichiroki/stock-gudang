@@ -11,6 +11,7 @@ import { type BreadcrumbItem } from '@/types';
 import { BarangKeluar, BarangKeluarStateType } from '@/types/BarangKeluar';
 import { ProductDetailType } from '@/types/ProdukType';
 import { Head } from '@inertiajs/react';
+import { Eraser, Eye, PencilLine } from 'lucide-react';
 import { useState } from 'react';
 import { ToastContainer } from 'react-toastify';
 
@@ -107,7 +108,7 @@ export default function BarangKeluarDashboard({barang_keluar, product}: BarangKe
                 <div className="flex flex-col md:flex-row gap-3 w-full">
                     <div className="relative md:w-1/3 overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
                         <Dialog>
-                            <DialogTrigger className="cursor-pointer bg-green-400 hover:bg-transparent hover:border rounded-xl hover:border-green-400 transition text-gray-900 w-full h-full">
+                            <DialogTrigger className="cursor-pointer bg-green-400 hover:bg-transparent hover:text-green-400 border rounded-xl hover:border-green-400 transition text-gray-50 w-full h-9">
                                 Tambah Barang Keluar +
                             </DialogTrigger>
                             <DialogContent>
@@ -195,11 +196,11 @@ export default function BarangKeluarDashboard({barang_keluar, product}: BarangKe
                                                 + Tambah Produk
                                             </Button>
                                     </DialogDescription>
-                                    <DialogFooter>
-                                        <Button type='submit' className='w-full bg-green-400'>Kirim</Button>
-                                        <DialogClose>
-                                            <Button className='cursor-pointer bg-rose-500 text-gray-50'>Tutup</Button>
+                                    <DialogFooter className='flex md:flex-row-reverse mt-3'>
+                                        <DialogClose className='cursor-pointer text-gray-50 bg-rose-500 border py-2 md:py-1 px-3 text-sm rounded-md hover:bg-transparent hover:text-rose-500 hover:border-rose-500 transition'>
+                                            Tutup
                                         </DialogClose>
+                                        <Button type='submit' className='w-full cursor-pointer text-gray-50 bg-green-400 border hover:text-green-400 hover:border-green-400 hover:bg-transparent transition'>Kirim</Button>
                                     </DialogFooter>
                                 </form>
                             </DialogContent>
@@ -245,7 +246,7 @@ export default function BarangKeluarDashboard({barang_keluar, product}: BarangKe
                             </thead>
                             <tbody className="divide-y divide-gray-100">
                             {barang_keluar.map((barang, index) => (
-                                <tr key={barang.id} className="hover:bg-gray-50 hover:text-gray-900">
+                                <tr key={barang.id} className="hover:bg-gray-200 hover:text-gray-900">
                                     <td className="px-4 py-2">{index + 1}</td>
                                     <td className="px-4 py-2">{barang.reference_code}</td>
                                     <td className="px-4 py-2">{barang.date}</td>
@@ -255,8 +256,8 @@ export default function BarangKeluarDashboard({barang_keluar, product}: BarangKe
                                     <td className="px-4 py-2 flex items-center justify-center gap-2">
                                         {/* Show */}
                                         <Dialog>
-                                            <DialogTrigger onClick={showBarangKeluar(barang.id)} className="cursor-pointer bg-green-400 hover:bg-transparent border rounded-md hover:border-green-400 transition text-gray-900 w-full px-3">
-                                                Lihat
+                                            <DialogTrigger onClick={showBarangKeluar(barang.id)} className="cursor-pointer bg-green-400 hover:bg-transparent border rounded-md hover:border-green-400 transition text-gray-50 w-full px-3 h-full flex justify-center items-center group">
+                                                <Eye className='text-gray-50 dark:text-gray-100 group-hover:text-green-500'/>
                                             </DialogTrigger>
                                             <DialogContent>
                                                 <DialogHeader>
@@ -306,7 +307,7 @@ export default function BarangKeluarDashboard({barang_keluar, product}: BarangKe
                                                     )}
                                                 </DialogDescription>
                                                 <DialogFooter>
-                                                    <DialogClose className='cursor-pointer bg-rose-500 text-gray-50'>
+                                                <DialogClose className='cursor-pointer text-gray-50 bg-rose-500 border  py-1 px-3 text-sm rounded-md hover:bg-transparent hover:text-rose-500 hover:border-rose-500 transition'>
                                                         Tutup
                                                     </DialogClose>
                                                 </DialogFooter>
@@ -315,8 +316,8 @@ export default function BarangKeluarDashboard({barang_keluar, product}: BarangKe
                                         {/* Show */}
                                         {/* Edit */}
                                         <Dialog>
-                                            <DialogTrigger className="cursor-pointer bg-yellow-400 hover:bg-transparent border rounded-md hover:border-yellow-400 transition text-gray-900 w-full px-3" onClick={() => fetchBarangKeluar(barang.id)}>
-                                                Ubah
+                                            <DialogTrigger className="cursor-pointer bg-yellow-400 hover:bg-transparent border rounded-md hover:border-yellow-400 transition text-gray-50 w-full px-3 flex items-center justify-center h-full group" onClick={() => fetchBarangKeluar(barang.id)}>
+                                                <PencilLine className='text-gray-50 dark:text-gray-100 group-hover:text-yellow-500'/>
                                             </DialogTrigger>
                                             <DialogContent>
                                                 <DialogHeader>
@@ -414,9 +415,9 @@ export default function BarangKeluarDashboard({barang_keluar, product}: BarangKe
                                                                 + Tambah Produk
                                                             </Button>
                                                     </DialogDescription>
-                                                    <DialogFooter>
-                                                        <Button type='submit' className='w-full bg-green-400'>Kirim</Button>
-                                                        <DialogClose className='cursor-pointer bg-rose-500 text-gray-50'>
+                                                    <DialogFooter className='flex flex-col-reverse'>
+                                                        <Button type='submit' className='w-full bg-green-400'>Ya, Hapus data ini</Button>
+                                                        <DialogClose className='cursor-pointer text-gray-50 bg-rose-500 border  py-1 px-3 text-sm rounded-md hover:bg-transparent hover:text-rose-500 hover:border-rose-500 transition'>
                                                             Tutup
                                                         </DialogClose>
                                                     </DialogFooter>
@@ -426,8 +427,8 @@ export default function BarangKeluarDashboard({barang_keluar, product}: BarangKe
                                         {/* Edit */}
                                         {/* Delete */}
                                         <Dialog>
-                                            <DialogTrigger className="cursor-pointer bg-rose-400 hover:bg-transparent border rounded-md hover:border-rose-400 transition text-gray-900 w-full px-3">
-                                                Hapus
+                                            <DialogTrigger className="cursor-pointer bg-rose-400 hover:bg-transparent border rounded-md hover:border-rose-400 transition text-gray-50 w-full flex items-center justify-center h-full px-3 group">
+                                                <Eraser className='text-gray-50 dark:text-gray-100 group-hover:text-red-600'/>
                                             </DialogTrigger>
                                             <DialogContent>
                                                 <DialogHeader>

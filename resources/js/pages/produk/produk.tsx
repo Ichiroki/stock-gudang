@@ -35,14 +35,14 @@ export default function Produk() {
         minimum_stock: ''
     })
 
-    const [editFormData, setEditFormData] = useState({
+    const [editFormData, setEditFormData] = useState<ProductStateType>({
         id: 0,
         name: '',
         code: '',
         category: '',
-        units: '',
+        units: 0,
         unit_price: 0,
-        minimum_stock: ''
+        minimum_stock: 0
     })
 
     const handleChange = createHandleChange(setFormData)
@@ -59,11 +59,11 @@ export default function Produk() {
             name: '',
             code: '',
             category: '',
-            units: '',
+            units: 0,
             unit_price: 0,
-            minimum_stock: ''
+            minimum_stock: 0
         })
-        createShow<ProductStateType | null>(setEditFormData, `/produk/${id}/edit`, (data) => {
+        createShow<ProductStateType>(setEditFormData, `/produk/${id}/edit`, (data) => {
         return ({
             id: data.id,
             name: data.name,
@@ -264,23 +264,23 @@ export default function Produk() {
                                                     <DialogDescription className='overflow-auto h-64 md:h-96 scrollable-container'>
                                                         <div className='mb-3'>
                                                             <Label>Nama</Label>
-                                                            <Input type="text" name="name" onChange={handleEditChange} value={editFormData.name}></Input>
+                                                            <Input type="text" name="name" onChange={handleEditChange} value={editFormData?.name}></Input>
                                                         </div>
                                                         <div className='mb-3'>
                                                             <Label>Kode</Label>
-                                                            <Input type="text" name="code" onChange={handleEditChange} value={editFormData.code}></Input>
+                                                            <Input type="text" name="code" onChange={handleEditChange} value={editFormData?.code}></Input>
                                                         </div>
                                                         <div className='mb-3'>
                                                             <Label>Kategori</Label>
-                                                            <Input type="text" name="category" onChange={handleEditChange} value={editFormData.category}></Input>
+                                                            <Input type="text" name="category" onChange={handleEditChange} value={editFormData?.category}></Input>
                                                         </div>
                                                         <div className='mb-3'>
                                                             <Label>Satuan</Label>
-                                                            <Input type="text" name="units" onChange={handleEditChange} value={editFormData.units}></Input>
+                                                            <Input type="text" name="units" onChange={handleEditChange} value={editFormData?.units}></Input>
                                                         </div>
                                                         <div className='mb-3'>
                                                             <Label>Stok Minimum</Label>
-                                                            <Input type="text" name="minimum_stock" onChange={handleEditChange} value={editFormData.minimum_stock}></Input>
+                                                            <Input type="text" name="minimum_stock" onChange={handleEditChange} value={editFormData?.minimum_stock}></Input>
                                                         </div>
                                                     </DialogDescription>
                                                     <DialogFooter>

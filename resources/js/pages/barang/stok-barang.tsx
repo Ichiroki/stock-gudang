@@ -8,9 +8,9 @@ import { createHandleChange, createHandleDelete, createHandleEditChange, createH
 import { type BreadcrumbItem } from '@/types';
 import StokBarang from '@/types/StokBarangType';
 import { Head } from '@inertiajs/react';
-import axios from 'axios';
+import { Eraser, Eye, PencilLine } from 'lucide-react';
 import { useState } from 'react';
-import { toast, ToastContainer } from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -93,7 +93,7 @@ export default function StokBarangDashboard({stok_barang, products}: StokBarang)
                 <div className="flex flex-col md:flex-row gap-3 w-full">
                     <div className="relative md:w-1/3 overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
                         <Dialog>
-                            <DialogTrigger className="cursor-pointer bg-green-400 hover:bg-transparent hover:border rounded-xl hover:border-green-400 transition text-gray-900 w-full h-full">
+                            <DialogTrigger className="cursor-pointer bg-green-400 hover:bg-transparent hover:text-green-400 border rounded-xl hover:border-green-400 transition text-gray-50 w-full h-9">
                                 Tambah Stok Barang +
                             </DialogTrigger>
                             <DialogContent>
@@ -134,8 +134,10 @@ export default function StokBarangDashboard({stok_barang, products}: StokBarang)
                                         </div>
                                     </DialogDescription>
                                     <DialogFooter>
-                                        <Button type='submit' className='w-full bg-green-400'>Kirim</Button>
-                                        <DialogClose className='cursor-pointer bg-rose-500 text-gray-50'>Tutup</DialogClose>
+                                        <DialogClose className='cursor-pointer text-gray-50 bg-rose-500 border py-2 md:py-1 px-3 text-sm rounded-md hover:bg-transparent hover:text-rose-500 hover:border-rose-500 transition'>
+                                            Tutup
+                                        </DialogClose>
+                                        <Button type='submit' className='w-full cursor-pointer text-gray-50 bg-green-400 border hover:text-green-400 hover:border-green-400 hover:bg-transparent transition'>Kirim</Button>
                                     </DialogFooter>
                                 </form>
                             </DialogContent>
@@ -181,7 +183,7 @@ export default function StokBarangDashboard({stok_barang, products}: StokBarang)
                             </thead>
                             <tbody className="divide-y divide-gray-100">
                             {stok_barang.map((stok, index) => (
-                                <tr key={stok.id} className="hover:bg-gray-50 hover:text-gray-900">
+                                <tr key={stok.id} className="hover:bg-gray-200 hover:text-gray-900">
                                     <td className="px-4 py-2">{index + 1}</td>
                                     <td className="px-4 py-2">{stok.product.name}</td>
                                     <td className="px-4 py-2">{stok.stock}</td>
@@ -190,8 +192,8 @@ export default function StokBarangDashboard({stok_barang, products}: StokBarang)
                                     <td className="px-4 py-2 flex items-center justify-center gap-2">
                                         {/* Show */}
                                         <Dialog>
-                                            <DialogTrigger onClick={showStokBarang(stok.id)} className="cursor-pointer bg-green-400 hover:bg-transparent border rounded-md hover:border-green-400 transition text-gray-900 w-full px-3">
-                                                Lihat
+                                            <DialogTrigger onClick={showStokBarang(stok.id)} className="cursor-pointer bg-green-400 hover:bg-transparent border rounded-md hover:border-green-400 transition text-gray-50 w-full px-3 h-full flex justify-center items-center group">
+                                                <Eye className='text-gray-50 dark:text-gray-100 group-hover:text-green-500'/>
                                             </DialogTrigger>
                                             <DialogContent>
                                                 <DialogHeader>
@@ -222,15 +224,17 @@ export default function StokBarangDashboard({stok_barang, products}: StokBarang)
                                                     )}
                                                 </DialogDescription>
                                                 <DialogFooter>
-                                                    <DialogClose className='cursor-pointer bg-rose-500 text-gray-50'>Tutup</DialogClose>
+                                                    <DialogClose className='cursor-pointer text-gray-50 bg-rose-500 border  py-1 px-3 text-sm rounded-md hover:bg-transparent hover:text-rose-500 hover:border-rose-500 transition'>
+                                                        Tutup
+                                                    </DialogClose>
                                                 </DialogFooter>
                                             </DialogContent>
                                         </Dialog>
                                         {/* Show */}
                                         {/* Edit */}
                                         <Dialog>
-                                            <DialogTrigger className="cursor-pointer bg-yellow-400 hover:bg-transparent border rounded-md hover:border-yellow-400 transition text-gray-900 w-full px-3" onClick={() => fetchStokBarang(stok.id)}>
-                                                Ubah
+                                            <DialogTrigger className="cursor-pointer bg-yellow-400 hover:bg-transparent border rounded-md hover:border-yellow-400 transition text-gray-50 w-full px-3 flex items-center justify-center h-full group" onClick={() => fetchStokBarang(stok.id)}>
+                                                <PencilLine className='text-gray-50 dark:text-gray-100 group-hover:text-yellow-500'/>
                                             </DialogTrigger>
                                             <DialogContent>
                                                 <DialogHeader>
@@ -270,8 +274,10 @@ export default function StokBarangDashboard({stok_barang, products}: StokBarang)
                                                         </div>
                                                     </DialogDescription>
                                                     <DialogFooter>
-                                                        <Button type='submit' className='w-full bg-green-400'>Kirim</Button>
-                                                        <DialogClose className='cursor-pointer bg-rose-500 text-gray-50'>Tutup</DialogClose>
+                                                        <Button type='submit' className='w-full cursor-pointer bg-green-400 border hover:text-green-400 hover:border-green-400 hover:bg-transparent transition'>Kirim</Button>
+                                                        <DialogClose className='cursor-pointer text-gray-50 bg-rose-500 border  py-1 px-3 text-sm rounded-md hover:bg-transparent hover:text-rose-500 hover:border-rose-500 transition'>
+                                                            Tutup
+                                                        </DialogClose>
                                                     </DialogFooter>
                                                 </form>
                                             </DialogContent>
@@ -279,8 +285,8 @@ export default function StokBarangDashboard({stok_barang, products}: StokBarang)
                                         {/* Edit */}
                                         {/* Delete */}
                                         <Dialog>
-                                            <DialogTrigger className="cursor-pointer bg-rose-400 hover:bg-transparent border rounded-md hover:border-rose-400 transition text-gray-900 w-full px-3">
-                                                Hapus
+                                            <DialogTrigger className="cursor-pointer bg-rose-400 hover:bg-transparent border rounded-md hover:border-rose-400 transition text-gray-50 w-full flex items-center justify-center h-full px-3 group">
+                                                <Eraser className='text-gray-50 dark:text-gray-100 group-hover:text-red-600'/>
                                             </DialogTrigger>
                                             <DialogContent>
                                                 <DialogHeader>
@@ -293,10 +299,10 @@ export default function StokBarangDashboard({stok_barang, products}: StokBarang)
                                                         <p>Apakah anda yakin ingin menghapus data ini ?</p>
                                                     </DialogDescription>
                                                     <DialogFooter className='flex flex-col-reverse'>
-                                                        <DialogClose>
-                                                            <Button className='cursor-pointer bg-rose-500 text-gray-50'>Tutup</Button>
-                                                        </DialogClose>
                                                         <Button type='submit' className='w-full bg-green-400'>Ya, Hapus data ini</Button>
+                                                        <DialogClose className='cursor-pointer text-gray-50 bg-rose-500 border  py-1 px-3 text-sm rounded-md hover:bg-transparent hover:text-rose-500 hover:border-rose-500 transition'>
+                                                            Tutup
+                                                        </DialogClose>
                                                     </DialogFooter>
                                                 </form>
                                             </DialogContent>

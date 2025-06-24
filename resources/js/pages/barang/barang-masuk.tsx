@@ -4,15 +4,14 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectSeparator, SelectTrigger } from '@/components/ui/select';
 import AppLayout from '@/layouts/app-layout';
-import { addField, createHandleDetailChange, removeField } from '@/lib/handlers/useInputs';
 import { createGet, createHandleChange, createHandleDelete, createHandleEditChange, createHandleSubmit, createHandleUpdate, createShow } from '@/lib/handlers/useHandlers';
+import { addField, createHandleDetailChange, removeField } from '@/lib/handlers/useInputs';
 import { cn } from '@/lib/utils';
 import { type BreadcrumbItem } from '@/types';
 import BarangMasuk, { BarangMasukStateType } from '@/types/BarangMasuk';
 import { Head } from '@inertiajs/react';
 import { useState } from 'react';
 import { ToastContainer } from 'react-toastify';
-import { ProductDetailType } from '@/types/ProdukType';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
