@@ -2,16 +2,16 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Eraser, Eye, PencilLine } from 'lucide-react';
 import { Select, SelectItem, SelectTrigger } from '@/components/ui/select';
 import AppLayout from '@/layouts/app-layout';
 import { createGet, createHandleChange, createHandleDelete, createHandleSubmit, createHandleUpdate, createShow } from '@/lib/handlers/useHandlers';
 import { type BreadcrumbItem } from '@/types';
+import { Product, ProductStateType } from '@/types/ProdukType';
 import { Head } from '@inertiajs/react';
-import { SelectContent, SelectSeparator, SelectValue } from '@radix-ui/react-select';
+import { SelectContent, SelectValue } from '@radix-ui/react-select';
+import { Eraser, Eye, PencilLine } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { ToastContainer } from 'react-toastify';
-import { Product, ProductStateType } from '@/types/ProdukType';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {

@@ -4,11 +4,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectSeparator, SelectTrigger } from '@/components/ui/select';
 import AppLayout from '@/layouts/app-layout';
-import { createHandleChange, createHandleDelete, createHandleEditChange, createHandleSubmit, createHandleUpdate } from '@/lib/handlers/useHandlers';
+import { createGet, createHandleChange, createHandleDelete, createHandleEditChange, createHandleSubmit, createHandleUpdate } from '@/lib/handlers/useHandlers';
 import { type BreadcrumbItem } from '@/types';
-import Kategori from '@/types/Kategori';
+import { Kategori } from '@/types/Kategori';
 import { Head } from '@inertiajs/react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ToastContainer } from 'react-toastify';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -23,7 +23,9 @@ interface KategoriType {
     name: string
 }
 
-export default function KategoriDashboard({kategoris}: Kategori) {
+export default function KategoriDashboard() {
+    const [kategoris, setKategoris] = useState<Kategori[]>([])
+
     const [formData, setFormData] = useState<KategoriType>({
         name: ''
     })
@@ -36,6 +38,7 @@ export default function KategoriDashboard({kategoris}: Kategori) {
     const handleChange = createHandleChange(setFormData)
     const handleEditChange = createHandleEditChange(setEditFormData)
 
+    const handleGet = createGet("/data/kategori", setKategoris)
     const handleSubmit = createHandleSubmit("/kategori/store", formData, "Data Kategori berhasil diubah")
     const handleUpdate = (id: number) => createHandleUpdate(`/kategori/${id}/update`, editFormData, "Kategori berhasil diubah")
     const handleDelete = (id: number) => createHandleDelete(`/kategori/${id}/delete`, "Kategori berhasil dihapus")
@@ -56,6 +59,10 @@ export default function KategoriDashboard({kategoris}: Kategori) {
             console.error(e)
         }
     }
+
+    useEffect(() => {
+        handleGet()
+    }, [])
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -127,7 +134,7 @@ export default function KategoriDashboard({kategoris}: Kategori) {
                             </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-100">
-                            {kategoris.map((kategori, index) => (
+                            {kategoris.map((kategori: Kategori, index) => (
                                 <tr key={kategori.id} className="hover:bg-gray-50 hover:text-gray-900">
                                     <td className="px-4 py-2">{index + 1}</td>
                                     <td className="px-4 py-2">{kategori.name}</td>

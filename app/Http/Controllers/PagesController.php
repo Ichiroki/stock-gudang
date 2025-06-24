@@ -16,13 +16,13 @@ class PagesController extends Controller
     public function dashboardChart() {
         $barangMasuk = DB::table('barang_masuk_details')
         ->join('barang_masuk_masters', 'barang_masuk_details.barang_masuk_id', '=', 'barang_masuk_masters.id')
-        ->selectRaw('MONTH(barang_masuk_masters.date) as month, SUM(quantity) as total')
+        ->selectRaw('EXTRACT(MONTH FROM barang_masuk_masters.date) as month, SUM(quantity) as total')
         ->groupBy('month')
         ->get();
 
         $barangKeluar = DB::table('barang_keluar_details')
         ->join('barang_keluar_masters', 'barang_keluar_details.barang_keluar_id', '=', 'barang_keluar_masters.id')
-        ->selectRaw('MONTH(barang_keluar_masters.date) as month, SUM(quantity) as total')
+        ->selectRaw('EXTRACT(MONTH FROM barang_keluar_masters.date) as month, SUM(quantity) as total')
         ->groupBy('month')
         ->get();
 

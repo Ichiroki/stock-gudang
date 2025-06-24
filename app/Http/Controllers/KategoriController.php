@@ -7,6 +7,11 @@ use Illuminate\Http\Request;
 
 class KategoriController extends Controller
 {
+    public function index() {
+        $kategori = Kategori::all();
+        return response()->json(['data' => $kategori]);
+    }
+
     public function store(Request $request) {
         $validated = $request->validate( [
             "name" => "required|string",

@@ -1,10 +1,12 @@
-type KategoriType = {
+import { Key, ReactNode } from "react"
+
+export type KategoriType = {
     id: number
     name: string
 }
 
-interface Kategori {
+export interface Kategori {
+    name: ReactNode
+    id: number | Key
     kategoris: KategoriType[]
 }
-
-export default Kategori

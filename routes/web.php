@@ -114,6 +114,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::prefix('data')->group(function() {
         Route::get('/produk', [ProdukController::class,'index']);
+        Route::get('/kategori', [KategoriController::class,'index']);
     });
 });
 

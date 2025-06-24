@@ -5,7 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectSeparator, SelectTrigger } from '@/components/ui/select';
 import AppLayout from '@/layouts/app-layout';
 import { addField, createHandleDetailChange, removeField } from '@/lib/handlers/useInputs';
-import { createHandleChange, createHandleDelete, createHandleEditChange, createHandleSubmit, createHandleUpdate, createShow } from '@/lib/handlers/useHandlers';
+import { createGet, createHandleChange, createHandleDelete, createHandleEditChange, createHandleSubmit, createHandleUpdate, createShow } from '@/lib/handlers/useHandlers';
 import { cn } from '@/lib/utils';
 import { type BreadcrumbItem } from '@/types';
 import BarangMasuk, { BarangMasukStateType } from '@/types/BarangMasuk';
@@ -22,7 +22,8 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function BarangMasukPage({barang_masuk, product}: BarangMasuk) {
-    const [barangMasuk, setBarangMasuk] = useState<BarangMasukStateType | null>(null)
+    const [barangMasuk, setBarangMasuk] = useState<BarangMasukStateType[]>([])
+    const [showBarangMasuk, setShowBarangMasuk] = useState<BarangMasukStateType | null>(null)
     const [formData, setFormData] = useState({
         reference_code: '',
         date: '',
@@ -42,6 +43,7 @@ export default function BarangMasukPage({barang_masuk, product}: BarangMasuk) {
         product_details: [{ id: 0, product_id: 0, quantity: 1, unit_price: 0, subtotal: 0 }]
     })
 
+    const handleGet = createGet(`/data/barang-masuk/`, setBarangMasuk)
     const handleChange = createHandleChange(setFormData)
     const handleEditChange = createHandleEditChange(setEditFormData)
     const handleDetailChange = createHandleDetailChange(setFormData, () => product, 'product_details')
@@ -64,35 +66,27 @@ export default function BarangMasukPage({barang_masuk, product}: BarangMasuk) {
     const removeProductField = (index: number) => removeField(setFormData, 'product_details', index)
     const removeEditProductField = (index: number) => removeField(setEditFormData, 'product_details', index)
 
-    const fetchBarangMasuk = async (id: number) => {
-        try {
-            await fetch(`/barang-masuk/${id}/edit`)
-            .then((res) => res.json())
-            .then((res) => {
-                const data = res.data[0]
-
-                const product_details = data.details.map((detail: ProductDetailType) => ({
-                    id: data.id,
-                    product_id: detail.produk_id,
-                    quantity: detail.quantity,
-                    unit_price: detail.unit_price,
-                    subtotal: detail.subtotal,
-                    produk: detail.produk
-                }))
-
-                setEditFormData({
-                    id: data.id,
-                    reference_code: data.reference_code,
-                    date: data.date,
-                    supplier_name: data.supplier_name,
-                    description: data.description,
-                    created_by: data.created_by,
-                    product_details: product_details
-                })
-            })
-        } catch(e) {
-            console.error(e)
-        }
+    const fetchBarangMasuk = (id: number) => {
+        setEditFormData({
+            id: 0,
+            reference_code: '',
+            date: '',
+            supplier_name: '',
+            description: '',
+            created_by: '',
+            product_details: [{ id: 0, product_id: 0, quantity: 1, unit_price: 0, subtotal: 0 }]
+        })
+        createShow<BarangMasukStateType | null>(setEditFormData, `/produk/${id}/edit`, (data) => {
+        return ({
+            id: data.id,
+            reference_code: data.reference_code,
+            date: data.date,
+            supplier_name: data.supplier_name,
+            description: data.description,
+            created_by: data.created_by,
+            details: data.details
+        });
+        })()
     }
 
     const showBarangMasuk = (id: number) => createShow<BarangMasukStateType | null>(setBarangMasuk, `/barang-masuk/${id}`, (data) => ({
