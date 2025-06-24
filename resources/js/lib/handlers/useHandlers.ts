@@ -4,13 +4,13 @@ import { toast } from 'react-toastify'
 
 type Setter<T> = React.Dispatch<React.SetStateAction<T>>
 
-export const createHandleChange = <T extends object>(setter: Setter<T>) => (e: ChangeEvent<HTMLInputElement | HTMLFormElement | HTMLTextAreaElement>) => {
+export const createHandleChange = <T extends object>(setter: Setter<T>) => (e: ChangeEvent<HTMLInputElement | HTMLFormElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     e.preventDefault()
     const { name, value } = e.target
     setter(prev => ({...prev, [name]: value}))
 }
 
-export const createHandleEditChange = <T extends object>(setter: Setter<T>) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLTextAreaElement>) => {
+export const createHandleEditChange = <T extends object>(setter: Setter<T>) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     e.preventDefault()
     const { name, value } = e.target
     setter(prev => ({...prev, [name]: value}))

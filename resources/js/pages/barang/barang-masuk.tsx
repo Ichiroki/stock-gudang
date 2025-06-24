@@ -8,9 +8,10 @@ import { createGet, createHandleChange, createHandleDelete, createHandleEditChan
 import { addField, createHandleDetailChange, removeField } from '@/lib/handlers/useInputs';
 import { cn } from '@/lib/utils';
 import { type BreadcrumbItem } from '@/types';
-import BarangMasuk, { BarangMasukStateType } from '@/types/BarangMasuk';
+import { BarangMasukFormType, BarangMasukStateType, BarangMasukType } from '@/types/BarangMasuk';
+import { ProductInBarangMasukType } from '@/types/ProdukType';
 import { Head } from '@inertiajs/react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ToastContainer } from 'react-toastify';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -20,50 +21,51 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-export default function BarangMasukPage({barang_masuk, product}: BarangMasuk) {
-    const [barangMasuk, setBarangMasuk] = useState<BarangMasukStateType[]>([])
-    const [showBarangMasuk, setShowBarangMasuk] = useState<BarangMasukStateType | null>(null)
+export default function BarangMasukPage({products}: ProductInBarangMasukType) {
+    const [barang_masuk, setBarang_Masuk] = useState<BarangMasukType[]>([])
+
+    const [barangMasukData, setBarangMasukData] = useState<BarangMasukStateType | null>(null)
     const [formData, setFormData] = useState({
         reference_code: '',
         date: '',
         supplier_name: '',
         description: '',
         created_by: '',
-        product_details: [{ product_id: 0, quantity: 1, unit_price: 0, subtotal: 0 }]
+        details: [{ product_id: 0, quantity: 1, unit_price: 0, subtotal: 0 }]
     })
 
-    const [editFormData, setEditFormData] = useState({
+    const [editFormData, setEditFormData] = useState<BarangMasukFormType>({
         id: 0,
         reference_code: '',
         date: '',
         supplier_name: '',
         description: '',
         created_by: '',
-        product_details: [{ id: 0, product_id: 0, quantity: 1, unit_price: 0, subtotal: 0 }]
+        details: [{ id: 0, product_id: 0, quantity: 1, unit_price: 0, subtotal: 0 }]
     })
 
-    const handleGet = createGet(`/data/barang-masuk/`, setBarangMasuk)
+    const handleGet = createGet(`/data/barang-masuk`, setBarang_Masuk)
     const handleChange = createHandleChange(setFormData)
     const handleEditChange = createHandleEditChange(setEditFormData)
-    const handleDetailChange = createHandleDetailChange(setFormData, () => product, 'product_details')
-    const handleEditDetailChange = createHandleDetailChange(setEditFormData, () => product, 'product_details')
+    const handleDetailChange = createHandleDetailChange(setFormData, () => products, 'details')
+    const handleEditDetailChange = createHandleDetailChange(setEditFormData, () => products, 'details')
 
-    const addProductField = () => addField(setFormData, 'product_details', {
+    const addProductField = () => addField(setFormData, 'details', {
         product_id: 0,
         quantity: 0,
         unit_price: 0,
         subtotal: 0,
     })
 
-    const addEditProductField = () => addField(setEditFormData, 'product_details', {
+    const addEditProductField = () => addField(setEditFormData, 'details', {
         product_id: 0,
         quantity: 0,
         unit_price: 0,
         subtotal: 0,
     })
 
-    const removeProductField = (index: number) => removeField(setFormData, 'product_details', index)
-    const removeEditProductField = (index: number) => removeField(setEditFormData, 'product_details', index)
+    const removeProductField = (index: number) => removeField(setFormData, 'details', index)
+    const removeEditProductField = (index: number) => removeField(setEditFormData, 'details', index)
 
     const fetchBarangMasuk = (id: number) => {
         setEditFormData({
@@ -73,9 +75,9 @@ export default function BarangMasukPage({barang_masuk, product}: BarangMasuk) {
             supplier_name: '',
             description: '',
             created_by: '',
-            product_details: [{ id: 0, product_id: 0, quantity: 1, unit_price: 0, subtotal: 0 }]
+            details: [{ id: 0, product_id: 0, quantity: 1, unit_price: 0, subtotal: 0 }]
         })
-        createShow<BarangMasukStateType | null>(setEditFormData, `/produk/${id}/edit`, (data) => {
+        createShow<BarangMasukFormType>(setEditFormData, `/produk/${id}/edit`, (data) => {
         return ({
             id: data.id,
             reference_code: data.reference_code,
@@ -88,7 +90,7 @@ export default function BarangMasukPage({barang_masuk, product}: BarangMasuk) {
         })()
     }
 
-    const showBarangMasuk = (id: number) => createShow<BarangMasukStateType | null>(setBarangMasuk, `/barang-masuk/${id}`, (data) => ({
+    const showBarangMasuk = (id: number) => createShow<BarangMasukStateType | null>(setBarangMasukData, `/barang-masuk/${id}`, (data) => ({
         id: data.id,
         reference_code: data.reference_code,
         date: data.date,
@@ -101,6 +103,10 @@ export default function BarangMasukPage({barang_masuk, product}: BarangMasuk) {
     const handleSubmit = createHandleSubmit("/barang-masuk/store", formData, "Data Barang Masuk berhasil diubah")
     const handleUpdate = createHandleUpdate(`/barang-masuk/${editFormData.id}/update`, editFormData, "Barang Masuk berhasil diubah")
     const handleDelete = (id: number) => createHandleDelete(`/barang-masuk/${id}/delete`, "Barang Masuk berhasil dihapus")
+
+    useEffect(() => {
+        handleGet()
+    }, [])
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -147,17 +153,17 @@ export default function BarangMasukPage({barang_masuk, product}: BarangMasuk) {
                                             </div>
                                             <div className='mb-3'>
                                                 <Label>Detail Produk</Label>
-                                                {formData.product_details.map((detail, i) => (
+                                                {formData.details.map((detail, i) => (
                                                     <div key={i} className="mb-3 border p-3 rounded-md">
                                                     <Label>Produk</Label>
                                                     <select
                                                         name="product_id"
-                                                        value={formData.product_details[i].product_id}
+                                                        value={formData.details[i].product_id}
                                                         onChange={(e) => handleDetailChange(i, e)}
                                                         className="w-full mt-1 mb-2 border rounded p-2"
                                                     >
                                                         <option value="">-- Pilih Produk --</option>
-                                                        {product.map((p) => (
+                                                        {products.map((p) => (
                                                         <option key={p.id} value={p.id}>
                                                             {p.name}
                                                         </option>
@@ -168,7 +174,7 @@ export default function BarangMasukPage({barang_masuk, product}: BarangMasuk) {
                                                     <Input
                                                         name="quantity"
                                                         type="number"
-                                                        value={formData.product_details[i].quantity}
+                                                        value={formData.details[i].quantity}
                                                         onChange={(e) => handleDetailChange(i, e)}
                                                     />
 
@@ -176,7 +182,7 @@ export default function BarangMasukPage({barang_masuk, product}: BarangMasuk) {
                                                     <Input
                                                         name="unit_price"
                                                         type="number"
-                                                        value={formData.product_details[i].unit_price}
+                                                        value={formData.details[i].unit_price}
                                                         onChange={(e) => handleDetailChange(i, e)}
                                                         readOnly
                                                     />
@@ -185,12 +191,12 @@ export default function BarangMasukPage({barang_masuk, product}: BarangMasuk) {
                                                     <Input
                                                         name="subtotal"
                                                         type="number"
-                                                        value={formData.product_details[i].subtotal}
+                                                        value={formData.details[i].subtotal}
                                                         onChange={(e) => handleDetailChange(i, e)}
                                                         readOnly
                                                     />
 
-                                                    {formData.product_details.length > 1 && (
+                                                    {formData.details.length > 1 && (
                                                         <Button type="button" className="mt-2 bg-red-400" onClick={() => removeProductField(i)}>
                                                         Hapus Produk Ini
                                                         </Button>
@@ -270,27 +276,27 @@ export default function BarangMasukPage({barang_masuk, product}: BarangMasuk) {
                                                     </DialogTitle>
                                                 </DialogHeader>
                                                 <DialogDescription className='overflow-auto h-64 md:h-96 scrollable-container'>
-                                                    {barangMasuk && (
+                                                    {barangMasukData && (
                                                     <>
                                                         <div className='mb-3'>
                                                             <Label>Nama</Label>
-                                                            <Input type="text" name="reference_code" defaultValue={barangMasuk.reference_code}></Input>
+                                                            <Input type="text" name="reference_code" defaultValue={barangMasukData?.reference_code}></Input>
                                                         </div>
                                                         <div className='mb-3'>
                                                             <Label>Kode</Label>
-                                                            <Input type="text" name="date" defaultValue={barangMasuk.date}></Input>
+                                                            <Input type="text" name="date" defaultValue={barangMasukData?.date}></Input>
                                                         </div>
                                                         <div className='mb-3'>
                                                             <Label>Kategori</Label>
-                                                            <Input type="text" name="category" defaultValue={barangMasuk.supplier_name}></Input>
+                                                            <Input type="text" name="category" defaultValue={barangMasukData?.supplier_name}></Input>
                                                         </div>
                                                         <div className='mb-3'>
                                                             <Label>Satuan</Label>
-                                                            <Input type="text" name="units" defaultValue={barangMasuk.description}></Input>
+                                                            <Input type="text" name="units" defaultValue={barangMasukData?.description}></Input>
                                                         </div>
                                                         <div className='mb-3'>
                                                             <Label>Stok Minimum</Label>
-                                                            <Input type="text" name="minimum_stock" defaultValue={barangMasuk.created_by}></Input>
+                                                            <Input type="text" name="minimum_stock" defaultValue={barangMasukData?.created_by}></Input>
                                                         </div>
                                                         <table className='w-full'>
                                                             <tr>
@@ -298,7 +304,7 @@ export default function BarangMasukPage({barang_masuk, product}: BarangMasuk) {
                                                                 <th className='border-2 px-5 text-center'>Nama</th>
                                                                 <th className='border-2 px-5 text-center'>Harga Unit</th>
                                                             </tr>
-                                                            {barangMasuk.details.map((detail, i) =>
+                                                            {barangMasukData?.details.map((detail, i) =>
                                                                 <tr key={i}>
                                                                     <td className='border-2 px-5 text-center'>{i + 1}</td>
                                                                     <td className='border-2 px-5 text-center'>{detail.product.name}</td>
@@ -356,7 +362,7 @@ export default function BarangMasukPage({barang_masuk, product}: BarangMasuk) {
                                                     </div>
                                                     <div className='mb-3'>
                                                         <Label>Detail Produk</Label>
-                                                        {editFormData.product_details.map((detail, index) => (
+                                                        {editFormData.details.map((detail, index) => (
                                                             <div key={index} className="mb-3 border p-3 rounded-md">
                                                             <Label>Produk</Label>
                                                             <select
@@ -366,7 +372,7 @@ export default function BarangMasukPage({barang_masuk, product}: BarangMasuk) {
                                                                 className="w-full mt-1 mb-2 border rounded p-2"
                                                             >
                                                                 <option value="">-- Pilih Produk --</option>
-                                                                {product.map((p) => (
+                                                                {products.map((p) => (
                                                                 <option key={p.id} value={p.id}>
                                                                     {p.name}
                                                                 </option>
@@ -406,7 +412,7 @@ export default function BarangMasukPage({barang_masuk, product}: BarangMasuk) {
                                                                 readOnly
                                                             />
 
-                                                            {formData.product_details.length > 1 && (
+                                                            {formData.details.length > 1 && (
                                                                 <Button type="button" className="mt-2 bg-red-400" onClick={() => removeEditProductField(index)}>
                                                                 Hapus Produk Ini
                                                                 </Button>

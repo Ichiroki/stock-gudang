@@ -12,6 +12,14 @@ use Illuminate\Support\Facades\DB;
 
 class BarangController extends Controller
 {
+    public function indexMasuk() {
+        $barangMasuk = BarangMasuk::with(['details.product' => function($query) {
+            $query->select('id','name','unit_price');
+        }])->paginate(10)->all();
+
+        return response()->json(['data' => $barangMasuk]);
+    }
+
     public function storeMasuk(Request $request) {
         $validated = $request->validate( [
             "reference_code" => "required|string",

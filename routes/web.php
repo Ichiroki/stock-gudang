@@ -113,6 +113,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     Route::prefix('data')->group(function() {
+        Route::get('/barang-masuk', [BarangController::class,'indexMasuk']);
         Route::get('/produk', [ProdukController::class,'index']);
         Route::get('/kategori', [KategoriController::class,'index']);
     });

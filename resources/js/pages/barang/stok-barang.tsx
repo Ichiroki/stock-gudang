@@ -50,7 +50,7 @@ export default function StokBarangDashboard({stok_barang, products}: StokBarang)
     const handleChange = createHandleChange(setFormData)
     const handleEditChange = createHandleEditChange(setEditFormData)
 
-    const showStokBarang = (id: number) => createShow<StokBarangType>(setStokBarang, `/stok-barang/${id}`, (data) => ({
+    const showStokBarang = (id: number) => createShow<StokBarangType | null>(setStokBarang, `/stok-barang/${id}`, (data) => ({
         id: data.id,
         product_id: data.produk_id,
         stock: data.stock,

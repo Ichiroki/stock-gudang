@@ -11,6 +11,14 @@ export interface Products {
     products: ProductType[]
 }
 
+export interface ProductInBarangMasukType {
+    products : {
+        id: number
+        name: string
+        unit_price: number
+    }[]
+}
+
 export interface Product {
     id: number,
     name: string,
