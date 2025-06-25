@@ -17,6 +17,7 @@ export interface BarangKeluar {
 }
 
 export interface BarangKeluarStateType {
+    id: number
     reference_code: string
     date: string
     recipient_name: string

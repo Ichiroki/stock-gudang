@@ -1,10 +1,11 @@
+import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectSeparator, SelectTrigger } from '@/components/ui/select';
 import AppLayout from '@/layouts/app-layout';
-import { createHandleChange, createHandleDelete, createHandleSubmit, createHandleUpdate, createShow } from '@/lib/handlers/useHandlers';
+import { createGet, createHandleChange, createHandleDelete, createHandleSubmit, createHandleUpdate, createShow } from '@/lib/handlers/useHandlers';
 import { createHandleDetailChange } from '@/lib/handlers/useInputs';
 import { cn } from '@/lib/utils';
 import { type BreadcrumbItem } from '@/types';
@@ -12,7 +13,7 @@ import { BarangKeluar, BarangKeluarStateType } from '@/types/BarangKeluar';
 import { ProductDetailType } from '@/types/ProdukType';
 import { Head } from '@inertiajs/react';
 import { Eraser, Eye, PencilLine } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ToastContainer } from 'react-toastify';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -22,8 +23,9 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-export default function BarangKeluarDashboard({barang_keluar, product}: BarangKeluar) {
-    const [barangKeluar, setBarangKeluar] = useState<BarangKeluarStateType | null>(null)
+export default function BarangKeluarDashboard({product}: BarangKeluar) {
+    const [barang_keluar, setBarang_Keluar] = useState<BarangKeluarStateType[]>([])
+    const [showBarangKeluar, setShowBarangKeluar] = useState<BarangKeluarStateType | null>(null)
 
     const [formData, setFormData] = useState({
         reference_code: '',
@@ -42,6 +44,15 @@ export default function BarangKeluarDashboard({barang_keluar, product}: BarangKe
         description: '',
         created_by: '',
         product_details: [{ id: 0, product_id: 0, quantity: 1, unit_price: 0, subtotal: 0 }]
+    })
+
+    const [errorMessage, setErrorMessage] = useState({
+        reference_code: '',
+        date: '',
+        recipient_name: '',
+        description: '',
+        created_by: '',
+        product_details: [{ id: '', product_id: '', quantity: '', unit_price: '', subtotal: '' }]
     })
 
     const handleDetailChange = createHandleDetailChange(setFormData, () => product, 'product_details')
@@ -87,11 +98,13 @@ export default function BarangKeluarDashboard({barang_keluar, product}: BarangKe
     const handleChange = () => createHandleDetailChange(setFormData, () => product, 'product_details')
     const handleEditChange = () => createHandleDetailChange(setEditFormData, () => product, 'product_details')
 
-    const handleSubmit = createHandleSubmit(`/barang-keluar/store`, formData, 'Data Barang Keluar berhasil ditambahkan')
+    const handleGet = createGet('/data/barang-keluar', setBarang_Keluar)
+    const handleSubmit = createHandleSubmit(`/barang-keluar/store`, formData, 'Data Barang Keluar berhasil ditambahkan', setErrorMessage)
     const handleUpdate = (id: number) => createHandleUpdate(`/barang-keluar/${id}/update`, editFormData, 'Data Barang Keluar berhasil diubah')
     const handleDelete = (id: number) => createHandleDelete(`/barang-keluar/${id}/delete`, 'Data barang keluar berhasil dihapus')
 
-    const showBarangKeluar = (id: number) => createShow<BarangKeluarStateType | null>(setBarangKeluar, `/barang-keluar/${id}`, (data) => ({
+    const getShowBarangKeluar = (id: number) => createShow<BarangKeluarStateType | null>(setShowBarangKeluar, `/barang-keluar/${id}`, (data) => ({
+        id: data.id,
         reference_code: data.reference_code,
         date: data.date,
         recipient_name: data.recipient_name,
@@ -99,6 +112,10 @@ export default function BarangKeluarDashboard({barang_keluar, product}: BarangKe
         created_by: data.created_by,
         details: data.details
     }))
+
+    useEffect(() => {
+        handleGet()
+    }, [])
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -122,22 +139,27 @@ export default function BarangKeluarDashboard({barang_keluar, product}: BarangKe
                                             <div className='mb-3'>
                                                 <Label>Kode Referensi</Label>
                                                 <Input type="text" name="reference_code" onChange={handleChange} value={formData.reference_code}></Input>
+                                                <InputError message={errorMessage.reference_code} />
                                             </div>
                                             <div className='mb-3'>
                                                 <Label>Tanggal</Label>
                                                 <Input type="date" name="date" onChange={handleChange} value={formData.date}></Input>
+                                                <InputError message={errorMessage.date} />
                                             </div>
                                             <div className='mb-3'>
-                                                <Label>Nama recipient</Label>
+                                                <Label>Nama Penerima</Label>
                                                 <Input type="text" name="recipient_name" onChange={handleChange} value={formData.recipient_name}></Input>
+                                                <InputError message={errorMessage.recipient_name} />
                                             </div>
                                             <div className='mb-3 flex flex-col'>
                                                 <Label className='mb-1'>Deskripsi</Label>
                                                 <Input type="text" name="description" onChange={handleChange} value={formData.description} className=''></Input>
+                                                <InputError message={errorMessage.description} />
                                             </div>
                                             <div className='mb-3'>
                                                 <Label>Dibuat Oleh</Label>
                                                 <Input type="text" name="created_by" onChange={handleChange} value={formData.created_by}></Input>
+                                                <InputError message={errorMessage.created_by} />
                                             </div>
                                             <div className='mb-3'>
                                                 <Label>Detail Produk</Label>
@@ -157,6 +179,7 @@ export default function BarangKeluarDashboard({barang_keluar, product}: BarangKe
                                                         </option>
                                                         ))}
                                                     </select>
+                                                    {/* <InputError message={errorMessage.product_details[index + 1].product_id} /> */}
 
                                                     <Label>Quantity</Label>
                                                     <Input
@@ -165,6 +188,7 @@ export default function BarangKeluarDashboard({barang_keluar, product}: BarangKe
                                                         value={detail.quantity}
                                                         onChange={(e) => handleDetailChange(index, e)}
                                                     />
+                                                    <InputError message={errorMessage.reference_code} />
 
                                                     <Label className="mt-2">Harga Satuan</Label>
                                                     <Input
@@ -174,6 +198,7 @@ export default function BarangKeluarDashboard({barang_keluar, product}: BarangKe
                                                         onChange={(e) => handleDetailChange(index, e)}
                                                         readOnly
                                                     />
+                                                    <InputError message={errorMessage.reference_code} />
 
                                                     <Label className="mt-2">Subtotal</Label>
                                                     <Input
@@ -183,6 +208,7 @@ export default function BarangKeluarDashboard({barang_keluar, product}: BarangKe
                                                         onChange={(e) => handleDetailChange(index, e)}
                                                         readOnly
                                                     />
+                                                    <InputError message={errorMessage.reference_code} />
 
                                                     {formData.product_details.length > 1 && (
                                                         <Button type="button" className="mt-2 bg-red-400" onClick={removeProductField}>
@@ -256,7 +282,7 @@ export default function BarangKeluarDashboard({barang_keluar, product}: BarangKe
                                     <td className="px-4 py-2 flex items-center justify-center gap-2 h-[3.5rem]">
                                         {/* Show */}
                                         <Dialog>
-                                            <DialogTrigger onClick={showBarangKeluar(barang.id)} className="cursor-pointer bg-green-400 hover:bg-transparent border rounded-md hover:border-green-400 transition text-gray-50 w-full px-3 h-full flex justify-center items-center group">
+                                            <DialogTrigger onClick={getShowBarangKeluar(barang?.id)} className="cursor-pointer bg-green-400 hover:bg-transparent border rounded-md hover:border-green-400 transition text-gray-50 w-full px-3 h-full flex justify-center items-center group">
                                                 <Eye className='text-gray-50 dark:text-gray-100 group-hover:text-green-500'/>
                                             </DialogTrigger>
                                             <DialogContent>
@@ -266,27 +292,27 @@ export default function BarangKeluarDashboard({barang_keluar, product}: BarangKe
                                                     </DialogTitle>
                                                 </DialogHeader>
                                                 <DialogDescription className='overflow-auto h-64 md:h-96 scrollable-container'>
-                                                    {barangKeluar && (
+                                                    {showBarangKeluar && (
                                                     <>
                                                         <div className='mb-3'>
                                                             <Label>Kode Referensi</Label>
-                                                            <Input type="text" name="reference_code" defaultValue={barangKeluar.reference_code}></Input>
+                                                            <Input type="text" name="reference_code" defaultValue={showBarangKeluar.reference_code}></Input>
                                                         </div>
                                                         <div className='mb-3'>
                                                             <Label>Tanggal</Label>
-                                                            <Input type="text" name="date" defaultValue={barangKeluar.date}></Input>
+                                                            <Input type="text" name="date" defaultValue={showBarangKeluar.date}></Input>
                                                         </div>
                                                         <div className='mb-3'>
                                                             <Label>Nama recipient</Label>
-                                                            <Input type="text" name="category" defaultValue={barangKeluar.recipient_name}></Input>
+                                                            <Input type="text" name="category" defaultValue={showBarangKeluar.recipient_name}></Input>
                                                         </div>
                                                         <div className='mb-3'>
                                                             <Label>Deskripsi</Label>
-                                                            <Input type="text" name="units" defaultValue={barangKeluar.description}></Input>
+                                                            <Input type="text" name="units" defaultValue={showBarangKeluar.description}></Input>
                                                         </div>
                                                         <div className='mb-3'>
                                                             <Label>Dibuat Oleh</Label>
-                                                            <Input type="text" name="minimum_stock" defaultValue={barangKeluar.created_by}></Input>
+                                                            <Input type="text" name="minimum_stock" defaultValue={showBarangKeluar.created_by}></Input>
                                                         </div>
                                                         <table className='w-full'>
                                                             <tr>
@@ -294,7 +320,7 @@ export default function BarangKeluarDashboard({barang_keluar, product}: BarangKe
                                                                 <th className='border-2 px-5 text-center'>Nama</th>
                                                                 <th className='border-2 px-5 text-center'>Harga Unit</th>
                                                             </tr>
-                                                            {barangKeluar.details.map((detail, i) => (
+                                                            {showBarangKeluar.details.map((detail, i) => (
                                                                 <tr key={detail.product.id}>
                                                                     <td className='border-2 px-5 text-center'>{i}</td>
                                                                     <td className='border-2 px-5 text-center'>{detail.product.name}</td>

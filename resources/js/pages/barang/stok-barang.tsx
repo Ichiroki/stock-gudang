@@ -4,12 +4,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectSeparator, SelectTrigger } from '@/components/ui/select';
 import AppLayout from '@/layouts/app-layout';
-import { createHandleChange, createHandleDelete, createHandleEditChange, createHandleSubmit, createHandleUpdate, createShow } from '@/lib/handlers/useHandlers';
+import { createGet, createHandleChange, createHandleDelete, createHandleEditChange, createHandleSubmit, createHandleUpdate, createShow } from '@/lib/handlers/useHandlers';
 import { type BreadcrumbItem } from '@/types';
 import StokBarang from '@/types/StokBarangType';
 import { Head } from '@inertiajs/react';
 import { Eraser, Eye, PencilLine } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ToastContainer } from 'react-toastify';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -29,13 +29,21 @@ interface StokBarangType {
     }
 }
 
-export default function StokBarangDashboard({stok_barang, products}: StokBarang) {
-    const [stokBarang, setStokBarang] = useState<StokBarangType | null>(null)
+export default function StokBarangDashboard({products}: StokBarang) {
+    const [stok_barang, setStok_Barang] = useState<StokBarangType[]>([])
+    const [showStokBarang, setShowStokBarang] = useState<StokBarangType | null>(null)
 
     const [formData, setFormData] = useState({
         product: 0,
         stock: 0,
         minimum_stock: 0,
+        last_updated_by: '',
+    })
+
+    const [errorFormData, setErrorFormData] = useState({
+        product: '',
+        stock: '',
+        minimum_stock: '',
         last_updated_by: '',
     })
 
@@ -50,7 +58,7 @@ export default function StokBarangDashboard({stok_barang, products}: StokBarang)
     const handleChange = createHandleChange(setFormData)
     const handleEditChange = createHandleEditChange(setEditFormData)
 
-    const showStokBarang = (id: number) => createShow<StokBarangType | null>(setStokBarang, `/stok-barang/${id}`, (data) => ({
+    const getShowStokBarang = (id: number) => createShow<StokBarangType | null>(setShowStokBarang, `/stok-barang/${id}`, (data) => ({
         id: data.id,
         product_id: data.produk_id,
         stock: data.stock,
@@ -61,9 +69,10 @@ export default function StokBarangDashboard({stok_barang, products}: StokBarang)
         }
     }))
 
-    const handleSubmit = createHandleSubmit("/kategori/store", formData, "Data Kategori berhasil diubah")
-    const handleUpdate = (id: number) => createHandleUpdate(`/kategori/${id}/update`, editFormData, "Kategori berhasil diubah")
-    const handleDelete = (id: number) => createHandleDelete(`/kategori/${id}/delete`, "Kategori berhasil dihapus")
+    const handleGet = createGet("/data/stok-barang", setStok_Barang)
+    const handleSubmit = createHandleSubmit("/stok-barang/store", formData, "Data Stok Barang berhasil diubah", setErrorFormData)
+    const handleUpdate = (id: number) => createHandleUpdate(`/stok-barang/${id}/update`, editFormData, "Stok Barang berhasil diubah")
+    const handleDelete = (id: number) => createHandleDelete(`/stok-barang/${id}/delete`, "Stok Barang berhasil dihapus")
 
     const fetchStokBarang = async (id: number) => {
         try {
@@ -84,6 +93,12 @@ export default function StokBarangDashboard({stok_barang, products}: StokBarang)
             console.error(e)
         }
     }
+
+    useEffect(() => {
+        handleGet()
+    }, [])
+
+    console.log(stok_barang)
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -192,7 +207,7 @@ export default function StokBarangDashboard({stok_barang, products}: StokBarang)
                                     <td className="px-4 py-2 flex items-center justify-center gap-2 h-[3.5rem]">
                                         {/* Show */}
                                         <Dialog>
-                                            <DialogTrigger onClick={showStokBarang(stok.id)} className="cursor-pointer bg-green-400 hover:bg-transparent border rounded-md hover:border-green-400 transition text-gray-50 w-full px-3 h-full flex justify-center items-center group">
+                                            <DialogTrigger onClick={getShowStokBarang(stok.id)} className="cursor-pointer bg-green-400 hover:bg-transparent border rounded-md hover:border-green-400 transition text-gray-50 w-full px-3 h-full flex justify-center items-center group">
                                                 <Eye className='text-gray-50 dark:text-gray-100 group-hover:text-green-500'/>
                                             </DialogTrigger>
                                             <DialogContent>
@@ -202,23 +217,23 @@ export default function StokBarangDashboard({stok_barang, products}: StokBarang)
                                                     </DialogTitle>
                                                 </DialogHeader>
                                                 <DialogDescription className='overflow-auto h-64 md:h-96 scrollable-container'>
-                                                    {stokBarang && (
+                                                    {showStokBarang && (
                                                     <>
                                                         <div className='mb-3'>
                                                             <Label>Produk</Label>
-                                                            <Input type="text" name="product" readOnly defaultValue={stokBarang?.product.name}></Input>
+                                                            <Input type="text" name="product" readOnly defaultValue={showStokBarang?.product.name}></Input>
                                                         </div>
                                                         <div className='mb-3'>
                                                             <Label>Stok</Label>
-                                                            <Input type="text" name="date" readOnly defaultValue={stokBarang?.stock}></Input>
+                                                            <Input type="text" name="date" readOnly defaultValue={showStokBarang?.stock}></Input>
                                                         </div>
                                                         <div className='mb-3'>
                                                             <Label>Stok Minimum</Label>
-                                                            <Input type="text" name="category" readOnly defaultValue={stokBarang?.minimum_stock}></Input>
+                                                            <Input type="text" name="category" readOnly defaultValue={showStokBarang?.minimum_stock}></Input>
                                                         </div>
                                                         <div className='mb-3'>
                                                             <Label>Diubah Oleh</Label>
-                                                            <Input type="text" name="units" readOnly defaultValue={stokBarang?.last_updated_by}></Input>
+                                                            <Input type="text" name="units" readOnly defaultValue={showStokBarang?.last_updated_by}></Input>
                                                         </div>
                                                     </>
                                                     )}

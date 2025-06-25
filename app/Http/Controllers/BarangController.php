@@ -139,6 +139,14 @@ class BarangController extends Controller
         }
     }
 
+    public function indexKeluar() {
+        $barangKeluar = BarangKeluar::with(['details.product' => function($query) {
+            $query->select('id','name','unit_price');
+        }])->paginate(10)->all();
+
+        return response()->json(['data' => $barangKeluar]);
+    }
+
     public function storeKeluar(Request $request) {
         $validated = $request->validate( [
             "reference_code" => "required|string",

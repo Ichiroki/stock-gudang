@@ -1,5 +1,5 @@
 import { FormEvent, ChangeEvent } from 'react'
-import axios from 'axios'
+import axios, { AxiosError } from 'axios'
 import { toast } from 'react-toastify'
 
 type Setter<T> = React.Dispatch<React.SetStateAction<T>>
@@ -18,12 +18,18 @@ export const createHandleEditChange = <T extends object>(setter: Setter<T>) => (
 
 export const createGet = <T>(
     url: string,
-    setter: React.Dispatch<React.SetStateAction<T>>
+    setter: React.Dispatch<React.SetStateAction<T>>,
+    // pagination?: React.Dispatch<React.SetStateAction<T>>
   ) => async () => {
     try {
       const res = await axios.get(url)
-      const { data } = res.data
+    //   const { current_page, data, last_page} = res.data
+      const {data} = res.data
       setter(data)
+    //   pagination({
+    //     current_page: current_page,
+    //     last_page: last_page
+    //   })
     } catch (e) {
       console.error('njir error', e)
     }
@@ -43,15 +49,23 @@ export const createShow = <T, R = any>(
     }
   }
 
-export const createHandleSubmit = (url: string, data: any, successMessage: string) => async (e: FormEvent) => {
+export const createHandleSubmit = (url: string, data: any, successMessage: string, errorMessage: React.Dispatch<React.SetStateAction<T>>) => async (e: FormEvent) => {
     e.preventDefault()
     try {
         const res = await axios.post(url, data)
         if(res.data.status === "success") {
             toast(successMessage)
+            errorMessage({})
         }
     } catch(e) {
-        toast(`Njir gagal ${e}`)
+        const error = e as AxiosError<any>
+
+        if(error.response?.status === 422) {
+            const validationErrors = error.response.data.errors
+            errorMessage(validationErrors)
+        } else {
+            toast(`Gagal menyimpan data: ${e.response.message}`)
+        }
     }
 }
 

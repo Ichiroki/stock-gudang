@@ -8,6 +8,13 @@ use Illuminate\Http\Request;
 
 class StokBarangController extends Controller
 {
+    public function index() {
+        $stokBarang = StokBarang::with(['product' => function($query) {
+            $query->select('id', 'name', 'unit_price');
+        }])->get();
+        return response()->json(['data' => $stokBarang]);
+    }
+
     public function store(Request $request) {
         try {
             $validated = $request->validate( [

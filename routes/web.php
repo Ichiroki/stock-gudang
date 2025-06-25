@@ -114,6 +114,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::prefix('data')->group(function() {
         Route::get('/barang-masuk', [BarangController::class,'indexMasuk']);
+        Route::get('/barang-keluar', [BarangController::class,'indexKeluar']);
+        Route::get('/stok-barang', [StokBarangController::class,'index']);
         Route::get('/produk', [ProdukController::class,'index']);
         Route::get('/kategori', [KategoriController::class,'index']);
     });

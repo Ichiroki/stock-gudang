@@ -1,3 +1,4 @@
+import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -24,6 +25,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 export default function Produk() {
 
     const [produk, setProduk] = useState<Product[]>([])
+    // const { pagination, setPagination } = usePagination()
     const [showProduk, setShowProduk] = useState<ProductStateType | null>(null)
 
     const [formData, setFormData] = useState({
@@ -45,11 +47,37 @@ export default function Produk() {
         minimum_stock: 0
     })
 
+    const [errorFormData, setErrorFormData] = useState({
+        name: '',
+        code: '',
+        category: '',
+        units: '',
+        unit_price: '',
+        minimum_stock: ''
+    })
+
     const handleChange = createHandleChange(setFormData)
     const handleEditChange = createHandleChange(setEditFormData)
 
     const handleGet = createGet('/data/produk', setProduk)
-    const handleSubmit = createHandleSubmit('/produk/store', formData, "Data Produk berhasil ditambahkan")
+    // const handleGet = async (page = 1) => {
+    //     try {
+    //         const response = await axios.get(`/produk?page=${page}`)
+    //         setProduk(response.data.data)
+    //         setPagination({
+    //             current_page: response.data.current_page,
+    //             last_page: response.data.last_page,
+    //             per_page: response.data.per_page,
+    //             total: response.data.total,
+    //             next_page_url: response.data.next_page_url,
+    //             prev_page_url: response.data.prev_page_url,
+    //         })
+    //     } catch(e) {
+    //         toast(`Maaf data tidak tertampil, ${e}`)
+    //     }
+    // }
+
+    const handleSubmit = createHandleSubmit('/produk/store', formData, "Data Produk berhasil ditambahkan", setErrorFormData)
     const handleUpdate = (id: number) => createHandleUpdate(`/produk/${id}/update`, editFormData, "Data Produk berhasil dirubah")
     const handleDelete = (id: number) => createHandleDelete(`/produk/${id}/delete`, "Data Produk berhasil dihapus")
 
@@ -119,26 +147,33 @@ export default function Produk() {
                                             <div className='mb-3'>
                                                 <Label>Nama</Label>
                                                 <Input type="text" name="name" value={formData.name} onChange={handleChange}></Input>
+                                                <InputError message={errorFormData.name} />
                                             </div>
                                             <div className='mb-3'>
                                                 <Label>Kode</Label>
                                                 <Input type="text" name="code" value={formData.code} onChange={handleChange}></Input>
+                                                <InputError message={errorFormData.code} />
                                             </div>
                                             <div className='mb-3'>
                                                 <Label>Kategori</Label>
                                                 <Input type="text" name="category" value={formData.category} onChange={handleChange}></Input>
+                                                <InputError message={errorFormData.category} />
                                             </div>
                                             <div className='mb-3'>
                                                 <Label>Satuan</Label>
                                                 <Input type="text" name="units" value={formData.units} onChange={handleChange}></Input>
+                                                <InputError message={errorFormData.units} />
                                             </div>
                                             <div className='mb-3'>
                                                 <Label>Harga Unit</Label>
-                                                <Input type="text" name="unit_price" value={formData.units} onChange={handleChange}></Input>
+                                                <Input type="text" name="unit_price" value={formData.unit_price} onChange={handleChange}></Input>
+                                                <InputError message={errorFormData.unit_price} />
                                             </div>
                                             <div className='mb-3'>
                                                 <Label>Stok Minimum</Label>
                                                 <Input type="text" name="minimum_stock" value={formData.minimum_stock} onChange={handleChange}></Input>
+                                                <InputError>{errorFormData.minimum_stock}</InputError>
+                                                <InputError message={errorFormData.minimum_stock} />
                                             </div>
                                     </DialogDescription>
                                     <DialogFooter className='flex md:flex-row-reverse mt-3'>
@@ -152,7 +187,7 @@ export default function Produk() {
                         </Dialog>
                     </div>
                     <div className="relative md:w-1/4 rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
-                        <Select onValueChange={(value) => console.log(value)}>
+                        <Select>
                             <SelectTrigger>
                                 <SelectValue placeholder="Atur data berdasarkan..."/>
                             </SelectTrigger>
