@@ -189,7 +189,7 @@ export default function StokBarangDashboard({stok_barang, products}: StokBarang)
                                     <td className="px-4 py-2">{stok.stock}</td>
                                     <td className="px-4 py-2">{stok.minimum_stock}</td>
                                     <td className="px-4 py-2">{stok.last_updated_by}</td>
-                                    <td className="px-4 py-2 flex items-center justify-center gap-2">
+                                    <td className="px-4 py-2 flex items-center justify-center gap-2 h-[3.5rem]">
                                         {/* Show */}
                                         <Dialog>
                                             <DialogTrigger onClick={showStokBarang(stok.id)} className="cursor-pointer bg-green-400 hover:bg-transparent border rounded-md hover:border-green-400 transition text-gray-50 w-full px-3 h-full flex justify-center items-center group">

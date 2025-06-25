@@ -103,7 +103,7 @@ export default function BarangKeluarDashboard({barang_keluar, product}: BarangKe
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <ToastContainer/>
-            <Head title="Barang Masuk" />
+            <Head title="Barang Keluar" />
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4 overflow-x-auto">
                 <div className="flex flex-col md:flex-row gap-3 w-full">
                     <div className="relative md:w-1/3 overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
@@ -253,7 +253,7 @@ export default function BarangKeluarDashboard({barang_keluar, product}: BarangKe
                                     <td className="px-4 py-2">{barang.recipient_name}</td>
                                     <td className="px-4 py-2">{barang.description}</td>
                                     <td className="px-4 py-2">{barang.created_by}</td>
-                                    <td className="px-4 py-2 flex items-center justify-center gap-2">
+                                    <td className="px-4 py-2 flex items-center justify-center gap-2 h-[3.5rem]">
                                         {/* Show */}
                                         <Dialog>
                                             <DialogTrigger onClick={showBarangKeluar(barang.id)} className="cursor-pointer bg-green-400 hover:bg-transparent border rounded-md hover:border-green-400 transition text-gray-50 w-full px-3 h-full flex justify-center items-center group">
@@ -262,7 +262,7 @@ export default function BarangKeluarDashboard({barang_keluar, product}: BarangKe
                                             <DialogContent>
                                                 <DialogHeader>
                                                     <DialogTitle>
-                                                        Detail Barang Masuk
+                                                        Detail Barang Keluar
                                                     </DialogTitle>
                                                 </DialogHeader>
                                                 <DialogDescription className='overflow-auto h-64 md:h-96 scrollable-container'>
@@ -322,7 +322,7 @@ export default function BarangKeluarDashboard({barang_keluar, product}: BarangKe
                                             <DialogContent>
                                                 <DialogHeader>
                                                     <DialogTitle>
-                                                        Ubah Barang Masuk
+                                                        Ubah Barang Keluar
                                                     </DialogTitle>
                                                 </DialogHeader>
                                                 <form onSubmit={handleUpdate(barang.id)}>
@@ -433,7 +433,7 @@ export default function BarangKeluarDashboard({barang_keluar, product}: BarangKe
                                             <DialogContent>
                                                 <DialogHeader>
                                                     <DialogTitle>
-                                                        Hapus Barang Masuk
+                                                        Hapus Barang Keluar
                                                     </DialogTitle>
                                                 </DialogHeader>
                                                 <form action="" onSubmit={handleDelete(barang.id)}>

@@ -137,7 +137,7 @@ export default function KategoriDashboard() {
                                 <tr key={kategori.id} className="hover:bg-gray-200 hover:text-gray-900">
                                     <td className="px-4 py-2">{index + 1}</td>
                                     <td className="px-4 py-2">{kategori.name}</td>
-                                    <td className="px-4 py-2 flex items-center justify-center gap-2">
+                                    <td className="px-4 py-2 flex items-center justify-center gap-2 h-[3.5rem]">
                                         {/* Edit */}
                                         <Dialog>
                                             <DialogTrigger className="cursor-pointer bg-yellow-400 hover:bg-transparent border rounded-md hover:border-yellow-400 transition text-gray-50 w-full px-3 flex items-center justify-center h-full group" onClick={() => fetchKategori(kategori.id)}>

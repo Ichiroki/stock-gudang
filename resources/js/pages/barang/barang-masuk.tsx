@@ -161,11 +161,11 @@ export default function BarangMasukPage({products}: ProductInBarangMasukType) {
                                             </div>
                                             <div className='mb-3'>
                                                 <Label>Detail Produk</Label>
-                                                {formData.details.map((detail, i) => (
+                                                {formData.details.map((_, i) => (
                                                     <div key={i} className="mb-3 border p-3 rounded-md">
                                                     <Label>Produk</Label>
                                                     <select
-                                                        name="product_id"
+                                                    name="product_id"
                                                         value={formData.details[i].product_id}
                                                         onChange={(e) => handleDetailChange(i, e)}
                                                         className="w-full mt-1 mb-2 border rounded p-2"
@@ -273,7 +273,7 @@ export default function BarangMasukPage({products}: ProductInBarangMasukType) {
                                     <td className="px-4 py-2">{barang.supplier_name}</td>
                                     <td className="px-4 py-2">{barang.description}</td>
                                     <td className="px-4 py-2">{barang.created_by}</td>
-                                    <td className="px-4 py-2 flex items-center justify-center gap-2">
+                                    <td className="px-4 py-2 flex items-center justify-center gap-2 h-[3.5rem]">
                                         {/* Show */}
                                         <Dialog>
                                             <DialogTrigger onClick={showBarangMasuk(barang.id)} className="cursor-pointer bg-green-400 hover:bg-transparent border rounded-md hover:border-green-400 transition text-gray-50 w-full px-3 h-full flex justify-center items-center group">
