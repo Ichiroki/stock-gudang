@@ -9,8 +9,9 @@ import { addField, createHandleDetailChange, removeField } from '@/lib/handlers/
 import { cn } from '@/lib/utils';
 import { type BreadcrumbItem } from '@/types';
 import { BarangMasukFormType, BarangMasukStateType, BarangMasukType } from '@/types/BarangMasuk';
-import { ProductInBarangMasukType } from '@/types/ProdukType';
+import { ProductDetailType, ProductInBarangMasukType } from '@/types/ProdukType';
 import { Head } from '@inertiajs/react';
+import { Eraser, Eye, PencilLine } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { ToastContainer } from 'react-toastify';
 
@@ -67,27 +68,34 @@ export default function BarangMasukPage({products}: ProductInBarangMasukType) {
     const removeProductField = (index: number) => removeField(setFormData, 'details', index)
     const removeEditProductField = (index: number) => removeField(setEditFormData, 'details', index)
 
-    const fetchBarangMasuk = (id: number) => {
-        setEditFormData({
-            id: 0,
-            reference_code: '',
-            date: '',
-            supplier_name: '',
-            description: '',
-            created_by: '',
-            details: [{ id: 0, product_id: 0, quantity: 1, unit_price: 0, subtotal: 0 }]
-        })
-        createShow<BarangMasukFormType>(setEditFormData, `/produk/${id}/edit`, (data) => {
-        return ({
-            id: data.id,
-            reference_code: data.reference_code,
-            date: data.date,
-            supplier_name: data.supplier_name,
-            description: data.description,
-            created_by: data.created_by,
-            details: data.details
-        });
-        })()
+    const fetchBarangMasuk = async (id: number) => {
+        try {
+            await fetch(`/barang-masuk/${id}/edit`)
+            .then((res) => res.json())
+            .then((res) => {
+                const data = res.data
+                const product_details = data.details.map((detail: ProductDetailType) => ({
+                    id: detail.id,
+                    product_id: detail.produk_id,
+                    quantity: detail.quantity,
+                    unit_price: detail.unit_price,
+                    subtotal: detail.subtotal,
+                    produk: detail.produk
+                }))
+
+                setEditFormData({
+                    id: data.id,
+                    reference_code: data.reference_code,
+                    date: data.date,
+                    supplier_name: data.supplier_name,
+                    description: data.description,
+                    created_by: data.created_by,
+                    details: product_details
+                })
+            })
+        } catch(e) {
+            console.error(e)
+        }
     }
 
     const showBarangMasuk = (id: number) => createShow<BarangMasukStateType | null>(setBarangMasukData, `/barang-masuk/${id}`, (data) => ({
@@ -116,7 +124,7 @@ export default function BarangMasukPage({products}: ProductInBarangMasukType) {
                 <div className="flex flex-col md:flex-row gap-3 w-full">
                     <div className="relative md:w-1/3 overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
                         <Dialog>
-                            <DialogTrigger className="cursor-pointer bg-green-400 hover:bg-transparent hover:border rounded-xl hover:border-green-400 transition text-gray-900 w-full h-full">
+                            <DialogTrigger className="cursor-pointer bg-green-400 hover:bg-transparent hover:text-green-400 border rounded-xl hover:border-green-400 transition text-gray-50 w-full h-9">
                                 Tambah Barang Masuk +
                             </DialogTrigger>
                             <DialogContent>
@@ -209,8 +217,10 @@ export default function BarangMasukPage({products}: ProductInBarangMasukType) {
                                             </Button>
                                     </DialogDescription>
                                     <DialogFooter>
-                                        <Button type='submit' className='w-full bg-green-400'>Kirim</Button>
-                                        <DialogClose className='cursor-pointer bg-rose-500 text-gray-50'>Tutup</DialogClose>
+                                        <DialogClose className='cursor-pointer text-gray-50 bg-rose-500 border py-2 md:py-1 px-3 text-sm rounded-md hover:bg-transparent hover:text-rose-500 hover:border-rose-500 transition'>
+                                            Tutup
+                                        </DialogClose>
+                                        <Button type='submit' className='w-full cursor-pointer text-gray-50 bg-green-400 border hover:text-green-400 hover:border-green-400 hover:bg-transparent transition'>Kirim</Button>
                                     </DialogFooter>
                                 </form>
                             </DialogContent>
@@ -266,8 +276,8 @@ export default function BarangMasukPage({products}: ProductInBarangMasukType) {
                                     <td className="px-4 py-2 flex items-center justify-center gap-2">
                                         {/* Show */}
                                         <Dialog>
-                                            <DialogTrigger onClick={showBarangMasuk(barang.id)} className="cursor-pointer bg-green-400 hover:bg-transparent border rounded-md hover:border-green-400 transition text-gray-900 w-full px-3">
-                                                Lihat
+                                            <DialogTrigger onClick={showBarangMasuk(barang.id)} className="cursor-pointer bg-green-400 hover:bg-transparent border rounded-md hover:border-green-400 transition text-gray-50 w-full px-3 h-full flex justify-center items-center group">
+                                                <Eye className='text-gray-50 dark:text-gray-100 group-hover:text-green-500'/>
                                             </DialogTrigger>
                                             <DialogContent>
                                                 <DialogHeader>
@@ -316,7 +326,7 @@ export default function BarangMasukPage({products}: ProductInBarangMasukType) {
                                                     )}
                                                 </DialogDescription>
                                                 <DialogFooter>
-                                                    <DialogClose className='cursor-pointer bg-rose-500 text-gray-50'>
+                                                    <DialogClose className='cursor-pointer text-gray-50 bg-rose-500 border  py-1 px-3 text-sm rounded-md hover:bg-transparent hover:text-rose-500 hover:border-rose-500 transition'>
                                                         Tutup
                                                     </DialogClose>
                                                 </DialogFooter>
@@ -325,16 +335,16 @@ export default function BarangMasukPage({products}: ProductInBarangMasukType) {
                                         {/* Show */}
                                         {/* Edit */}
                                         <Dialog>
-                                            <DialogTrigger className="cursor-pointer bg-yellow-400 hover:bg-transparent border rounded-md hover:border-yellow-400 transition text-gray-900 w-full px-3" onClick={() => fetchBarangMasuk(barang.id)}>
-                                                Ubah
+                                            <DialogTrigger className="cursor-pointer bg-yellow-400 hover:bg-transparent border rounded-md hover:border-yellow-400 transition text-gray-50 w-full px-3 flex items-center justify-center h-full group" onClick={() => fetchBarangMasuk(barang.id)}>
+                                                <PencilLine className='text-gray-50 dark:text-gray-100 group-hover:text-yellow-500'/>
                                             </DialogTrigger>
                                             <DialogContent>
-                                            <DialogHeader>
-                                                <DialogTitle>
-                                                    Ubah Barang Masuk
-                                                </DialogTitle>
-                                            </DialogHeader>
-                                            <form onSubmit={handleUpdate}>
+                                                <DialogHeader>
+                                                    <DialogTitle>
+                                                        Ubah Barang Masuk
+                                                    </DialogTitle>
+                                                </DialogHeader>
+                                                <form onSubmit={handleUpdate}>
                                                 <DialogDescription className='overflow-auto h-64 md:h-96 scrollable-container'>
                                                     <div className='mb-3'>
                                                         <Label>Kode Referensi</Label>
@@ -425,10 +435,10 @@ export default function BarangMasukPage({products}: ProductInBarangMasukType) {
                                                     </Button>
                                                     </DialogDescription>
                                                     <DialogFooter>
-                                                        <DialogClose asChild>
-                                                            <Button type='button' className='cursor-pointer bg-rose-500 text-gray-50'>Tutup</Button>
+                                                        <Button type='submit' className='w-full cursor-pointer bg-green-400 border hover:text-green-400 hover:border-green-400 hover:bg-transparent transition'>Kirim</Button>
+                                                        <DialogClose className='cursor-pointer text-gray-50 bg-rose-500 border  py-1 px-3 text-sm rounded-md hover:bg-transparent hover:text-rose-500 hover:border-rose-500 transition'>
+                                                            Tutup
                                                         </DialogClose>
-                                                        <Button type='submit' className='w-full bg-green-400'>Kirim</Button>
                                                     </DialogFooter>
                                                 </form>
                                             </DialogContent>
@@ -436,8 +446,8 @@ export default function BarangMasukPage({products}: ProductInBarangMasukType) {
                                         {/* Edit */}
                                         {/* Delete */}
                                         <Dialog>
-                                            <DialogTrigger className="cursor-pointer bg-rose-400 hover:bg-transparent border rounded-md hover:border-rose-400 transition text-gray-900 w-full px-3">
-                                                Hapus
+                                            <DialogTrigger className="cursor-pointer bg-rose-400 hover:bg-transparent border rounded-md hover:border-rose-400 transition text-gray-50 w-full flex items-center justify-center h-full px-3 group">
+                                                <Eraser className='text-gray-50 dark:text-gray-100 group-hover:text-red-600'/>
                                             </DialogTrigger>
                                             <DialogContent>
                                                 <DialogHeader>
@@ -450,10 +460,10 @@ export default function BarangMasukPage({products}: ProductInBarangMasukType) {
                                                         <p>Apakah anda yakin ingin menghapus data ini ?</p>
                                                     </DialogDescription>
                                                     <DialogFooter className='flex flex-col-reverse'>
-                                                        <DialogClose>
-                                                            <Button className='cursor-pointer bg-rose-500 text-gray-50'>Tutup</Button>
-                                                        </DialogClose>
                                                         <Button type='submit' className='w-full bg-green-400'>Ya, Hapus data ini</Button>
+                                                        <DialogClose className='cursor-pointer text-gray-50 bg-rose-500 border  py-1 px-3 text-sm rounded-md hover:bg-transparent hover:text-rose-500 hover:border-rose-500 transition'>
+                                                            Tutup
+                                                        </DialogClose>
                                                     </DialogFooter>
                                                 </form>
                                             </DialogContent>

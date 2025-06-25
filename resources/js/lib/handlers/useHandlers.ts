@@ -37,7 +37,6 @@ export const createShow = <T, R = any>(
     try {
       const res = await axios.get(url)
       const data: R = res.data.data
-        console.log(data)
       setter(mapFn ? mapFn(data) : (data as unknown as T))
     } catch (e) {
       console.error('njir error', e)

@@ -77,7 +77,7 @@ class BarangController extends Controller
     public function editMasuk($id) {
         $barangMasuk = BarangMasuk::with(['details.product' => function($query) {
             $query->select('id', 'name', 'unit_price');
-        }])->where('id', '=', $id)->get();
+        }])->where('id', '=', $id)->first();
         return response()->json(["status" => "success", "data" => $barangMasuk], 200);
     }
 

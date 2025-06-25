@@ -14,10 +14,10 @@ export const removeField = <T extends object>(setter: Setter<T>, key: keyof T, i
     }))
 };
 
-export const createHandleDetailChange = <T extends object>(
+export const createHandleDetailChange = <T extends Record<string, any>, K extends keyof T = keyof T>(
     setter: React.Dispatch<React.SetStateAction<T>>,
     getProducts: () => { id: number, name: string, unit_price: number }[],
-    fieldKey: keyof T
+    fieldKey: K
   ) => {
     return (index: number, e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
       const { name, value } = e.target
@@ -27,7 +27,7 @@ export const createHandleDetailChange = <T extends object>(
 
         updatedDetails[index] = {
           ...updatedDetails[index],
-          [name]: name === "quantity" ? parseInt(value) : value,
+          [name]: name === "quantity" || name === "product_id" ? parseInt(value) : value,
         }
 
         if (name === "product_id") {
