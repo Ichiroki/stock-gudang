@@ -4,12 +4,15 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Inertia\Response;
+use Illuminate\Support\Str;
 
 class AuthenticatedSessionController extends Controller
 {
@@ -22,6 +25,18 @@ class AuthenticatedSessionController extends Controller
             'canResetPassword' => Route::has('password.request'),
             'status' => $request->session()->get('status'),
         ]);
+    }
+
+    public function loginAsGuest() {
+        $guest = User::create([
+            'name' => 'Guest-' . STR::random(10),
+            'email' => 'guest_' . STR::random(10) . '@example.com',
+            'password' => Hash::make(Str::random(10)),
+            'is_guest' => true
+        ]);
+
+        Auth::login($guest);
+        return redirect('/dashboard');
     }
 
     /**

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\KategoriRequest;
 use App\Models\Kategori;
 use Illuminate\Http\Request;
 
@@ -12,12 +13,8 @@ class KategoriController extends Controller
         return response()->json(['data' => $kategori]);
     }
 
-    public function store(Request $request) {
-        $validated = $request->validate( [
-            "name" => "required|string",
-        ]);
-
-        Kategori::create($validated);
+    public function store(KategoriRequest $request) {
+        Kategori::create($request->validated());
 
         return response()->json(['status' => 'success', 'message' => 'Data telah ditambahkan'], 201);
     }
@@ -40,12 +37,8 @@ class KategoriController extends Controller
         return response()->json(["status" => "success", "data" => $kategori], 200);
     }
 
-    public function update(Request $request, $id) {
-        $validated = $request->validate( [
-            "name" => "required|string",
-        ]);
-
-        Kategori::findOrFail($id)->update($validated);
+    public function update(KategoriRequest $request, $id) {
+        Kategori::findOrFail($id)->update($request->validated());
 
         return response()->json(["status" => 'success'], 200);
     }

@@ -77,7 +77,7 @@ class AIController extends Controller
         ])
         ->toArray();
 
-        $response = Http::withToken(env('OPENAI_API_KEY'))->post('https://api.openai.com/v1/chat/completions', [
+        $response = Http::withToken(env('OPENAI_API_KEY'))->post('http://localhost:11434/chat', [
             'model' => 'gpt-3.5-turbo',
             'messages' => $messages,
         ]);

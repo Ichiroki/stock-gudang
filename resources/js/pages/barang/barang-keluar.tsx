@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -46,7 +47,7 @@ export default function BarangKeluarDashboard({product}: BarangKeluar) {
         product_details: [{ id: 0, product_id: 0, quantity: 1, unit_price: 0, subtotal: 0 }]
     })
 
-    const [errorMessage, setErrorMessage] = useState({
+    const [errorFormData, setErrorFormData] = useState({
         reference_code: '',
         date: '',
         recipient_name: '',
@@ -99,7 +100,7 @@ export default function BarangKeluarDashboard({product}: BarangKeluar) {
     const handleEditChange = () => createHandleDetailChange(setEditFormData, () => product, 'product_details')
 
     const handleGet = createGet('/data/barang-keluar', setBarang_Keluar)
-    const handleSubmit = createHandleSubmit(`/barang-keluar/store`, formData, 'Data Barang Keluar berhasil ditambahkan', setErrorMessage)
+    const handleSubmit = createHandleSubmit(`/barang-keluar/store`, formData, 'Data Barang Keluar berhasil ditambahkan', setErrorFormData)
     const handleUpdate = (id: number) => createHandleUpdate(`/barang-keluar/${id}/update`, editFormData, 'Data Barang Keluar berhasil diubah')
     const handleDelete = (id: number) => createHandleDelete(`/barang-keluar/${id}/delete`, 'Data barang keluar berhasil dihapus')
 
@@ -139,27 +140,27 @@ export default function BarangKeluarDashboard({product}: BarangKeluar) {
                                             <div className='mb-3'>
                                                 <Label>Kode Referensi</Label>
                                                 <Input type="text" name="reference_code" onChange={handleChange} value={formData.reference_code}></Input>
-                                                <InputError message={errorMessage.reference_code} />
+                                                <InputError message={errorFormData.reference_code} />
                                             </div>
                                             <div className='mb-3'>
                                                 <Label>Tanggal</Label>
                                                 <Input type="date" name="date" onChange={handleChange} value={formData.date}></Input>
-                                                <InputError message={errorMessage.date} />
+                                                <InputError message={errorFormData.date} />
                                             </div>
                                             <div className='mb-3'>
                                                 <Label>Nama Penerima</Label>
                                                 <Input type="text" name="recipient_name" onChange={handleChange} value={formData.recipient_name}></Input>
-                                                <InputError message={errorMessage.recipient_name} />
+                                                <InputError message={errorFormData.recipient_name} />
                                             </div>
                                             <div className='mb-3 flex flex-col'>
                                                 <Label className='mb-1'>Deskripsi</Label>
                                                 <Input type="text" name="description" onChange={handleChange} value={formData.description} className=''></Input>
-                                                <InputError message={errorMessage.description} />
+                                                <InputError message={errorFormData.description} />
                                             </div>
                                             <div className='mb-3'>
                                                 <Label>Dibuat Oleh</Label>
                                                 <Input type="text" name="created_by" onChange={handleChange} value={formData.created_by}></Input>
-                                                <InputError message={errorMessage.created_by} />
+                                                <InputError message={errorFormData.created_by} />
                                             </div>
                                             <div className='mb-3'>
                                                 <Label>Detail Produk</Label>
@@ -179,7 +180,7 @@ export default function BarangKeluarDashboard({product}: BarangKeluar) {
                                                         </option>
                                                         ))}
                                                     </select>
-                                                    {/* <InputError message={errorMessage.product_details[index + 1].product_id} /> */}
+                                                    {/* <InputError message={errorFormData.product_details[index + 1].product_id} /> */}
 
                                                     <Label>Quantity</Label>
                                                     <Input
@@ -188,7 +189,7 @@ export default function BarangKeluarDashboard({product}: BarangKeluar) {
                                                         value={detail.quantity}
                                                         onChange={(e) => handleDetailChange(index, e)}
                                                     />
-                                                    <InputError message={errorMessage.reference_code} />
+                                                    <InputError message={errorFormData.reference_code} />
 
                                                     <Label className="mt-2">Harga Satuan</Label>
                                                     <Input
@@ -198,7 +199,7 @@ export default function BarangKeluarDashboard({product}: BarangKeluar) {
                                                         onChange={(e) => handleDetailChange(index, e)}
                                                         readOnly
                                                     />
-                                                    <InputError message={errorMessage.reference_code} />
+                                                    <InputError message={errorFormData.reference_code} />
 
                                                     <Label className="mt-2">Subtotal</Label>
                                                     <Input
@@ -208,7 +209,7 @@ export default function BarangKeluarDashboard({product}: BarangKeluar) {
                                                         onChange={(e) => handleDetailChange(index, e)}
                                                         readOnly
                                                     />
-                                                    <InputError message={errorMessage.reference_code} />
+                                                    <InputError message={errorFormData.reference_code} />
 
                                                     {formData.product_details.length > 1 && (
                                                         <Button type="button" className="mt-2 bg-red-400" onClick={removeProductField}>

@@ -1,3 +1,6 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+
+import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -36,11 +39,16 @@ export default function KategoriDashboard() {
         name: ''
     })
 
+    const [errorFormData, setErrorFormData] = useState<KategoriType>({
+        id: 0,
+        name: ''
+    })
+
     const handleChange = createHandleChange(setFormData)
     const handleEditChange = createHandleEditChange(setEditFormData)
 
     const handleGet = createGet("/data/kategori", setKategoris)
-    const handleSubmit = createHandleSubmit("/kategori/store", formData, "Data Kategori berhasil diubah")
+    const handleSubmit = createHandleSubmit("/kategori/store", formData, "Data Kategori berhasil diubah", setErrorFormData)
     const handleUpdate = (id: number) => createHandleUpdate(`/kategori/${id}/update`, editFormData, "Kategori berhasil diubah")
     const handleDelete = (id: number) => createHandleDelete(`/kategori/${id}/delete`, "Kategori berhasil dihapus")
 
@@ -87,6 +95,7 @@ export default function KategoriDashboard() {
                                             <div className='mb-3'>
                                                 <Label>Nama Kategori</Label>
                                                 <Input type="text" name="name" onChange={handleChange} value={formData.name}></Input>
+                                                <InputError message={errorFormData.name} />
                                             </div>
                                     </DialogDescription>
                                     <DialogFooter className='flex md:flex-row-reverse mt-3'>

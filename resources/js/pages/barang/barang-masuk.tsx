@@ -1,3 +1,5 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -43,6 +45,15 @@ export default function BarangMasukPage({products}: ProductInBarangMasukType) {
         description: '',
         created_by: '',
         details: [{ id: 0, product_id: 0, quantity: 1, unit_price: 0, subtotal: 0 }]
+    })
+
+    const [errorFormData, setErrorFormData] = useState({
+        reference_code: '',
+        date: '',
+        supplier_name: '',
+        description: '',
+        created_by: '',
+        product_details: [{ id: '', product_id: '', quantity: '', unit_price: '', subtotal: '' }]
     })
 
     const handleGet = createGet(`/data/barang-masuk`, setBarang_Masuk)
@@ -108,7 +119,7 @@ export default function BarangMasukPage({products}: ProductInBarangMasukType) {
         details: data.details
     }))
 
-    const handleSubmit = createHandleSubmit("/barang-masuk/store", formData, "Data Barang Masuk berhasil diubah")
+    const handleSubmit = createHandleSubmit("/barang-masuk/store", formData, "Data Barang Masuk berhasil diubah", setErrorFormData)
     const handleUpdate = createHandleUpdate(`/barang-masuk/${editFormData.id}/update`, editFormData, "Barang Masuk berhasil diubah")
     const handleDelete = (id: number) => createHandleDelete(`/barang-masuk/${id}/delete`, "Barang Masuk berhasil dihapus")
 
@@ -138,14 +149,17 @@ export default function BarangMasukPage({products}: ProductInBarangMasukType) {
                                             <div className='mb-3'>
                                                 <Label>Kode Referensi</Label>
                                                 <Input type="text" name="reference_code" onChange={handleChange} value={formData.reference_code}></Input>
+                                                <InputError message={errorFormData.reference_code} />
                                             </div>
                                             <div className='mb-3'>
                                                 <Label>Tanggal</Label>
                                                 <Input type="date" name="date" onChange={handleChange} value={formData.date}></Input>
+                                                <InputError message={errorFormData.date} />
                                             </div>
                                             <div className='mb-3'>
                                                 <Label>Nama Supplier</Label>
                                                 <Input type="text" name="supplier_name" onChange={handleChange} value={formData.supplier_name}></Input>
+                                                <InputError message={errorFormData.supplier_name} />
                                             </div>
                                             <div className='mb-3 flex flex-col'>
                                                 <Label className='mb-1'>Deskripsi</Label>
@@ -154,10 +168,12 @@ export default function BarangMasukPage({products}: ProductInBarangMasukType) {
                                                     "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
                                                     "aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
                                                 )} value={formData.description} onChange={handleChange}></textarea>
+                                                <InputError message={errorFormData.description} />
                                             </div>
                                             <div className='mb-3'>
                                                 <Label>Dibuat Oleh</Label>
                                                 <Input type="text" name="created_by" onChange={handleChange} value={formData.created_by}></Input>
+                                                <InputError message={errorFormData.created_by} />
                                             </div>
                                             <div className='mb-3'>
                                                 <Label>Detail Produk</Label>

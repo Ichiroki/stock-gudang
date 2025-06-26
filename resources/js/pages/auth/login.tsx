@@ -102,6 +102,12 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                         Sign up
                     </TextLink>
                 </div>
+                <div className="text-center text-sm text-muted-foreground">
+                    Or sign up as a {' '}
+                    <TextLink href={route('guest-login')} tabIndex={5}>
+                        Guest
+                    </TextLink>
+                </div>
             </form>
 
             {status && <div className="mb-4 text-center text-sm font-medium text-green-600">{status}</div>}

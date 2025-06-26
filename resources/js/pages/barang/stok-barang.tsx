@@ -1,3 +1,5 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -41,7 +43,7 @@ export default function StokBarangDashboard({products}: StokBarang) {
     })
 
     const [errorFormData, setErrorFormData] = useState({
-        product: '',
+        produk_id: '',
         stock: '',
         minimum_stock: '',
         last_updated_by: '',
@@ -98,8 +100,6 @@ export default function StokBarangDashboard({products}: StokBarang) {
         handleGet()
     }, [])
 
-    console.log(stok_barang)
-
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <ToastContainer/>
@@ -134,18 +134,22 @@ export default function StokBarangDashboard({products}: StokBarang) {
                                                 </option>
                                                 ))}
                                             </select>
+                                            <InputError message={errorFormData.produk_id} />
                                         </div>
                                         <div className='mb-3'>
                                             <Label>Stok</Label>
                                             <Input type="text" name="stock" onChange={handleChange} value={formData.stock}></Input>
+                                            <InputError message={errorFormData.stock} />
                                         </div>
                                         <div className='mb-3'>
                                             <Label>Minimum Stok</Label>
                                             <Input type="text" name="minimum_stock" onChange={handleChange} value={formData.minimum_stock}></Input>
+                                            <InputError message={errorFormData.minimum_stock} />
                                         </div>
                                         <div className='mb-3'>
                                             <Label>Diubah Oleh</Label>
                                             <Input type="text" name="last_updated_by" onChange={handleChange} value={formData.last_updated_by}></Input>
+                                            <InputError message={errorFormData.last_updated_by} />
                                         </div>
                                     </DialogDescription>
                                     <DialogFooter>
