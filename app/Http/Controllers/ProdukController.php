@@ -30,7 +30,9 @@ class ProdukController extends Controller
     }
 
     public function show($id) {
-        $produk = Produk::find($id);
+        $produk = Produk::with(['category' => function($query) {
+            $query->select('id', 'name');
+        }])->findOrFail($id);
 
         if(!$produk) {
             return response()->json([
@@ -43,17 +45,19 @@ class ProdukController extends Controller
     }
 
     public function edit($id) {
-        $produk = Produk::findOrFail($id);
+        $produk = Produk::with(['category' => function($query) {
+            $query->select('id', 'name');
+        }])->findOrFail($id);
         return response()->json(["status" => "success", "data" => $produk], 200);
     }
 
-    public function update(Request $request, $id) {
+    public function update(ProdukRequest $request, $id) {
         try {
             $produk = Produk::findOrFail($id);
             $produk->update($request->validated());
-            return response()->json(["status" => 'success'], 200);
+            return response()->json(["status" => 'success', 'data' => $produk], 200);
         } catch(Exception $e) {
-            return response()->json(["status" => 'success'], 200);
+            return response()->json(["status" => 'success', 'error' => $e->getMessage()], 200);
         }
     }
 

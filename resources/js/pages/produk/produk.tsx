@@ -27,7 +27,6 @@ const breadcrumbs: BreadcrumbItem[] = [
 export default function Produk({categories}: KategoriType) {
 
     const [produk, setProduk] = useState<Product[]>([])
-    // const { pagination, setPagination } = usePagination()
     const [showProduk, setShowProduk] = useState<ProductStateType | null>(null)
 
     const [formData, setFormData] = useState({
@@ -43,7 +42,7 @@ export default function Produk({categories}: KategoriType) {
         id: 0,
         name: '',
         code: '',
-        category_id: '',
+        category_id: parseInt(''),
         units: 0,
         unit_price: 0,
         minimum_stock: 0
@@ -62,22 +61,6 @@ export default function Produk({categories}: KategoriType) {
     const handleEditChange = createHandleChange(setEditFormData)
 
     const handleGet = createGet('/data/produk', setProduk)
-    // const handleGet = async (page = 1) => {
-    //     try {
-    //         const response = await axios.get(`/produk?page=${page}`)
-    //         setProduk(response.data.data)
-    //         setPagination({
-    //             current_page: response.data.current_page,
-    //             last_page: response.data.last_page,
-    //             per_page: response.data.per_page,
-    //             total: response.data.total,
-    //             next_page_url: response.data.next_page_url,
-    //             prev_page_url: response.data.prev_page_url,
-    //         })
-    //     } catch(e) {
-    //         toast(`Maaf data tidak tertampil, ${e}`)
-    //     }
-    // }
 
     const handleSubmit = createHandleSubmit('/produk/store', formData, "Data Produk berhasil ditambahkan", setErrorFormData)
     const handleUpdate = (id: number) => createHandleUpdate(`/produk/${id}/update`, editFormData, "Data Produk berhasil dirubah")
@@ -98,7 +81,7 @@ export default function Produk({categories}: KategoriType) {
             id: data.id,
             name: data.name,
             code: data.code,
-            category_id: data.category,
+            category_id: data.category.id,
             units: data.units,
             unit_price: data.unit_price,
             minimum_stock: data.minimum_stock
@@ -115,7 +98,7 @@ export default function Produk({categories}: KategoriType) {
                 id: data.id,
                 name: data.name,
                 code: data.code,
-                category_id: data.category,
+                category: data.category,
                 units: data.units,
                 unit_price: data.unit_price,
                 minimum_stock: data.minimum_stock
@@ -164,25 +147,6 @@ export default function Produk({categories}: KategoriType) {
                                                         <option value={category.id}>{category.name}</option>
                                                     ))}
                                                 </select>
-                                                {/* <Select>
-                                                    <SelectTrigger>
-                                                        <SelectValue placeholder="Pilih kategori..."/>
-                                                    </SelectTrigger>
-                                                    <SelectContent className='bg-gray-200 z-50 w-72'>
-                                                        {categories.map((category) => (
-                                                            <SelectItem value={category.id}>
-                                                                {category.id}
-                                                            </SelectItem>
-                                                        ))}
-                                                        <SelectItem value='kategori'>
-                                                            Kategori
-                                                        </SelectItem>
-                                                        <SelectItem value='stok'>
-                                                            Stok
-                                                        </SelectItem>
-                                                    </SelectContent>
-                                                </Select> */}
-                                                {/* <Input type="text" name="category" value={formData.category} onChange={handleChange}></Input> */}
                                                 <InputError message={errorFormData.category_id} />
                                             </div>
                                             <div className='mb-3'>
@@ -284,7 +248,7 @@ export default function Produk({categories}: KategoriType) {
                                                         </div>
                                                         <div className='mb-3'>
                                                             <Label>Kategori</Label>
-                                                            <Input type="text" name="category" defaultValue={showProduk.category}></Input>
+                                                            <Input type="text" name="category" defaultValue={showProduk.category?.name}></Input>
                                                         </div>
                                                         <div className='mb-3'>
                                                             <Label>Satuan</Label>
@@ -330,9 +294,15 @@ export default function Produk({categories}: KategoriType) {
                                                             <Label>Kode</Label>
                                                             <Input type="text" name="code" onChange={handleEditChange} value={editFormData?.code}></Input>
                                                         </div>
-                                                        <div className='mb-3'>
+                                                        <div className='mb-3 flex flex-col gap-2'>
                                                             <Label>Kategori</Label>
-                                                            <Input type="text" name="category" onChange={handleEditChange} value={editFormData?.category}></Input>
+                                                            <select name="category_id" id="category_id" className='border p-2 rounded-md focus-visible:ring focus-visible:ring-gray-400' onChange={handleEditChange}>
+                                                                <option>Pilih Kategori...</option>
+                                                                {categories.map((category) => (
+                                                                    <option value={editFormData?.category_id} selected={ category.id === editFormData?.category_id ? true : false }>{category.name}</option>
+                                                                ))}
+                                                            </select>
+                                                            <InputError message={errorFormData.category_id} />
                                                         </div>
                                                         <div className='mb-3'>
                                                             <Label>Satuan</Label>
