@@ -23,18 +23,21 @@ export interface Product {
     id: number,
     name: string,
     code: string,
-    category: string,
     units: number,
     unit_price: number,
     minimum_stock: number
     products: Product
+    category: {
+        id: number
+        name: string
+    }
 }
 
 export interface ProductStateType {
     id: number,
     name: string,
     code: string,
-    category: string,
+    category_id: string,
     units: number,
     unit_price: number,
     minimum_stock: number

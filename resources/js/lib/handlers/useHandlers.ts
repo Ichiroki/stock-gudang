@@ -52,10 +52,17 @@ export const createShow = <T, R = any>(
 export const createHandleSubmit = (url: string, data: any, successMessage: string, errorMessage: React.Dispatch<React.SetStateAction<T>>) => async (e: FormEvent) => {
     e.preventDefault()
     try {
-        const res = await axios.post(url, data)
+        const res = await axios.post(url, data, {
+            headers: {
+                "Accept": "application/json"
+            }
+        })
         if(res.data.status === "success") {
             toast(successMessage)
             errorMessage({})
+        }
+        if(res.status === 302) {
+            toast("Fitur ini hanya untuk pembelian aplikasi")
         }
     } catch(e) {
         const error = e as AxiosError<any>

@@ -15,25 +15,25 @@ class ProdukSeeder extends Seeder
         Produk::create([
             'name' => 'Bolpoin Standard',
             'code' => 'BP-001',
-            'category' => 'Alat Tulis',
+            'category_id' => 1,
             'units' => 'Pcs',
-            'unit_price' => 5000,
+            'unit_price' => 5.000,
             'minimum_stock' => 10,
         ]);
 
         Produk::create([
             'name' => 'Kertas A4 80gsm',
             'code' => 'KP-A480',
-            'category' => 'Kertas',
+            'category_id' => 2,
             'units' => 'Rim',
-            'unit_price' => 50400,
+            'unit_price' => 50.400,
             'minimum_stock' => 5,
         ]);
 
         Produk::create([
             'name' => 'Tinta Printer HP',
             'code' => 'TN-HP22',
-            'category' => 'Tinta Printer',
+            'category_id' => 4,
             'units' => 'Botol',
             'unit_price' => 32.800,
             'minimum_stock' => 3,
@@ -42,7 +42,7 @@ class ProdukSeeder extends Seeder
         Produk::create([
             'name' => 'Kabel HDMI 1.5m',
             'code' => 'KB-HD15',
-            'category' => 'Elektronik',
+            'category_id' => 3,
             'units' => 'Unit',
             'unit_price' => 19.999,
             'minimum_stock' => 2,
@@ -51,7 +51,7 @@ class ProdukSeeder extends Seeder
         Produk::create([
             'name' => 'Mouse Wireless',
             'code' => 'MS-WRL1',
-            'category' => 'Perangkat',
+            'category_id' => 5,
             'units' => 'Unit',
             'unit_price' => 159.999,
             'minimum_stock' => 4,
@@ -60,7 +60,7 @@ class ProdukSeeder extends Seeder
         Produk::create([
             'name' => 'Amplop Coklat',
             'code' => 'AMP-COK',
-            'category' => 'Alat Tulis',
+            'category_id' => 1,
             'units' => 'Lembar',
             'unit_price' => 5.000,
             'minimum_stock' => 20,
@@ -69,7 +69,7 @@ class ProdukSeeder extends Seeder
         Produk::create([
             'name' => 'Stapler Kenko',
             'code' => 'ST-KK30',
-            'category' => 'Alat Tulis',
+            'category_id' => 1,
             'units' => 'Unit',
             'unit_price' => 9.999,
             'minimum_stock' => 2,
@@ -78,7 +78,7 @@ class ProdukSeeder extends Seeder
         Produk::create([
             'name' => 'Buku Nota Kecil',
             'code' => 'BK-NT01',
-            'category' => 'Kertas',
+            'category_id' => 6,
             'units' => 'Buku',
             'unit_price' => 1.200,
             'minimum_stock' => 6,
@@ -87,7 +87,7 @@ class ProdukSeeder extends Seeder
         Produk::create([
             'name' => 'Flashdisk 32GB',
             'code' => 'FD-32GB',
-            'category' => 'Perangkat',
+            'category_id' => 5,
             'units' => 'Unit',
             'unit_price' => 47.800,
             'minimum_stock' => 5,
@@ -96,7 +96,7 @@ class ProdukSeeder extends Seeder
         Produk::create([
             'name' => 'Label Barcode',
             'code' => 'LB-BRC1',
-            'category' => 'Cetakan',
+            'category_id' => 7,
             'units' => 'Roll',
             'unit_price' => 3.920,
             'minimum_stock' => 10,

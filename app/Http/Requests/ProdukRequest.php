@@ -25,9 +25,9 @@ class ProdukRequest extends FormRequest
             return [
                 "name" => "required|string",
                 "code" => "required|string",
-                "category" => "required|string",
+                "category_id" => "required|integer|exists:kategoris,id",
                 "units" => "required|string",
-                "unit_price" => "required|string",
+                "unit_price" => "required",
                 "minimum_stock" => "required|integer"
             ];
         }
@@ -35,9 +35,9 @@ class ProdukRequest extends FormRequest
             return [
                 "name" => "required|string",
                 "code" => "required|string",
-                "category" => "required|string",
+                "category_id" => "required|integer|exists:kategoris,id",
                 "units" => "required|string",
-                "unit_price" => "required|string",
+                "unit_price" => "required",
                 "minimum_stock" => "required|integer"
             ];
         }

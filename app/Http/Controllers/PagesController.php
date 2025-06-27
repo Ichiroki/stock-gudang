@@ -39,9 +39,9 @@ class PagesController extends Controller
 
     public function produk()
     {
-        $products = Produk::all();
-
-        return Inertia::render('produk/produk', ['products' => $products]);
+        $products = Produk::with(['category'])->get();
+        $category = Kategori::select('id', 'name')->get();
+        return Inertia::render('produk/produk', ['products' => $products, 'categories' => $category]);
     }
 
     public function barangMasuk()

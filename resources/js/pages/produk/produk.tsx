@@ -8,6 +8,7 @@ import { Select, SelectItem, SelectTrigger } from '@/components/ui/select';
 import AppLayout from '@/layouts/app-layout';
 import { createGet, createHandleChange, createHandleDelete, createHandleSubmit, createHandleUpdate, createShow } from '@/lib/handlers/useHandlers';
 import { type BreadcrumbItem } from '@/types';
+import { KategoriType } from '@/types/Kategori';
 import { Product, ProductStateType } from '@/types/ProdukType';
 import { Head } from '@inertiajs/react';
 import { SelectContent, SelectValue } from '@radix-ui/react-select';
@@ -23,7 +24,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 
-export default function Produk() {
+export default function Produk({categories}: KategoriType) {
 
     const [produk, setProduk] = useState<Product[]>([])
     // const { pagination, setPagination } = usePagination()
@@ -32,7 +33,7 @@ export default function Produk() {
     const [formData, setFormData] = useState({
         name: '',
         code: '',
-        category: '',
+        category_id: parseInt(''),
         units: '',
         unit_price: 0,
         minimum_stock: ''
@@ -42,7 +43,7 @@ export default function Produk() {
         id: 0,
         name: '',
         code: '',
-        category: '',
+        category_id: '',
         units: 0,
         unit_price: 0,
         minimum_stock: 0
@@ -51,7 +52,7 @@ export default function Produk() {
     const [errorFormData, setErrorFormData] = useState({
         name: '',
         code: '',
-        category: '',
+        category_id: '',
         units: '',
         unit_price: '',
         minimum_stock: ''
@@ -87,7 +88,7 @@ export default function Produk() {
             id: 0,
             name: '',
             code: '',
-            category: '',
+            category_id: '',
             units: 0,
             unit_price: 0,
             minimum_stock: 0
@@ -97,7 +98,7 @@ export default function Produk() {
             id: data.id,
             name: data.name,
             code: data.code,
-            category: data.category,
+            category_id: data.category,
             units: data.units,
             unit_price: data.unit_price,
             minimum_stock: data.minimum_stock
@@ -114,7 +115,7 @@ export default function Produk() {
                 id: data.id,
                 name: data.name,
                 code: data.code,
-                category: data.category,
+                category_id: data.category,
                 units: data.units,
                 unit_price: data.unit_price,
                 minimum_stock: data.minimum_stock
@@ -147,33 +148,56 @@ export default function Produk() {
                                     <DialogDescription className='overflow-auto h-64 md:h-96 scrollable-container'>
                                             <div className='mb-3'>
                                                 <Label>Nama</Label>
-                                                <Input type="text" name="name" value={formData.name} onChange={handleChange}></Input>
+                                                <Input type="text" name="name" value={formData.name} onChange={handleChange} autoComplete='off'></Input>
                                                 <InputError message={errorFormData.name} />
                                             </div>
                                             <div className='mb-3'>
                                                 <Label>Kode</Label>
-                                                <Input type="text" name="code" value={formData.code} onChange={handleChange}></Input>
+                                                <Input type="text" name="code" value={formData.code} onChange={handleChange} autoComplete='off'></Input>
                                                 <InputError message={errorFormData.code} />
                                             </div>
-                                            <div className='mb-3'>
+                                            <div className='mb-3 flex flex-col gap-2'>
                                                 <Label>Kategori</Label>
-                                                <Input type="text" name="category" value={formData.category} onChange={handleChange}></Input>
-                                                <InputError message={errorFormData.category} />
+                                                <select name="category_id" id="category_id" className='border p-2 rounded-md focus-visible:ring focus-visible:ring-gray-400' value={formData.category_id} onChange={handleChange}>
+                                                    <option>Pilih Kategori...</option>
+                                                    {categories.map((category) => (
+                                                        <option value={category.id}>{category.name}</option>
+                                                    ))}
+                                                </select>
+                                                {/* <Select>
+                                                    <SelectTrigger>
+                                                        <SelectValue placeholder="Pilih kategori..."/>
+                                                    </SelectTrigger>
+                                                    <SelectContent className='bg-gray-200 z-50 w-72'>
+                                                        {categories.map((category) => (
+                                                            <SelectItem value={category.id}>
+                                                                {category.id}
+                                                            </SelectItem>
+                                                        ))}
+                                                        <SelectItem value='kategori'>
+                                                            Kategori
+                                                        </SelectItem>
+                                                        <SelectItem value='stok'>
+                                                            Stok
+                                                        </SelectItem>
+                                                    </SelectContent>
+                                                </Select> */}
+                                                {/* <Input type="text" name="category" value={formData.category} onChange={handleChange}></Input> */}
+                                                <InputError message={errorFormData.category_id} />
                                             </div>
                                             <div className='mb-3'>
                                                 <Label>Satuan</Label>
-                                                <Input type="text" name="units" value={formData.units} onChange={handleChange}></Input>
+                                                <Input type="text" name="units" value={formData.units} onChange={handleChange}  autoComplete='off'></Input>
                                                 <InputError message={errorFormData.units} />
                                             </div>
                                             <div className='mb-3'>
                                                 <Label>Harga Unit</Label>
-                                                <Input type="text" name="unit_price" value={formData.unit_price} onChange={handleChange}></Input>
+                                                <Input type="text" name="unit_price" value={formData.unit_price} onChange={handleChange}  autoComplete='off'></Input>
                                                 <InputError message={errorFormData.unit_price} />
                                             </div>
                                             <div className='mb-3'>
                                                 <Label>Stok Minimum</Label>
-                                                <Input type="text" name="minimum_stock" value={formData.minimum_stock} onChange={handleChange}></Input>
-                                                <InputError>{errorFormData.minimum_stock}</InputError>
+                                                <Input type="text" name="minimum_stock" value={formData.minimum_stock} onChange={handleChange}  autoComplete='off'></Input>
                                                 <InputError message={errorFormData.minimum_stock} />
                                             </div>
                                     </DialogDescription>
@@ -231,7 +255,7 @@ export default function Produk() {
                                     <td className="px-4 py-2">{index + 1}</td>
                                     <td className="px-4 py-2">{product.name}</td>
                                     <td className="px-4 py-2">{product.code}</td>
-                                    <td className="px-4 py-2">{product.category}</td>
+                                    <td className="px-4 py-2">{product.category.name}</td>
                                     <td className="px-4 py-2">{product.units}</td>
                                     <td className="px-4 py-2">{product.unit_price}</td>
                                     <td className="px-4 py-2">{product.minimum_stock}</td>
