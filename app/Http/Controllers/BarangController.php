@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\BarangMasukRequest;
 use App\Models\BarangKeluar;
 use App\Models\BarangKeluarDetail;
 use App\Models\BarangMasuk;
@@ -20,19 +21,9 @@ class BarangController extends Controller
         return response()->json(['data' => $barangMasuk]);
     }
 
-    public function storeMasuk(Request $request) {
-        $validated = $request->validate( [
-            "reference_code" => "required|string",
-            "date" => "required|string",
-            "supplier_name" => "required|string",
-            "description" => "required|string",
-            "created_by" => "required",
-            "product_details" => "required|array",
-            "product_details.*.product_id" => "required|exists:produks,id",
-            "product_details.*.quantity" => "required|integer",
-            "product_details.*.unit_price" => "required|numeric",
-            "product_details.*.subtotal" => "required|numeric",
-        ]);
+    public function storeMasuk(BarangMasukRequest $request) {
+        $validated = $request->validated();
+        dd($validated);
 
         DB::transaction(function () use ($validated) {
             $master = BarangMasuk::create([
@@ -81,20 +72,8 @@ class BarangController extends Controller
         return response()->json(["status" => "success", "data" => $barangMasuk], 200);
     }
 
-    public function updateMasuk(Request $request, $id) {
-        $validated = $request->validate( [
-            "reference_code" => "required|string",
-            "date" => "required|string",
-            "supplier_name" => "required|string",
-            "description" => "required|string",
-            "created_by" => "required",
-            "product_details" => "required|array",
-            "product_details.*.id" => 'required|integer',
-            "product_details.*.product_id" => "required|exists:produks,id",
-            "product_details.*.quantity" => "required|integer",
-            "product_details.*.unit_price" => "required|numeric",
-            "product_details.*.subtotal" => "required|numeric",
-        ]);
+    public function updateMasuk(BarangMasukRequest $request, $id) {
+        $validated = $request->validated();
 
         DB::transaction(function () use ($validated, $id) {
 

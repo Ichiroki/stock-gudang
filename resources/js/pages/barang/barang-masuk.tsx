@@ -53,7 +53,7 @@ export default function BarangMasukPage({products}: ProductInBarangMasukType) {
         supplier_name: '',
         description: '',
         created_by: '',
-        product_details: [{ id: '', product_id: '', quantity: '', unit_price: '', subtotal: '' }]
+        product_details: []
     })
 
     const handleGet = createGet(`/data/barang-masuk`, setBarang_Masuk)
@@ -193,6 +193,7 @@ export default function BarangMasukPage({products}: ProductInBarangMasukType) {
                                                         </option>
                                                         ))}
                                                     </select>
+                                                    <InputError message={errorFormData.product_details.product_id} />
 
                                                     <Label>Quantity</Label>
                                                     <Input
