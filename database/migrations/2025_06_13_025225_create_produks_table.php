@@ -18,7 +18,8 @@ return new class extends Migration
             $table->unsignedBigInteger('category_id');
             $table->string('units');
             // $table->float('unit_price');
-            $table->decimal('unit_price', 10, 2)->default(0);
+            $table->double('unit_price');
+            // $table->decimal('unit_price', 10, 2)->default(0);
             $table->integer('minimum_stock');
             $table->timestamps();
 

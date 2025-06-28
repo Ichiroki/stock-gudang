@@ -126,5 +126,7 @@ Route::middleware(['auth'])->group(function () {
     });
 });
 
+Route::fallback([PagesController::class, 'notfound']);
+
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';

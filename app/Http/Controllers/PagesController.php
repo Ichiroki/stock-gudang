@@ -77,4 +77,8 @@ class PagesController extends Controller
         $laporans = Laporan::with('product')->get();
         return Inertia::render('laporan', ['laporans' => $laporans, 'products' => $products]);
     }
+
+    public function notfound() {
+        return Inertia::render('errors/404');
+    }
 }

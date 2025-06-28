@@ -17,7 +17,7 @@ class ProdukSeeder extends Seeder
             'code' => 'BP-001',
             'category_id' => 1,
             'units' => 'Pcs',
-            'unit_price' => 5.000,
+            'unit_price' => 4.999,
             'minimum_stock' => 10,
         ]);
 
@@ -26,7 +26,7 @@ class ProdukSeeder extends Seeder
             'code' => 'KP-A480',
             'category_id' => 2,
             'units' => 'Rim',
-            'unit_price' => 50.400,
+            'unit_price' => 50.499,
             'minimum_stock' => 5,
         ]);
 
@@ -35,7 +35,7 @@ class ProdukSeeder extends Seeder
             'code' => 'TN-HP22',
             'category_id' => 4,
             'units' => 'Botol',
-            'unit_price' => 32.800,
+            'unit_price' => 32.999,
             'minimum_stock' => 3,
         ]);
 
@@ -62,7 +62,7 @@ class ProdukSeeder extends Seeder
             'code' => 'AMP-COK',
             'category_id' => 1,
             'units' => 'Lembar',
-            'unit_price' => 5.000,
+            'unit_price' => 5.999,
             'minimum_stock' => 20,
         ]);
 
@@ -80,7 +80,7 @@ class ProdukSeeder extends Seeder
             'code' => 'BK-NT01',
             'category_id' => 6,
             'units' => 'Buku',
-            'unit_price' => 1.200,
+            'unit_price' => 7.999,
             'minimum_stock' => 6,
         ]);
 
@@ -89,7 +89,7 @@ class ProdukSeeder extends Seeder
             'code' => 'FD-32GB',
             'category_id' => 5,
             'units' => 'Unit',
-            'unit_price' => 47.800,
+            'unit_price' => 47.999,
             'minimum_stock' => 5,
         ]);
 
@@ -98,7 +98,7 @@ class ProdukSeeder extends Seeder
             'code' => 'LB-BRC1',
             'category_id' => 7,
             'units' => 'Roll',
-            'unit_price' => 3.920,
+            'unit_price' => 3.999,
             'minimum_stock' => 10,
         ]);
     }
