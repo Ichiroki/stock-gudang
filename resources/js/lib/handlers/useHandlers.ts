@@ -1,33 +1,39 @@
 import { FormEvent, ChangeEvent } from 'react'
-import axios from 'axios'
+import axios, { AxiosError } from 'axios'
 import { toast } from 'react-toastify'
 
 type Setter<T> = React.Dispatch<React.SetStateAction<T>>
 
-export const createHandleChange = <T extends object>(setter: Setter<T>) => (e: ChangeEvent<HTMLInputElement | HTMLFormElement | HTMLTextAreaElement>) => {
+export const createHandleChange = <T extends object>(setter: Setter<T>) => (e: ChangeEvent<HTMLInputElement | HTMLFormElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     e.preventDefault()
     const { name, value } = e.target
     setter(prev => ({...prev, [name]: value}))
 }
 
-export const createHandleEditChange = <T extends object>(setter: Setter<T>) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLTextAreaElement>) => {
+export const createHandleEditChange = <T extends object>(setter: Setter<T>) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     e.preventDefault()
     const { name, value } = e.target
     setter(prev => ({...prev, [name]: value}))
 }
 
-export const createGetData = <T = any>(
+export const createGet = <T>(
+    url: string,
     setter: React.Dispatch<React.SetStateAction<T>>,
-    url: string
-    ) => async () => {
+    // pagination?: React.Dispatch<React.SetStateAction<T>>
+  ) => async () => {
     try {
-        const response = await axios.get(url)
-        const { data } = response.data
-        setter(data)
-    } catch(e) {
-        console.error(e)
+      const res = await axios.get(url)
+    //   const { current_page, data, last_page} = res.data
+      const {data} = res.data
+      setter(data)
+    //   pagination({
+    //     current_page: current_page,
+    //     last_page: last_page
+    //   })
+    } catch (e) {
+      console.error('njir error', e)
     }
-}
+  }
 
 export const createShow = <T, R = any>(
     setter: React.Dispatch<React.SetStateAction<T>>,
@@ -35,23 +41,38 @@ export const createShow = <T, R = any>(
     mapFn?: (data: R) => T
   ) => async () => {
     try {
-        const res = await axios.get(url)
-        const data: R = res.data.data
-        setter(mapFn ? mapFn(data) : (data as unknown as T))
+      const res = await axios.get(url)
+      const data: R = res.data.data
+      setter(mapFn ? mapFn(data) : (data as unknown as T))
     } catch (e) {
         console.error('njir error', e)
     }
   }
 
-export const createHandleSubmit = (url: string, data: any, successMessage: string) => async (e: FormEvent) => {
+export const createHandleSubmit = (url: string, data: any, successMessage: string, errorMessage: React.Dispatch<React.SetStateAction<T>>) => async (e: FormEvent) => {
     e.preventDefault()
     try {
-        const res = await axios.post(url, data)
+        const res = await axios.post(url, data, {
+            headers: {
+                "Accept": "application/json"
+            }
+        })
         if(res.data.status === "success") {
             toast(successMessage)
+            errorMessage({})
+        }
+        if(res.status === 302) {
+            toast("Fitur ini hanya untuk pembelian aplikasi")
         }
     } catch(e) {
-        toast(`Njir gagal ${e}`)
+        const error = e as AxiosError<any>
+
+        if(error.response?.status === 422) {
+            const validationErrors = error.response.data.errors
+            errorMessage(validationErrors)
+        } else {
+            toast(`Gagal menyimpan data: ${e.response.message}`)
+        }
     }
 }
 

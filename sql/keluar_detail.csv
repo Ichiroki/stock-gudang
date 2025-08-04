@@ -1,0 +1,3 @@
+id,barang_keluar_id,produk_id,quantity,unit_price,subtotal,notes,created_at,updated_at
+1,1,1,10,15000.00,150000.00,Untuk display awal,2025-06-28 00:21:16,2025-06-28 00:21:16
+2,1,2,5,45000.00,225000.00,Stok buffer,2025-06-28 00:21:16,2025-06-28 00:21:16

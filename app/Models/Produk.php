@@ -9,9 +9,13 @@ class Produk extends Model
     protected $fillable = [
         'name',
         'code',
-        'category',
+        'category_id',
         'units',
         'unit_price',
         'minimum_stock',
     ];
+
+    public function category() {
+        return $this->belongsTo(Kategori::class, 'category_id', 'id');
+    }
 }

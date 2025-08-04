@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\BarangMasukRequest;
 use App\Models\BarangKeluar;
 use App\Models\BarangKeluarDetail;
 use App\Models\BarangMasuk;
@@ -12,24 +13,17 @@ use Illuminate\Support\Facades\DB;
 
 class BarangController extends Controller
 {
-    public function getMasuk() {
-        $barangMasuk = BarangMasuk::paginate(10)->all();
+    public function indexMasuk() {
+        $barangMasuk = BarangMasuk::with(['details.product' => function($query) {
+            $query->select('id','name','unit_price');
+        }])->paginate(10)->all();
+
         return response()->json(['data' => $barangMasuk]);
     }
 
-    public function storeMasuk(Request $request) {
-        $validated = $request->validate( [
-            "reference_code" => "required|string",
-            "date" => "required|string",
-            "supplier_name" => "required|string",
-            "description" => "required|string",
-            "created_by" => "required",
-            "product_details" => "required|array",
-            "product_details.*.product_id" => "required|exists:produks,id",
-            "product_details.*.quantity" => "required|integer",
-            "product_details.*.unit_price" => "required|numeric",
-            "product_details.*.subtotal" => "required|numeric",
-        ]);
+    public function storeMasuk(BarangMasukRequest $request) {
+        $validated = $request->validated();
+        dd($validated);
 
         DB::transaction(function () use ($validated) {
             $master = BarangMasuk::create([
@@ -74,24 +68,12 @@ class BarangController extends Controller
     public function editMasuk($id) {
         $barangMasuk = BarangMasuk::with(['details.product' => function($query) {
             $query->select('id', 'name', 'unit_price');
-        }])->where('id', '=', $id)->get();
+        }])->where('id', '=', $id)->first();
         return response()->json(["status" => "success", "data" => $barangMasuk], 200);
     }
 
-    public function updateMasuk(Request $request, $id) {
-        $validated = $request->validate( [
-            "reference_code" => "required|string",
-            "date" => "required|string",
-            "supplier_name" => "required|string",
-            "description" => "required|string",
-            "created_by" => "required",
-            "product_details" => "required|array",
-            "product_details.*.id" => 'required|integer',
-            "product_details.*.product_id" => "required|exists:produks,id",
-            "product_details.*.quantity" => "required|integer",
-            "product_details.*.unit_price" => "required|numeric",
-            "product_details.*.subtotal" => "required|numeric",
-        ]);
+    public function updateMasuk(BarangMasukRequest $request, $id) {
+        $validated = $request->validated();
 
         DB::transaction(function () use ($validated, $id) {
 
@@ -134,6 +116,14 @@ class BarangController extends Controller
             DB::rollBack();
             return response()->json(['status' => 'failed', 'error' => $e->getMessage()], 404);
         }
+    }
+
+    public function indexKeluar() {
+        $barangKeluar = BarangKeluar::with(['details.product' => function($query) {
+            $query->select('id','name','unit_price');
+        }])->paginate(10)->all();
+
+        return response()->json(['data' => $barangKeluar]);
     }
 
     public function storeKeluar(Request $request) {

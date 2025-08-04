@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Middleware\GuestOnly;
+use App\Http\Middleware\EnsureGuest;
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
 use Illuminate\Foundation\Application;
@@ -17,8 +17,9 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->encryptCookies(except: ['appearance', 'sidebar_state']);
+        $middleware->redirectGuestsTo('/login');
         $middleware->alias([
-            'guest.only' => GuestOnly::class
+            'guest.auth' => EnsureGuest::class,
         ]);
         $middleware->web(append: [
             HandleAppearance::class,

@@ -2,37 +2,37 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ProdukRequest;
 use App\Models\Produk;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ProdukController extends Controller
 {
     public function index() {
-        $produk = Produk::paginate()->all();
-        return response()->json(['data' => $produk]);
+        $produk = Produk::with(['category'])->paginate(10);
+        return response()->json($produk);
     }
 
-    public function store(Request $request) {
-        $validated = $request->validate( [
-            "name" => "required|string",
-            "code" => "required|string",
-            "category" => "required|string",
-            "units" => "required|string",
-            "minimum_stock" => "required|integer"
-        ]);
-
+    public function store(ProdukRequest $request) {
+        $auth = Auth::user();
         try {
-            Produk::create($validated);
-
-            return redirect()->back()->with(["code" => 201 ,"status" => "success"]);
+            if($auth->is_guest) {
+                return response()->json(["code" => 302 ,"status" => "warning"]);
+            } else {
+                Produk::create($request->validated());
+                return response()->json(["code" => 201 ,"status" => "success"]);
+            }
         } catch (Exception $e) {
-            return redirect()->back()->with(["code"=> 404 , "status" => "failed"]);
+            return response()->json(["code" => 404 ,"status" => "failed", 'errors' => $e]);
         }
     }
 
     public function show($id) {
-        $produk = Produk::find($id);
+        $produk = Produk::with(['category' => function($query) {
+            $query->select('id', 'name');
+        }])->findOrFail($id);
 
         if(!$produk) {
             return response()->json([
@@ -45,23 +45,20 @@ class ProdukController extends Controller
     }
 
     public function edit($id) {
-        $produk = Produk::findOrFail($id);
+        $produk = Produk::with(['category' => function($query) {
+            $query->select('id', 'name');
+        }])->findOrFail($id);
         return response()->json(["status" => "success", "data" => $produk], 200);
     }
 
-    public function update(Request $request, $id) {
-        $validated = $request->validate( [
-            "name" => "required|string",
-            "code" => "required|string",
-            "category" => "required|string",
-            "units" => "required|string",
-            "minimum_stock" => "required|integer"
-        ]);
-
-        $produk = Produk::findOrFail($id);
-        $produk->update($validated);
-
-        return response()->json(["status" => 'success'], 200);
+    public function update(ProdukRequest $request, $id) {
+        try {
+            $produk = Produk::findOrFail($id);
+            $produk->update($request->validated());
+            return response()->json(["status" => 'success', 'data' => $produk], 200);
+        } catch(Exception $e) {
+            return response()->json(["status" => 'success', 'error' => $e->getMessage()], 200);
+        }
     }
 
     public function delete($id) {

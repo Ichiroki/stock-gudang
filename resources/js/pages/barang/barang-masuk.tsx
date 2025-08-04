@@ -1,18 +1,21 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectSeparator, SelectTrigger } from '@/components/ui/select';
 import AppLayout from '@/layouts/app-layout';
+import { createGet, createHandleChange, createHandleDelete, createHandleEditChange, createHandleSubmit, createHandleUpdate, createShow } from '@/lib/handlers/useHandlers';
 import { addField, createHandleDetailChange, removeField } from '@/lib/handlers/useInputs';
-import { createHandleChange, createHandleDelete, createHandleEditChange, createHandleSubmit, createHandleUpdate, createShow } from '@/lib/handlers/useHandlers';
 import { cn } from '@/lib/utils';
 import { type BreadcrumbItem } from '@/types';
-import BarangMasuk, { BarangMasukStateType } from '@/types/BarangMasuk';
+import { BarangMasukFormType, BarangMasukStateType, BarangMasukType } from '@/types/BarangMasuk';
+import { ProductDetailType, ProductInBarangMasukType } from '@/types/ProdukType';
 import { Head } from '@inertiajs/react';
-import { useState } from 'react';
+import { Eraser, Eye, PencilLine } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { ToastContainer } from 'react-toastify';
-import { ProductDetailType } from '@/types/ProdukType';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -21,58 +24,69 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-export default function BarangMasukPage({barang_masuk, product}: BarangMasuk) {
-    const [barangMasuk, setBarangMasuk] = useState<BarangMasukStateType | null>(null)
+export default function BarangMasukPage({products}: ProductInBarangMasukType) {
+    const [barang_masuk, setBarang_Masuk] = useState<BarangMasukType[]>([])
+
+    const [barangMasukData, setBarangMasukData] = useState<BarangMasukStateType | null>(null)
     const [formData, setFormData] = useState({
         reference_code: '',
         date: '',
         supplier_name: '',
         description: '',
         created_by: '',
-        product_details: [{ product_id: 0, quantity: 1, unit_price: 0, subtotal: 0 }]
+        details: [{ product_id: 0, quantity: 1, unit_price: 0, subtotal: 0 }]
     })
 
-    const [editFormData, setEditFormData] = useState({
+    const [editFormData, setEditFormData] = useState<BarangMasukFormType>({
         id: 0,
         reference_code: '',
         date: '',
         supplier_name: '',
         description: '',
         created_by: '',
-        product_details: [{ id: 0, product_id: 0, quantity: 1, unit_price: 0, subtotal: 0 }]
+        details: [{ id: 0, product_id: 0, quantity: 1, unit_price: 0, subtotal: 0 }]
     })
 
+    const [errorFormData, setErrorFormData] = useState({
+        reference_code: '',
+        date: '',
+        supplier_name: '',
+        description: '',
+        created_by: '',
+        product_details: []
+    })
+
+    const handleGet = createGet(`/data/barang-masuk`, setBarang_Masuk)
     const handleChange = createHandleChange(setFormData)
     const handleEditChange = createHandleEditChange(setEditFormData)
-    const handleDetailChange = createHandleDetailChange(setFormData, () => product, 'product_details')
-    const handleEditDetailChange = createHandleDetailChange(setEditFormData, () => product, 'product_details')
+    const handleDetailChange = createHandleDetailChange(setFormData, () => products, 'details')
+    const handleEditDetailChange = createHandleDetailChange(setEditFormData, () => products, 'details')
 
-    const addProductField = () => addField(setFormData, 'product_details', {
+    const addProductField = () => addField(setFormData, 'details', {
         product_id: 0,
         quantity: 0,
         unit_price: 0,
         subtotal: 0,
     })
 
-    const addEditProductField = () => addField(setEditFormData, 'product_details', {
+    const addEditProductField = () => addField(setEditFormData, 'details', {
         product_id: 0,
         quantity: 0,
         unit_price: 0,
         subtotal: 0,
     })
 
-    const removeProductField = (index: number) => removeField(setFormData, 'product_details', index)
-    const removeEditProductField = (index: number) => removeField(setEditFormData, 'product_details', index)
+    const removeProductField = (index: number) => removeField(setFormData, 'details', index)
+    const removeEditProductField = (index: number) => removeField(setEditFormData, 'details', index)
 
     const fetchBarangMasuk = async (id: number) => {
         try {
             await fetch(`/barang-masuk/${id}/edit`)
             .then((res) => res.json())
             .then((res) => {
-                const data = res.data[0]
-
+                const data = res.data
                 const product_details = data.details.map((detail: ProductDetailType) => ({
-                    id: data.id,
+                    id: detail.id,
                     product_id: detail.produk_id,
                     quantity: detail.quantity,
                     unit_price: detail.unit_price,
@@ -87,7 +101,7 @@ export default function BarangMasukPage({barang_masuk, product}: BarangMasuk) {
                     supplier_name: data.supplier_name,
                     description: data.description,
                     created_by: data.created_by,
-                    product_details: product_details
+                    details: product_details
                 })
             })
         } catch(e) {
@@ -95,7 +109,7 @@ export default function BarangMasukPage({barang_masuk, product}: BarangMasuk) {
         }
     }
 
-    const showBarangMasuk = (id: number) => createShow<BarangMasukStateType | null>(setBarangMasuk, `/barang-masuk/${id}`, (data) => ({
+    const showBarangMasuk = (id: number) => createShow<BarangMasukStateType | null>(setBarangMasukData, `/barang-masuk/${id}`, (data) => ({
         id: data.id,
         reference_code: data.reference_code,
         date: data.date,
@@ -105,9 +119,13 @@ export default function BarangMasukPage({barang_masuk, product}: BarangMasuk) {
         details: data.details
     }))
 
-    const handleSubmit = createHandleSubmit("/barang-masuk/store", formData, "Data Barang Masuk berhasil diubah")
+    const handleSubmit = createHandleSubmit("/barang-masuk/store", formData, "Data Barang Masuk berhasil diubah", setErrorFormData)
     const handleUpdate = createHandleUpdate(`/barang-masuk/${editFormData.id}/update`, editFormData, "Barang Masuk berhasil diubah")
     const handleDelete = (id: number) => createHandleDelete(`/barang-masuk/${id}/delete`, "Barang Masuk berhasil dihapus")
+
+    useEffect(() => {
+        handleGet()
+    }, [])
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -117,7 +135,7 @@ export default function BarangMasukPage({barang_masuk, product}: BarangMasuk) {
                 <div className="flex flex-col md:flex-row gap-3 w-full">
                     <div className="relative md:w-1/3 overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
                         <Dialog>
-                            <DialogTrigger className="cursor-pointer bg-green-400 hover:bg-transparent hover:border rounded-xl hover:border-green-400 transition text-gray-900 w-full h-full">
+                            <DialogTrigger className="cursor-pointer bg-green-400 hover:bg-transparent hover:text-green-400 border rounded-xl hover:border-green-400 transition text-gray-50 w-full h-9">
                                 Tambah Barang Masuk +
                             </DialogTrigger>
                             <DialogContent>
@@ -131,14 +149,17 @@ export default function BarangMasukPage({barang_masuk, product}: BarangMasuk) {
                                             <div className='mb-3'>
                                                 <Label>Kode Referensi</Label>
                                                 <Input type="text" name="reference_code" onChange={handleChange} value={formData.reference_code}></Input>
+                                                <InputError message={errorFormData.reference_code} />
                                             </div>
                                             <div className='mb-3'>
                                                 <Label>Tanggal</Label>
                                                 <Input type="date" name="date" onChange={handleChange} value={formData.date}></Input>
+                                                <InputError message={errorFormData.date} />
                                             </div>
                                             <div className='mb-3'>
                                                 <Label>Nama Supplier</Label>
                                                 <Input type="text" name="supplier_name" onChange={handleChange} value={formData.supplier_name}></Input>
+                                                <InputError message={errorFormData.supplier_name} />
                                             </div>
                                             <div className='mb-3 flex flex-col'>
                                                 <Label className='mb-1'>Deskripsi</Label>
@@ -147,35 +168,38 @@ export default function BarangMasukPage({barang_masuk, product}: BarangMasuk) {
                                                     "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
                                                     "aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
                                                 )} value={formData.description} onChange={handleChange}></textarea>
+                                                <InputError message={errorFormData.description} />
                                             </div>
                                             <div className='mb-3'>
                                                 <Label>Dibuat Oleh</Label>
                                                 <Input type="text" name="created_by" onChange={handleChange} value={formData.created_by}></Input>
+                                                <InputError message={errorFormData.created_by} />
                                             </div>
                                             <div className='mb-3'>
                                                 <Label>Detail Produk</Label>
-                                                {formData.product_details.map((detail, i) => (
+                                                {formData.details.map((_, i) => (
                                                     <div key={i} className="mb-3 border p-3 rounded-md">
                                                     <Label>Produk</Label>
                                                     <select
-                                                        name="product_id"
-                                                        value={formData.product_details[i].product_id}
+                                                    name="product_id"
+                                                        value={formData.details[i].product_id}
                                                         onChange={(e) => handleDetailChange(i, e)}
                                                         className="w-full mt-1 mb-2 border rounded p-2"
                                                     >
                                                         <option value="">-- Pilih Produk --</option>
-                                                        {product.map((p) => (
+                                                        {products.map((p) => (
                                                         <option key={p.id} value={p.id}>
                                                             {p.name}
                                                         </option>
                                                         ))}
                                                     </select>
+                                                    <InputError message={errorFormData.product_details.product_id} />
 
                                                     <Label>Quantity</Label>
                                                     <Input
                                                         name="quantity"
                                                         type="number"
-                                                        value={formData.product_details[i].quantity}
+                                                        value={formData.details[i].quantity}
                                                         onChange={(e) => handleDetailChange(i, e)}
                                                     />
 
@@ -183,7 +207,7 @@ export default function BarangMasukPage({barang_masuk, product}: BarangMasuk) {
                                                     <Input
                                                         name="unit_price"
                                                         type="number"
-                                                        value={formData.product_details[i].unit_price}
+                                                        value={formData.details[i].unit_price}
                                                         onChange={(e) => handleDetailChange(i, e)}
                                                         readOnly
                                                     />
@@ -192,12 +216,12 @@ export default function BarangMasukPage({barang_masuk, product}: BarangMasuk) {
                                                     <Input
                                                         name="subtotal"
                                                         type="number"
-                                                        value={formData.product_details[i].subtotal}
+                                                        value={formData.details[i].subtotal}
                                                         onChange={(e) => handleDetailChange(i, e)}
                                                         readOnly
                                                     />
 
-                                                    {formData.product_details.length > 1 && (
+                                                    {formData.details.length > 1 && (
                                                         <Button type="button" className="mt-2 bg-red-400" onClick={() => removeProductField(i)}>
                                                         Hapus Produk Ini
                                                         </Button>
@@ -210,8 +234,10 @@ export default function BarangMasukPage({barang_masuk, product}: BarangMasuk) {
                                             </Button>
                                     </DialogDescription>
                                     <DialogFooter>
-                                        <Button type='submit' className='w-full bg-green-400'>Kirim</Button>
-                                        <DialogClose className='cursor-pointer bg-rose-500 text-gray-50'>Tutup</DialogClose>
+                                        <DialogClose className='cursor-pointer text-gray-50 bg-rose-500 border py-2 md:py-1 px-3 text-sm rounded-md hover:bg-transparent hover:text-rose-500 hover:border-rose-500 transition'>
+                                            Tutup
+                                        </DialogClose>
+                                        <Button type='submit' className='w-full cursor-pointer text-gray-50 bg-green-400 border hover:text-green-400 hover:border-green-400 hover:bg-transparent transition'>Kirim</Button>
                                     </DialogFooter>
                                 </form>
                             </DialogContent>
@@ -264,11 +290,11 @@ export default function BarangMasukPage({barang_masuk, product}: BarangMasuk) {
                                     <td className="px-4 py-2">{barang.supplier_name}</td>
                                     <td className="px-4 py-2">{barang.description}</td>
                                     <td className="px-4 py-2">{barang.created_by}</td>
-                                    <td className="px-4 py-2 flex items-center justify-center gap-2">
+                                    <td className="px-4 py-2 flex items-center justify-center gap-2 h-[3.5rem]">
                                         {/* Show */}
                                         <Dialog>
-                                            <DialogTrigger onClick={showBarangMasuk(barang.id)} className="cursor-pointer bg-green-400 hover:bg-transparent border rounded-md hover:border-green-400 transition text-gray-900 w-full px-3">
-                                                Lihat
+                                            <DialogTrigger onClick={showBarangMasuk(barang.id)} className="cursor-pointer bg-green-400 hover:bg-transparent border rounded-md hover:border-green-400 transition text-gray-50 w-full px-3 h-full flex justify-center items-center group">
+                                                <Eye className='text-gray-50 dark:text-gray-100 group-hover:text-green-500'/>
                                             </DialogTrigger>
                                             <DialogContent>
                                                 <DialogHeader>
@@ -277,27 +303,27 @@ export default function BarangMasukPage({barang_masuk, product}: BarangMasuk) {
                                                     </DialogTitle>
                                                 </DialogHeader>
                                                 <DialogDescription className='overflow-auto h-64 md:h-96 scrollable-container'>
-                                                    {barangMasuk && (
+                                                    {barangMasukData && (
                                                     <>
                                                         <div className='mb-3'>
                                                             <Label>Nama</Label>
-                                                            <Input type="text" name="reference_code" defaultValue={barangMasuk.reference_code}></Input>
+                                                            <Input type="text" name="reference_code" defaultValue={barangMasukData?.reference_code}></Input>
                                                         </div>
                                                         <div className='mb-3'>
                                                             <Label>Kode</Label>
-                                                            <Input type="text" name="date" defaultValue={barangMasuk.date}></Input>
+                                                            <Input type="text" name="date" defaultValue={barangMasukData?.date}></Input>
                                                         </div>
                                                         <div className='mb-3'>
                                                             <Label>Kategori</Label>
-                                                            <Input type="text" name="category" defaultValue={barangMasuk.supplier_name}></Input>
+                                                            <Input type="text" name="category" defaultValue={barangMasukData?.supplier_name}></Input>
                                                         </div>
                                                         <div className='mb-3'>
                                                             <Label>Satuan</Label>
-                                                            <Input type="text" name="units" defaultValue={barangMasuk.description}></Input>
+                                                            <Input type="text" name="units" defaultValue={barangMasukData?.description}></Input>
                                                         </div>
                                                         <div className='mb-3'>
                                                             <Label>Stok Minimum</Label>
-                                                            <Input type="text" name="minimum_stock" defaultValue={barangMasuk.created_by}></Input>
+                                                            <Input type="text" name="minimum_stock" defaultValue={barangMasukData?.created_by}></Input>
                                                         </div>
                                                         <table className='w-full'>
                                                             <tr>
@@ -305,7 +331,7 @@ export default function BarangMasukPage({barang_masuk, product}: BarangMasuk) {
                                                                 <th className='border-2 px-5 text-center'>Nama</th>
                                                                 <th className='border-2 px-5 text-center'>Harga Unit</th>
                                                             </tr>
-                                                            {barangMasuk.details.map((detail, i) =>
+                                                            {barangMasukData?.details.map((detail, i) =>
                                                                 <tr key={i}>
                                                                     <td className='border-2 px-5 text-center'>{i + 1}</td>
                                                                     <td className='border-2 px-5 text-center'>{detail.product.name}</td>
@@ -317,7 +343,7 @@ export default function BarangMasukPage({barang_masuk, product}: BarangMasuk) {
                                                     )}
                                                 </DialogDescription>
                                                 <DialogFooter>
-                                                    <DialogClose className='cursor-pointer bg-rose-500 text-gray-50'>
+                                                    <DialogClose className='cursor-pointer text-gray-50 bg-rose-500 border  py-1 px-3 text-sm rounded-md hover:bg-transparent hover:text-rose-500 hover:border-rose-500 transition'>
                                                         Tutup
                                                     </DialogClose>
                                                 </DialogFooter>
@@ -326,16 +352,16 @@ export default function BarangMasukPage({barang_masuk, product}: BarangMasuk) {
                                         {/* Show */}
                                         {/* Edit */}
                                         <Dialog>
-                                            <DialogTrigger className="cursor-pointer bg-yellow-400 hover:bg-transparent border rounded-md hover:border-yellow-400 transition text-gray-900 w-full px-3" onClick={() => fetchBarangMasuk(barang.id)}>
-                                                Ubah
+                                            <DialogTrigger className="cursor-pointer bg-yellow-400 hover:bg-transparent border rounded-md hover:border-yellow-400 transition text-gray-50 w-full px-3 flex items-center justify-center h-full group" onClick={() => fetchBarangMasuk(barang.id)}>
+                                                <PencilLine className='text-gray-50 dark:text-gray-100 group-hover:text-yellow-500'/>
                                             </DialogTrigger>
                                             <DialogContent>
-                                            <DialogHeader>
-                                                <DialogTitle>
-                                                    Ubah Barang Masuk
-                                                </DialogTitle>
-                                            </DialogHeader>
-                                            <form onSubmit={handleUpdate}>
+                                                <DialogHeader>
+                                                    <DialogTitle>
+                                                        Ubah Barang Masuk
+                                                    </DialogTitle>
+                                                </DialogHeader>
+                                                <form onSubmit={handleUpdate}>
                                                 <DialogDescription className='overflow-auto h-64 md:h-96 scrollable-container'>
                                                     <div className='mb-3'>
                                                         <Label>Kode Referensi</Label>
@@ -363,7 +389,7 @@ export default function BarangMasukPage({barang_masuk, product}: BarangMasuk) {
                                                     </div>
                                                     <div className='mb-3'>
                                                         <Label>Detail Produk</Label>
-                                                        {editFormData.product_details.map((detail, index) => (
+                                                        {editFormData.details.map((detail, index) => (
                                                             <div key={index} className="mb-3 border p-3 rounded-md">
                                                             <Label>Produk</Label>
                                                             <select
@@ -373,7 +399,7 @@ export default function BarangMasukPage({barang_masuk, product}: BarangMasuk) {
                                                                 className="w-full mt-1 mb-2 border rounded p-2"
                                                             >
                                                                 <option value="">-- Pilih Produk --</option>
-                                                                {product.map((p) => (
+                                                                {products.map((p) => (
                                                                 <option key={p.id} value={p.id}>
                                                                     {p.name}
                                                                 </option>
@@ -413,7 +439,7 @@ export default function BarangMasukPage({barang_masuk, product}: BarangMasuk) {
                                                                 readOnly
                                                             />
 
-                                                            {formData.product_details.length > 1 && (
+                                                            {formData.details.length > 1 && (
                                                                 <Button type="button" className="mt-2 bg-red-400" onClick={() => removeEditProductField(index)}>
                                                                 Hapus Produk Ini
                                                                 </Button>
@@ -426,10 +452,10 @@ export default function BarangMasukPage({barang_masuk, product}: BarangMasuk) {
                                                     </Button>
                                                     </DialogDescription>
                                                     <DialogFooter>
-                                                        <DialogClose asChild>
-                                                            <Button type='button' className='cursor-pointer bg-rose-500 text-gray-50'>Tutup</Button>
+                                                        <Button type='submit' className='w-full cursor-pointer bg-green-400 border hover:text-green-400 hover:border-green-400 hover:bg-transparent transition'>Kirim</Button>
+                                                        <DialogClose className='cursor-pointer text-gray-50 bg-rose-500 border  py-1 px-3 text-sm rounded-md hover:bg-transparent hover:text-rose-500 hover:border-rose-500 transition'>
+                                                            Tutup
                                                         </DialogClose>
-                                                        <Button type='submit' className='w-full bg-green-400'>Kirim</Button>
                                                     </DialogFooter>
                                                 </form>
                                             </DialogContent>
@@ -437,8 +463,8 @@ export default function BarangMasukPage({barang_masuk, product}: BarangMasuk) {
                                         {/* Edit */}
                                         {/* Delete */}
                                         <Dialog>
-                                            <DialogTrigger className="cursor-pointer bg-rose-400 hover:bg-transparent border rounded-md hover:border-rose-400 transition text-gray-900 w-full px-3">
-                                                Hapus
+                                            <DialogTrigger className="cursor-pointer bg-rose-400 hover:bg-transparent border rounded-md hover:border-rose-400 transition text-gray-50 w-full flex items-center justify-center h-full px-3 group">
+                                                <Eraser className='text-gray-50 dark:text-gray-100 group-hover:text-red-600'/>
                                             </DialogTrigger>
                                             <DialogContent>
                                                 <DialogHeader>
@@ -451,10 +477,10 @@ export default function BarangMasukPage({barang_masuk, product}: BarangMasuk) {
                                                         <p>Apakah anda yakin ingin menghapus data ini ?</p>
                                                     </DialogDescription>
                                                     <DialogFooter className='flex flex-col-reverse'>
-                                                        <DialogClose>
-                                                            <Button className='cursor-pointer bg-rose-500 text-gray-50'>Tutup</Button>
-                                                        </DialogClose>
                                                         <Button type='submit' className='w-full bg-green-400'>Ya, Hapus data ini</Button>
+                                                        <DialogClose className='cursor-pointer text-gray-50 bg-rose-500 border  py-1 px-3 text-sm rounded-md hover:bg-transparent hover:text-rose-500 hover:border-rose-500 transition'>
+                                                            Tutup
+                                                        </DialogClose>
                                                     </DialogFooter>
                                                 </form>
                                             </DialogContent>

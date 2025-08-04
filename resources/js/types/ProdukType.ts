@@ -11,22 +11,37 @@ export interface Products {
     products: ProductType[]
 }
 
+export interface ProductInBarangMasukType {
+    products : {
+        id: number
+        name: string
+        unit_price: number
+    }[]
+}
+
 export interface Product {
     id: number,
     name: string,
     code: string,
-    category: string,
     units: number,
     unit_price: number,
     minimum_stock: number
-    products: Product[]
+    products: Product
+    category: {
+        id: number
+        name: string
+    }
 }
 
 export interface ProductStateType {
     id: number,
     name: string,
     code: string,
-    category: string,
+    category_id?: string | number,
+    category?: {
+        id: number
+        name: string
+    }
     units: number,
     unit_price: number,
     minimum_stock: number

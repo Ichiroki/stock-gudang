@@ -1,14 +1,17 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectItem, SelectTrigger } from '@/components/ui/select';
 import AppLayout from '@/layouts/app-layout';
-import { createGetData, createHandleChange, createHandleDelete, createHandleSubmit, createHandleUpdate, createShow } from '@/lib/handlers/useHandlers';
+import { createGet, createHandleChange, createHandleDelete, createHandleSubmit, createHandleUpdate, createShow } from '@/lib/handlers/useHandlers';
 import { type BreadcrumbItem } from '@/types';
+import { KategoriType } from '@/types/Kategori';
 import { Product, ProductStateType } from '@/types/ProdukType';
 import { Head } from '@inertiajs/react';
-import { SelectContent, SelectSeparator } from '@radix-ui/react-select';
+import { SelectContent, SelectValue } from '@radix-ui/react-select';
 import { Eraser, Eye, PencilLine } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { ToastContainer } from 'react-toastify';
@@ -21,67 +24,91 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 
-export default function Produk() {
+export default function Produk({categories}: KategoriType) {
 
-    const [products, setProducts] = useState<Product[]>([])
-    const [showProduct, setShowProduct] = useState<ProductStateType | null>(null)
+    const [produk, setProduk] = useState<Product[]>([])
+    const [showProduk, setShowProduk] = useState<ProductStateType | null>(null)
 
     const [formData, setFormData] = useState({
         name: '',
         code: '',
-        category: '',
+        category_id: parseInt(''),
         units: '',
         unit_price: 0,
         minimum_stock: ''
     })
 
-    const [editFormData, setEditFormData] = useState({
+    const [editFormData, setEditFormData] = useState<ProductStateType>({
         id: 0,
         name: '',
         code: '',
-        category: '',
-        units: '',
+        category_id: parseInt(''),
+        units: 0,
         unit_price: 0,
+        minimum_stock: 0
+    })
+
+    const [errorFormData, setErrorFormData] = useState({
+        name: '',
+        code: '',
+        category_id: '',
+        units: '',
+        unit_price: '',
         minimum_stock: ''
     })
 
     const handleChange = createHandleChange(setFormData)
     const handleEditChange = createHandleChange(setEditFormData)
 
-    const handleGet = createGetData(setProducts, '/data/produk')
-    const handleSubmit = createHandleSubmit('/produk/store', formData, "Data Produk berhasil ditambahkan")
+    const handleGet = createGet('/data/produk', setProduk)
+
+    const handleSubmit = createHandleSubmit('/produk/store', formData, "Data Produk berhasil ditambahkan", setErrorFormData)
     const handleUpdate = (id: number) => createHandleUpdate(`/produk/${id}/update`, editFormData, "Data Produk berhasil dirubah")
-    const handleDelete = (id: number) =>  createHandleDelete(`/produk/${id}/delete`, "Data Produk berhasil dihapus")
+    const handleDelete = (id: number) => createHandleDelete(`/produk/${id}/delete`, "Data Produk berhasil dihapus")
 
-    const showProductById = (id: number) => createShow<ProductStateType | null>(setShowProduct, `/produk/${id}`, (data) => {
+    const fetchProduct = (id: number) => {
+        setEditFormData({
+            id: 0,
+            name: '',
+            code: '',
+            category_id: '',
+            units: 0,
+            unit_price: 0,
+            minimum_stock: 0
+        })
+        createShow<ProductStateType>(setEditFormData, `/produk/${id}/edit`, (data) => {
         return ({
             id: data.id,
             name: data.name,
             code: data.code,
-            category: data.category,
+            category_id: data.category.id,
             units: data.units,
             unit_price: data.unit_price,
             minimum_stock: data.minimum_stock
         });
-    })()
+        })()
+    }
 
-    const fetchProduct = (id: number) => createShow<ProductStateType | null>(setEditFormData, `/produk/${id}/edit`, (data) => {
-        return ({
-            id: data.id,
-            name: data.name,
-            code: data.code,
-            category: data.category,
-            units: data.units,
-            unit_price: data.unit_price,
-            minimum_stock: data.minimum_stock
-        });
-    })()
+    const showProduct = (id: number) => {
+        setShowProduk(null)
+        createShow<ProductStateType | null>(
+            setShowProduk,
+            `/produk/${id}`,
+            (data) => ({
+                id: data.id,
+                name: data.name,
+                code: data.code,
+                category: data.category,
+                units: data.units,
+                unit_price: data.unit_price,
+                minimum_stock: data.minimum_stock
+            })
+        )()
+    }
 
     useEffect(() => {
         handleGet()
     }, [])
-
-    // useEffect(() => )
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -91,7 +118,7 @@ export default function Produk() {
                 <div className="flex flex-col md:flex-row gap-3 w-full">
                     <div className="relative md:w-1/3 overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
                         <Dialog>
-                            <DialogTrigger className="cursor-pointer bg-green-400 hover:bg-transparent border rounded-xl hover:border-green-400 transition text-gray-900 w-full h-9">
+                            <DialogTrigger className="cursor-pointer bg-green-400 hover:bg-transparent hover:text-green-400 border rounded-xl hover:border-green-400 transition text-gray-50 w-full h-9">
                                 Tambah Produk +
                             </DialogTrigger>
                             <DialogContent>
@@ -104,34 +131,45 @@ export default function Produk() {
                                     <DialogDescription className='overflow-auto h-64 md:h-96 scrollable-container'>
                                             <div className='mb-3'>
                                                 <Label>Nama</Label>
-                                                <Input type="text" name="name" value={formData.name} onChange={handleChange}></Input>
+                                                <Input type="text" name="name" value={formData.name} onChange={handleChange} autoComplete='off'></Input>
+                                                <InputError message={errorFormData.name} />
                                             </div>
                                             <div className='mb-3'>
                                                 <Label>Kode</Label>
-                                                <Input type="text" name="code" value={formData.code} onChange={handleChange}></Input>
+                                                <Input type="text" name="code" value={formData.code} onChange={handleChange} autoComplete='off'></Input>
+                                                <InputError message={errorFormData.code} />
                                             </div>
-                                            <div className='mb-3'>
+                                            <div className='mb-3 flex flex-col gap-2'>
                                                 <Label>Kategori</Label>
-                                                <Input type="text" name="category" value={formData.category} onChange={handleChange}></Input>
+                                                <select name="category_id" id="category_id" className='border p-2 rounded-md focus-visible:ring focus-visible:ring-gray-400' value={formData.category_id} onChange={handleChange}>
+                                                    <option>Pilih Kategori...</option>
+                                                    {categories.map((category) => (
+                                                        <option value={category.id}>{category.name}</option>
+                                                    ))}
+                                                </select>
+                                                <InputError message={errorFormData.category_id} />
                                             </div>
                                             <div className='mb-3'>
                                                 <Label>Satuan</Label>
-                                                <Input type="text" name="units" value={formData.units} onChange={handleChange}></Input>
+                                                <Input type="text" name="units" value={formData.units} onChange={handleChange}  autoComplete='off'></Input>
+                                                <InputError message={errorFormData.units} />
                                             </div>
                                             <div className='mb-3'>
                                                 <Label>Harga Unit</Label>
-                                                <Input type="text" name="unit_price" value={formData.units} onChange={handleChange}></Input>
+                                                <Input type="text" name="unit_price" value={formData.unit_price} onChange={handleChange}  autoComplete='off'></Input>
+                                                <InputError message={errorFormData.unit_price} />
                                             </div>
                                             <div className='mb-3'>
                                                 <Label>Stok Minimum</Label>
-                                                <Input type="text" name="minimum_stock" value={formData.minimum_stock} onChange={handleChange}></Input>
+                                                <Input type="text" name="minimum_stock" value={formData.minimum_stock} onChange={handleChange}  autoComplete='off'></Input>
+                                                <InputError message={errorFormData.minimum_stock} />
                                             </div>
                                     </DialogDescription>
                                     <DialogFooter className='flex md:flex-row-reverse mt-3'>
-                                        <DialogClose asChild>
-                                            <Button className='cursor-pointer bg-rose-500 text-gray-50'>Tutup</Button>
+                                        <DialogClose className='cursor-pointer text-gray-50 bg-rose-500 border py-2 md:py-1 px-3 text-sm rounded-md hover:bg-transparent hover:text-rose-500 hover:border-rose-500 transition'>
+                                            Tutup
                                         </DialogClose>
-                                        <Button type='submit' className='w-full bg-green-400'>Kirim</Button>
+                                        <Button type='submit' className='w-full cursor-pointer text-gray-50 bg-green-400 border hover:text-green-400 hover:border-green-400 hover:bg-transparent transition'>Kirim</Button>
                                     </DialogFooter>
                                 </form>
                             </DialogContent>
@@ -140,17 +178,15 @@ export default function Produk() {
                     <div className="relative md:w-1/4 rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
                         <Select>
                             <SelectTrigger>
-                                Select
+                                <SelectValue placeholder="Atur data berdasarkan..."/>
                             </SelectTrigger>
-                            <SelectContent>
+                            <SelectContent className='bg-gray-200 z-50 w-72'>
                                 <SelectItem value='nama'>
                                     Nama
                                 </SelectItem>
-                                <SelectSeparator/>
                                 <SelectItem value='kategori'>
                                     Kategori
                                 </SelectItem>
-                                <SelectSeparator/>
                                 <SelectItem value='stok'>
                                     Stok
                                 </SelectItem>
@@ -178,20 +214,20 @@ export default function Produk() {
                             </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-100">
-                            {products.map((product, index) => (
-                                <tr key={product.id} className="hover:bg-gray-50 hover:text-gray-900">
+                            {produk.map((product, index) => (
+                                <tr key={product.id} className="hover:bg-gray-600 hover:text-gray-50">
                                     <td className="px-4 py-2">{index + 1}</td>
                                     <td className="px-4 py-2">{product.name}</td>
                                     <td className="px-4 py-2">{product.code}</td>
-                                    <td className="px-4 py-2">{product.category}</td>
+                                    <td className="px-4 py-2">{product.category.name}</td>
                                     <td className="px-4 py-2">{product.units}</td>
                                     <td className="px-4 py-2">{product.unit_price}</td>
                                     <td className="px-4 py-2">{product.minimum_stock}</td>
                                     <td className="px-4 py-2 flex items-center justify-center gap-2 h-[3.5rem]">
                                         {/* Show */}
                                         <Dialog>
-                                            <DialogTrigger onClick={() => showProductById(product.id)} className="cursor-pointer bg-green-400 hover:bg-transparent border rounded-md hover:border-green-400 transition text-gray-900 w-full px-3 h-full flex justify-center items-center group">
-                                                <Eye className='text-[#eee] group-hover:text-green-500'/>
+                                            <DialogTrigger onClick={() => showProduct(product.id)} className="cursor-pointer bg-green-400 hover:bg-transparent border rounded-md hover:border-green-400 transition text-gray-50 w-full px-3 h-full flex justify-center items-center group">
+                                                <Eye className='text-gray-50 dark:text-gray-100 group-hover:text-green-500'/>
                                             </DialogTrigger>
                                             <DialogContent>
                                                 <DialogHeader>
@@ -200,37 +236,37 @@ export default function Produk() {
                                                     </DialogTitle>
                                                 </DialogHeader>
                                                 <DialogDescription className='overflow-auto h-64 md:h-96 scrollable-container'>
-                                                    {showProduct && (
+                                                    {showProduk && (
                                                     <>
                                                         <div className='mb-3'>
                                                             <Label>Nama</Label>
-                                                            <Input type="text" name="name" readOnly defaultValue={showProduct.name}></Input>
+                                                            <Input type="text" name="name" defaultValue={showProduk.name}></Input>
                                                         </div>
                                                         <div className='mb-3'>
                                                             <Label>Kode</Label>
-                                                            <Input type="text" name="code" readOnly defaultValue={showProduct.code}></Input>
+                                                            <Input type="text" name="code" defaultValue={showProduk.code}></Input>
                                                         </div>
                                                         <div className='mb-3'>
                                                             <Label>Kategori</Label>
-                                                            <Input type="text" name="category" readOnly defaultValue={showProduct.category}></Input>
+                                                            <Input type="text" name="category" defaultValue={showProduk.category?.name}></Input>
                                                         </div>
                                                         <div className='mb-3'>
                                                             <Label>Satuan</Label>
-                                                            <Input type="text" name="units" readOnly defaultValue={showProduct.units}></Input>
+                                                            <Input type="text" name="units" defaultValue={showProduk.units}></Input>
                                                         </div>
                                                         <div className='mb-3'>
                                                             <Label>Harga Unit</Label>
-                                                            <Input type="text" name="units" readOnly defaultValue={showProduct.unit_price}></Input>
+                                                            <Input type="text" name="units" defaultValue={showProduk.unit_price}></Input>
                                                         </div>
                                                         <div className='mb-3'>
                                                             <Label>Stok Minimum</Label>
-                                                            <Input type="text" name="minimum_stock" readOnly defaultValue={showProduct.minimum_stock}></Input>
+                                                            <Input type="text" name="minimum_stock" defaultValue={showProduk.minimum_stock}></Input>
                                                         </div>
                                                     </>
                                                     )}
                                                 </DialogDescription>
                                                 <DialogFooter>
-                                                    <DialogClose className='cursor-pointer bg-rose-500 text-gray-50'>
+                                                    <DialogClose className='cursor-pointer text-gray-50 bg-rose-500 border  py-1 px-3 text-sm rounded-md hover:bg-transparent hover:text-rose-500 hover:border-rose-500 transition'>
                                                         Tutup
                                                     </DialogClose>
                                                 </DialogFooter>
@@ -239,8 +275,8 @@ export default function Produk() {
                                         {/* Show */}
                                         {/* Edit */}
                                         <Dialog>
-                                            <DialogTrigger onClick={() => fetchProduct(product.id)} className="cursor-pointer bg-yellow-400 hover:bg-transparent border rounded-md hover:border-yellow-400 transition text-gray-900 w-full px-3 flex items-center justify-center h-full group">
-                                                <PencilLine className='text-[#eee] group-hover:text-yellow-500'/>
+                                            <DialogTrigger onClick={() => fetchProduct(product.id)} className="cursor-pointer bg-yellow-400 hover:bg-transparent border rounded-md hover:border-yellow-400 transition text-gray-50 w-full px-3 flex items-center justify-center h-full group">
+                                                <PencilLine className='text-gray-50 dark:text-gray-100 group-hover:text-yellow-500'/>
                                             </DialogTrigger>
                                             <DialogContent>
                                                 <DialogHeader>
@@ -249,31 +285,38 @@ export default function Produk() {
                                                     </DialogTitle>
                                                 </DialogHeader>
                                                 <form onSubmit={handleUpdate(product.id)}>
+                                                <form onSubmit={handleUpdate(product.id)}>
                                                     <DialogDescription className='overflow-auto h-64 md:h-96 scrollable-container'>
                                                         <div className='mb-3'>
                                                             <Label>Nama</Label>
-                                                            <Input type="text" name="name" onChange={handleEditChange} value={editFormData.name}></Input>
+                                                            <Input type="text" name="name" onChange={handleEditChange} value={editFormData?.name}></Input>
                                                         </div>
                                                         <div className='mb-3'>
                                                             <Label>Kode</Label>
-                                                            <Input type="text" name="code" onChange={handleEditChange} value={editFormData.code}></Input>
+                                                            <Input type="text" name="code" onChange={handleEditChange} value={editFormData?.code}></Input>
                                                         </div>
-                                                        <div className='mb-3'>
+                                                        <div className='mb-3 flex flex-col gap-2'>
                                                             <Label>Kategori</Label>
-                                                            <Input type="text" name="category" onChange={handleEditChange} value={editFormData.category}></Input>
+                                                            <select name="category_id" id="category_id" className='border p-2 rounded-md focus-visible:ring focus-visible:ring-gray-400' onChange={handleEditChange}>
+                                                                <option>Pilih Kategori...</option>
+                                                                {categories.map((category) => (
+                                                                    <option value={editFormData?.category_id} selected={ category.id === editFormData?.category_id ? true : false }>{category.name}</option>
+                                                                ))}
+                                                            </select>
+                                                            <InputError message={errorFormData.category_id} />
                                                         </div>
                                                         <div className='mb-3'>
                                                             <Label>Satuan</Label>
-                                                            <Input type="text" name="units" onChange={handleEditChange} value={editFormData.units}></Input>
+                                                            <Input type="text" name="units" onChange={handleEditChange} value={editFormData?.units}></Input>
                                                         </div>
                                                         <div className='mb-3'>
                                                             <Label>Stok Minimum</Label>
-                                                            <Input type="text" name="minimum_stock" onChange={handleEditChange} value={editFormData.minimum_stock}></Input>
+                                                            <Input type="text" name="minimum_stock" onChange={handleEditChange} value={editFormData?.minimum_stock}></Input>
                                                         </div>
                                                     </DialogDescription>
                                                     <DialogFooter>
-                                                        <Button type='submit' className='w-full bg-green-400'>Kirim</Button>
-                                                        <DialogClose className='cursor-pointer bg-rose-500 text-gray-50'>
+                                                        <Button type='submit' className='w-full cursor-pointer bg-green-400 border hover:text-green-400 hover:border-green-400 hover:bg-transparent transition'>Kirim</Button>
+                                                        <DialogClose className='cursor-pointer text-gray-50 bg-rose-500 border  py-1 px-3 text-sm rounded-md hover:bg-transparent hover:text-rose-500 hover:border-rose-500 transition'>
                                                             Tutup
                                                         </DialogClose>
                                                     </DialogFooter>
@@ -283,8 +326,8 @@ export default function Produk() {
                                         {/* Edit */}
                                         {/* Delete */}
                                         <Dialog>
-                                            <DialogTrigger className="cursor-pointer bg-rose-400 hover:bg-transparent border rounded-md hover:border-rose-400 transition text-gray-900 w-full flex items-center justify-center h-full px-3 group">
-                                                <Eraser className='text-[#eee] group-hover:text-red-600'/>
+                                            <DialogTrigger className="cursor-pointer bg-rose-400 hover:bg-transparent border rounded-md hover:border-rose-400 transition text-gray-50 w-full flex items-center justify-center h-full px-3 group">
+                                                <Eraser className='text-gray-50 dark:text-gray-100 group-hover:text-red-600'/>
                                             </DialogTrigger>
                                             <DialogContent>
                                                 <DialogHeader>
@@ -297,10 +340,10 @@ export default function Produk() {
                                                         Apakah anda yakin ingin menghapus data ini ?
                                                     </DialogDescription>
                                                     <DialogFooter className='flex flex-col-reverse'>
-                                                        <DialogClose>
-                                                            <Button className='cursor-pointer bg-rose-500 text-gray-50'>Tutup</Button>
-                                                        </DialogClose>
                                                         <Button type='submit' className='w-full bg-green-400'>Ya, Hapus data ini</Button>
+                                                        <DialogClose className='cursor-pointer text-gray-50 bg-rose-500 border  py-1 px-3 text-sm rounded-md hover:bg-transparent hover:text-rose-500 hover:border-rose-500 transition'>
+                                                            Tutup
+                                                        </DialogClose>
                                                     </DialogFooter>
                                                 </form>
                                             </DialogContent>
@@ -316,5 +359,4 @@ export default function Produk() {
                 </div>
             </div>
         </AppLayout>
-    );
-}
+    )}

@@ -30,6 +30,9 @@ class KategoriSeeder extends Seeder
         ],
         [
             'name' => 'Kertas'
+        ],
+        [
+            'name' => 'Cetakan'
         ]]
     );
     }

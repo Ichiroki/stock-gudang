@@ -15,16 +15,16 @@ class PagesController extends Controller
 {
     public function dashboardChart() {
         $barangMasuk = DB::table('barang_masuk_details')
-            ->join('barang_masuk_masters', 'barang_masuk_details.barang_masuk_id', '=', 'barang_masuk_masters.id')
-            ->selectRaw('EXTRACT(MONTH FROM barang_masuk_masters.date) as Bulan, SUM(quantity) as total')
-            ->groupByRaw('EXTRACT(MONTH FROM barang_masuk_masters.date)')
-            ->get();
+        ->join('barang_masuk_masters', 'barang_masuk_details.barang_masuk_id', '=', 'barang_masuk_masters.id')
+        ->selectRaw('EXTRACT(MONTH FROM barang_masuk_masters.date) as month, SUM(quantity) as total')
+        ->groupBy('month')
+        ->get();
 
         $barangKeluar = DB::table('barang_keluar_details')
-            ->join('barang_keluar_masters', 'barang_keluar_details.barang_keluar_id', '=', 'barang_keluar_masters.id')
-            ->selectRaw('EXTRACT(MONTH FROM barang_keluar_masters.date) as Bulan, SUM(quantity) as total')
-            ->groupByRaw('EXTRACT(MONTH FROM barang_keluar_masters.date)')
-            ->get();
+        ->join('barang_keluar_masters', 'barang_keluar_details.barang_keluar_id', '=', 'barang_keluar_masters.id')
+        ->selectRaw('EXTRACT(MONTH FROM barang_keluar_masters.date) as month, SUM(quantity) as total')
+        ->groupBy('month')
+        ->get();
 
         return response()->json([
             'masuk' => $barangMasuk,
@@ -39,16 +39,16 @@ class PagesController extends Controller
 
     public function produk()
     {
-        $products = Produk::all();
-
-        return Inertia::render('produk/produk', ['products' => $products]);
+        $products = Produk::with(['category'])->get();
+        $category = Kategori::select('id', 'name')->get();
+        return Inertia::render('produk/produk', ['products' => $products, 'categories' => $category]);
     }
 
     public function barangMasuk()
     {
         $product = Produk::select(['id', 'name', "unit_price"])->get();
         $barang_masuk = BarangMasuk::all();
-        return Inertia::render('barang/barang-masuk', ['barang_masuk'=> $barang_masuk, 'product' => $product]);
+        return Inertia::render('barang/barang-masuk', ['barang_masuk'=> $barang_masuk, 'products' => $product]);
     }
 
     public function barangKeluar()
@@ -76,5 +76,9 @@ class PagesController extends Controller
         $products = Produk::select(['id', 'name'])->get();
         $laporans = Laporan::with('product')->get();
         return Inertia::render('laporan', ['laporans' => $laporans, 'products' => $products]);
+    }
+
+    public function notfound() {
+        return Inertia::render('errors/404');
     }
 }

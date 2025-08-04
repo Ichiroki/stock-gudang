@@ -77,8 +77,8 @@ class AIController extends Controller
         ])
         ->toArray();
 
-        $response = Http::post('http://localhost:11434/chat', [
-            'model' => 'llama3',
+        $response = Http::withToken(env('OPENAI_API_KEY'))->post('http://localhost:11434/chat', [
+            'model' => 'gpt-3.5-turbo',
             'messages' => $messages,
             'stream' => false
         ]);

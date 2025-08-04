@@ -1,4 +1,4 @@
-type BarangMasukType = {
+export type BarangMasukType = {
     id: number
     reference_code: string
     date: string
@@ -13,6 +13,23 @@ export interface BarangMasuk {
         id: number
         name: string,
         unit_price: number
+    }[]
+}
+
+export interface BarangMasukFormType {
+    id: number
+    reference_code: string
+    date: string
+    supplier_name: string
+    description: string
+    created_by: string
+    details: {
+        id: number,
+        product_id: number,
+        quantity: number,
+        name?: string,
+        unit_price: number
+        subtotal: number
     }[]
 }
 
