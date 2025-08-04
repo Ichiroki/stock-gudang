@@ -45,7 +45,7 @@ export const createShow = <T, R = any>(
       const data: R = res.data.data
       setter(mapFn ? mapFn(data) : (data as unknown as T))
     } catch (e) {
-      console.error('njir error', e)
+        console.error('njir error', e)
     }
   }
 

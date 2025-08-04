@@ -80,11 +80,8 @@ class AIController extends Controller
         $response = Http::withToken(env('OPENAI_API_KEY'))->post('http://localhost:11434/chat', [
             'model' => 'gpt-3.5-turbo',
             'messages' => $messages,
+            'stream' => false
         ]);
-
-        dd($response->json());
-
-        logger()->debug('OpenAI Response', ['response' => $response->json()]);
 
         $aiReply = $response['choices'][0]['message']['content'] ?? "Maaf, saya tidak bisa menjawab saat ini";
 
