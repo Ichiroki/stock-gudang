@@ -285,7 +285,6 @@ export default function Produk({categories}: KategoriType) {
                                                     </DialogTitle>
                                                 </DialogHeader>
                                                 <form onSubmit={handleUpdate(product.id)}>
-                                                <form onSubmit={handleUpdate(product.id)}>
                                                     <DialogDescription className='overflow-auto h-64 md:h-96 scrollable-container'>
                                                         <div className='mb-3'>
                                                             <Label>Nama</Label>
