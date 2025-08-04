@@ -24,7 +24,7 @@ Route::middleware(['auth'])->group(function () {
         Route::prefix('produk')->group(function() {
             Route::post('/store', [ProdukController::class, 'store'])->name('produk.store');
 
-            Route::get('/{id}', [ProdukController::class, 'show'])->name('produk.edit');
+            Route::get('/{id}', [ProdukController::class, 'show'])->name('produk.show');
 
             Route::get('/{id}/edit', [ProdukController::class, 'edit'])->name('produk.edit');
             Route::put('/{id}/update', [ProdukController::class, 'update'])->name('produk.update');
